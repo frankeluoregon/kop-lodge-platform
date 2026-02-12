@@ -13,4 +13,4 @@ binding = "MEDIA"
 bucket_name = "kop-lodge-media"
 
 [vars]
-ADMIN_TOKEN_HASH = ""   # sha256 hex of your chosen admin token
+ADMIN_TOKEN_HASH = "9e78061e6eb11997bba0cd537bda08756d3d5a9480c7ec2f45737ebafc8c34aa"
