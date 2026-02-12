@@ -1,0 +1,39 @@
+---
+import Base from "../layouts/Base.astro";
+import { getConfig, getCommunityService } from "../lib/db";
+import { renderMarkdown } from "../lib/markdown";
+
+const db = Astro.locals.runtime.env.DB;
+const config  = await getConfig(db);
+const entries = await getCommunityService(db, false, 24);
+
+function fmtDate(d: string) {
+  return new Date(d + "T00:00:00").toLocaleDateString("en-US", {
+    month: "long", day: "numeric", year: "numeric",
+  });
+}
+---
+
+<Base config={config} title="Community Service">
+  <div class="hero">
+    <h1>Community Service</h1>
+    <p>Our lodge in action — serving {config.city || "our community"}</p>
+  </div>
+  <main>
+    {entries.length === 0
+      ? <p style="color:#666">Service showcase coming soon.</p>
+      : (
+        <div class="card-grid">
+          {entries.map((cs) => (
+            <div class="card" style={cs.featured ? "border-color:var(--accent);border-width:2px" : ""}>
+              {cs.featured && <span class="tag">Featured</span>}
+              <h3>{cs.title}</h3>
+              {cs.service_date && <p class="meta">{fmtDate(cs.service_date)}</p>}
+              <div class="prose" set:html={renderMarkdown(cs.description)} />
+            </div>
+          ))}
+        </div>
+      )
+    }
+  </main>
+</Base>

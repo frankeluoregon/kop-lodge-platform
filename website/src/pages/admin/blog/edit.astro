@@ -1,0 +1,85 @@
+---
+import AdminForm from "../../../layouts/AdminForm.astro";
+import { getAdminToken, isValidAdminToken } from "../../../lib/auth";
+
+const { DB, ADMIN_TOKEN_HASH } = Astro.locals.runtime.env;
+const token = getAdminToken(Astro.request);
+if (!await isValidAdminToken(token ?? "", ADMIN_TOKEN_HASH ?? "")) {
+  return Astro.redirect("/admin/login", 302);
+}
+
+const id = Number(Astro.url.searchParams.get("id"));
+if (!id) return Astro.redirect("/admin", 302);
+
+interface PostRow {
+  id: number; slug: string; title: string; excerpt: string | null;
+  content: string; author: string | null; published: number; published_at: string | null;
+}
+
+let post = await DB.prepare("SELECT * FROM blog_posts WHERE id = ?").bind(id).first<PostRow>();
+if (!post) return Astro.redirect("/admin", 302);
+
+let message = "";
+let isError = false;
+
+if (Astro.request.method === "POST") {
+  const f = await Astro.request.formData();
+  if (f.get("_action") === "delete") {
+    await DB.prepare("DELETE FROM blog_posts WHERE id = ?").bind(id).run();
+    return Astro.redirect("/admin", 302);
+  }
+  try {
+    const publish = f.get("published") === "on";
+    const now = new Date().toISOString();
+    await DB.prepare(
+      `UPDATE blog_posts SET title=?,excerpt=?,content=?,author=?,published=?,
+       published_at=CASE WHEN ?=1 THEN COALESCE(published_at,?) ELSE published_at END,
+       updated_at=? WHERE id=?`
+    ).bind(
+      f.get("title"), f.get("excerpt") || null, f.get("content"),
+      f.get("author") || null, publish ? 1 : 0,
+      publish ? 1 : 0, now, now, id
+    ).run();
+    post = await DB.prepare("SELECT * FROM blog_posts WHERE id = ?").bind(id).first<PostRow>();
+    message = "Post saved.";
+  } catch (e: unknown) {
+    isError = true;
+    message = `Error: ${e instanceof Error ? e.message : String(e)}`;
+  }
+}
+---
+
+<AdminForm title="Edit Blog Post" backUrl="/admin" backLabel="← Dashboard">
+  {message && <div class={isError ? "error-msg" : "success-msg"}>{message}</div>}
+  <p style="font-size:.8rem;color:#888;margin-bottom:1rem">Slug: <code>{post!.slug}</code> {post!.published ? <a href={`/blog/${post!.slug}`} target="_blank" style="font-size:.8rem">→ view live</a> : "(draft)"}</p>
+  <form method="POST">
+    <div class="field">
+      <label>Title *</label>
+      <input type="text" name="title" value={post!.title} required />
+    </div>
+    <div class="field">
+      <label>Author</label>
+      <input type="text" name="author" value={post!.author ?? ""} />
+    </div>
+    <div class="field">
+      <label>Excerpt</label>
+      <textarea name="excerpt" style="min-height:70px">{post!.excerpt ?? ""}</textarea>
+    </div>
+    <div class="field">
+      <label>Content * <span class="hint">(Markdown)</span></label>
+      <textarea name="content" required>{post!.content}</textarea>
+    </div>
+    <div class="field checkbox-row">
+      <input type="checkbox" id="published" name="published" checked={post!.published === 1} />
+      <label for="published" style="margin:0;font-weight:400">Published</label>
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn primary">Save Changes</button>
+      <a href="/admin" class="btn secondary">Cancel</a>
+      <form method="POST" style="margin:0" onsubmit="return confirm('Delete this post?')">
+        <input type="hidden" name="_action" value="delete" />
+        <button type="submit" class="btn danger">Delete</button>
+      </form>
+    </div>
+  </form>
+</AdminForm>

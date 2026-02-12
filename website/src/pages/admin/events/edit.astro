@@ -1,0 +1,102 @@
+---
+import AdminForm from "../../../layouts/AdminForm.astro";
+import { getAdminToken, isValidAdminToken } from "../../../lib/auth";
+
+const { DB, ADMIN_TOKEN_HASH } = Astro.locals.runtime.env;
+const token = getAdminToken(Astro.request);
+if (!await isValidAdminToken(token ?? "", ADMIN_TOKEN_HASH ?? "")) {
+  return Astro.redirect("/admin/login", 302);
+}
+
+const id = Number(Astro.url.searchParams.get("id"));
+if (!id) return Astro.redirect("/admin", 302);
+
+interface EventRow {
+  id: number; title: string; event_date: string; end_date: string | null;
+  level: string; description: string | null; location: string | null;
+  url: string | null; published: number;
+}
+
+let ev = await DB.prepare("SELECT * FROM events WHERE id = ?").bind(id).first<EventRow>();
+if (!ev) return Astro.redirect("/admin", 302);
+
+let message = "";
+let isError = false;
+
+if (Astro.request.method === "POST") {
+  const f = await Astro.request.formData();
+  if (f.get("_action") === "delete") {
+    await DB.prepare("DELETE FROM events WHERE id = ?").bind(id).run();
+    return Astro.redirect("/admin", 302);
+  }
+  try {
+    await DB.prepare(
+      `UPDATE events SET title=?,event_date=?,end_date=?,level=?,description=?,location=?,url=?,published=?,updated_at=? WHERE id=?`
+    ).bind(
+      f.get("title"), f.get("event_date"), f.get("end_date") || null,
+      f.get("level"), f.get("description") || null, f.get("location") || null,
+      f.get("url") || null, f.get("published") === "on" ? 1 : 0,
+      new Date().toISOString(), id
+    ).run();
+    ev = await DB.prepare("SELECT * FROM events WHERE id = ?").bind(id).first<EventRow>();
+    message = "Event saved.";
+  } catch (e: unknown) {
+    isError = true;
+    message = `Error: ${e instanceof Error ? e.message : String(e)}`;
+  }
+}
+---
+
+<AdminForm title="Edit Event" backUrl="/admin" backLabel="← Dashboard">
+  {message && <div class={isError ? "error-msg" : "success-msg"}>{message}</div>}
+  <form method="POST">
+    <div class="field">
+      <label>Event Title *</label>
+      <input type="text" name="title" value={ev!.title} required />
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Date *</label>
+        <input type="date" name="event_date" value={ev!.event_date.slice(0,10)} required />
+      </div>
+      <div class="field">
+        <label>End Date</label>
+        <input type="date" name="end_date" value={ev!.end_date?.slice(0,10) ?? ""} />
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Level *</label>
+        <select name="level" required>
+          {["lodge","grand","supreme"].map((lvl) => (
+            <option value={lvl} selected={ev!.level === lvl}>{lvl === "lodge" ? "Lodge Event" : lvl === "grand" ? "Grand Lodge" : "Supreme Lodge"}</option>
+          ))}
+        </select>
+      </div>
+      <div class="field">
+        <label>Location</label>
+        <input type="text" name="location" value={ev!.location ?? ""} />
+      </div>
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <textarea name="description" style="min-height:100px">{ev!.description ?? ""}</textarea>
+    </div>
+    <div class="field">
+      <label>External URL</label>
+      <input type="url" name="url" value={ev!.url ?? ""} />
+    </div>
+    <div class="field checkbox-row">
+      <input type="checkbox" id="published" name="published" checked={ev!.published === 1} />
+      <label for="published" style="margin:0;font-weight:400">Published</label>
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn primary">Save Changes</button>
+      <a href="/admin" class="btn secondary">Cancel</a>
+      <form method="POST" style="margin:0" onsubmit="return confirm('Delete this event?')">
+        <input type="hidden" name="_action" value="delete" />
+        <button type="submit" class="btn danger">Delete</button>
+      </form>
+    </div>
+  </form>
+</AdminForm>

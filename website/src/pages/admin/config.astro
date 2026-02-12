@@ -1,0 +1,114 @@
+---
+import AdminForm from "../../layouts/AdminForm.astro";
+import { getAdminToken, isValidAdminToken } from "../../lib/auth";
+import { getConfig } from "../../lib/db";
+
+const { DB, ADMIN_TOKEN_HASH } = Astro.locals.runtime.env;
+const token = getAdminToken(Astro.request);
+if (!await isValidAdminToken(token ?? "", ADMIN_TOKEN_HASH ?? "")) {
+  return Astro.redirect("/admin/login", 302);
+}
+
+let message = "";
+let isError = false;
+
+if (Astro.request.method === "POST") {
+  try {
+    const form = await Astro.request.formData();
+    const fields = [
+      "lodge_name","lodge_number","state","grand_domain","city",
+      "meeting_schedule","meeting_location","phone","email",
+      "facebook_url","primary_color","accent_color","tagline","founded_year"
+    ];
+    const now = new Date().toISOString();
+    for (const key of fields) {
+      const val = form.get(key)?.toString() ?? "";
+      await DB.prepare(
+        "INSERT INTO lodge_config (key,value,updated_at) VALUES (?,?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=excluded.updated_at"
+      ).bind(key, val, now).run();
+    }
+    message = "Settings saved successfully.";
+  } catch (e: unknown) {
+    isError = true;
+    message = `Error saving settings: ${e instanceof Error ? e.message : String(e)}`;
+  }
+}
+
+const config = await getConfig(DB);
+---
+
+<AdminForm title="Lodge Settings">
+  {message && <div class={isError ? "error-msg" : "success-msg"}>{message}</div>}
+  <form method="POST">
+    <div class="row">
+      <div class="field">
+        <label>Lodge Name</label>
+        <input type="text" name="lodge_name" value={config.lodge_name} required />
+      </div>
+      <div class="field">
+        <label>Lodge Number</label>
+        <input type="text" name="lodge_number" value={config.lodge_number} />
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>State / Grand Domain</label>
+        <input type="text" name="state" value={config.state} />
+      </div>
+      <div class="field">
+        <label>Grand Domain Name <span class="hint">(e.g. "Oregon")</span></label>
+        <input type="text" name="grand_domain" value={config.grand_domain} />
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>City</label>
+        <input type="text" name="city" value={config.city} />
+      </div>
+      <div class="field">
+        <label>Founded Year</label>
+        <input type="text" name="founded_year" value={config.founded_year} />
+      </div>
+    </div>
+    <div class="field">
+      <label>Tagline</label>
+      <input type="text" name="tagline" value={config.tagline} />
+    </div>
+    <div class="field">
+      <label>Meeting Schedule</label>
+      <input type="text" name="meeting_schedule" value={config.meeting_schedule} placeholder="e.g. First and Third Monday, 7:00 PM" />
+    </div>
+    <div class="field">
+      <label>Meeting Location / Address</label>
+      <input type="text" name="meeting_location" value={config.meeting_location} />
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Phone</label>
+        <input type="text" name="phone" value={config.phone} />
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" name="email" value={config.email} />
+      </div>
+    </div>
+    <div class="field">
+      <label>Facebook URL</label>
+      <input type="url" name="facebook_url" value={config.facebook_url} />
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Primary Color <span class="hint">(hex, e.g. #4B0082)</span></label>
+        <input type="text" name="primary_color" value={config.primary_color} />
+      </div>
+      <div class="field">
+        <label>Accent Color <span class="hint">(hex, e.g. #FFD700)</span></label>
+        <input type="text" name="accent_color" value={config.accent_color} />
+      </div>
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn primary">Save Settings</button>
+      <a href="/admin" class="btn secondary">Cancel</a>
+    </div>
+  </form>
+</AdminForm>

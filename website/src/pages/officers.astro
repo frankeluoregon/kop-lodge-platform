@@ -1,0 +1,36 @@
+---
+import Base from "../layouts/Base.astro";
+import { getConfig, getOfficers } from "../lib/db";
+
+const db = Astro.locals.runtime.env.DB;
+const config  = await getConfig(db);
+const officers = await getOfficers(db);
+---
+
+<Base config={config} title="Officers">
+  <div class="hero">
+    <h1>Lodge Officers</h1>
+    <p>{config.lodge_name}</p>
+  </div>
+  <main>
+    {officers.length === 0
+      ? <p style="color:#666">Officer information will be posted soon.</p>
+      : (
+        <div class="card-grid">
+          {officers.map((o) => (
+            <div class="card" style="align-items:center;text-align:center">
+              <div style="width:80px;height:80px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;margin:0 auto .5rem">
+                <span style="color:var(--accent);font-size:2rem;font-weight:bold">{o.name.charAt(0)}</span>
+              </div>
+              <h3 style="color:var(--primary)">{o.name}</h3>
+              <p class="meta" style="font-style:italic">{o.title}</p>
+              {o.email && (
+                <a href={`mailto:${o.email}`} style="font-size:.85rem">{o.email}</a>
+              )}
+            </div>
+          ))}
+        </div>
+      )
+    }
+  </main>
+</Base>

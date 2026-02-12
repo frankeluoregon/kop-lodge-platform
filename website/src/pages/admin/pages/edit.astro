@@ -1,0 +1,61 @@
+---
+import AdminForm from "../../../layouts/AdminForm.astro";
+import { getAdminToken, isValidAdminToken } from "../../../lib/auth";
+import { getPage } from "../../../lib/db";
+
+const { DB, ADMIN_TOKEN_HASH } = Astro.locals.runtime.env;
+const token = getAdminToken(Astro.request);
+if (!await isValidAdminToken(token ?? "", ADMIN_TOKEN_HASH ?? "")) {
+  return Astro.redirect("/admin/login", 302);
+}
+
+const slug = Astro.url.searchParams.get("slug") ?? "";
+if (!slug) return Astro.redirect("/admin", 302);
+
+let page = await getPage(DB, slug);
+let message = "";
+let isError = false;
+
+if (Astro.request.method === "POST") {
+  try {
+    const f = await Astro.request.formData();
+    const now = new Date().toISOString();
+    await DB.prepare(
+      `INSERT INTO pages (slug,title,content,meta_description,updated_at) VALUES (?,?,?,?,?)
+       ON CONFLICT(slug) DO UPDATE SET title=excluded.title,content=excluded.content,
+       meta_description=excluded.meta_description,updated_at=excluded.updated_at`
+    ).bind(
+      slug, f.get("title"), f.get("content"),
+      f.get("meta_description") || null, now
+    ).run();
+    page = await getPage(DB, slug);
+    message = "Page saved.";
+  } catch (e: unknown) {
+    isError = true;
+    message = `Error: ${e instanceof Error ? e.message : String(e)}`;
+  }
+}
+---
+
+<AdminForm title={`Edit Page: ${slug}`} backUrl="/admin" backLabel="← Dashboard">
+  {message && <div class={isError ? "error-msg" : "success-msg"}>{message}</div>}
+  <form method="POST">
+    <div class="field">
+      <label>Page Title *</label>
+      <input type="text" name="title" value={page?.title ?? ""} required />
+    </div>
+    <div class="field">
+      <label>Content * <span class="hint">(Markdown supported)</span></label>
+      <textarea name="content" required>{page?.content ?? ""}</textarea>
+    </div>
+    <div class="field">
+      <label>Meta Description <span class="hint">(≤160 chars for SEO)</span></label>
+      <input type="text" name="meta_description" value={page?.meta_description ?? ""} maxlength="160" />
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn primary">Save Page</button>
+      <a href={`/${slug}`} target="_blank" class="btn secondary">Preview &rarr;</a>
+      <a href="/admin" class="btn secondary">Cancel</a>
+    </div>
+  </form>
+</AdminForm>

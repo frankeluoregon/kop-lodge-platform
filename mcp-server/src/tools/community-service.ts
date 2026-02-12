@@ -1,0 +1,118 @@
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { z } from "zod";
+import type { D1Client } from "../db/client.js";
+
+export function registerCommunityServiceTools(server: McpServer, db: D1Client) {
+  server.tool(
+    "community_service_list",
+    "List community service showcase entries",
+    {
+      featured_only: z.boolean().optional().default(false),
+      include_unpublished: z.boolean().optional().default(false),
+      limit: z.number().optional().default(20),
+    },
+    async ({ featured_only, include_unpublished, limit }) => {
+      const conditions: string[] = [];
+      if (featured_only) conditions.push("featured = 1");
+      if (!include_unpublished) conditions.push("published = 1");
+      const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+      const rows = await db.all(
+        `SELECT * FROM community_service ${where}
+         ORDER BY COALESCE(service_date, created_at) DESC
+         LIMIT ?`,
+        [limit],
+      );
+      return {
+        content: [{ type: "text", text: JSON.stringify(rows, null, 2) }],
+      };
+    },
+  );
+
+  server.tool(
+    "community_service_create",
+    "Add a community service entry to the showcase. Description supports Markdown.",
+    {
+      title: z.string(),
+      description: z.string().describe("Description in Markdown"),
+      service_date: z
+        .string()
+        .optional()
+        .describe("Date of the service activity (ISO 8601)"),
+      featured: z
+        .boolean()
+        .optional()
+        .default(false)
+        .describe("Show prominently on homepage/featured section"),
+      published: z.boolean().optional().default(true),
+    },
+    async ({ title, description, service_date, featured, published }) => {
+      const meta = await db.run(
+        `INSERT INTO community_service (title, description, service_date, featured, published)
+         VALUES (?, ?, ?, ?, ?)`,
+        [title, description, service_date ?? null, featured ? 1 : 0, published ? 1 : 0],
+      );
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Community service entry created (ID: ${meta.last_row_id}): "${title}"`,
+          },
+        ],
+      };
+    },
+  );
+
+  server.tool(
+    "community_service_update",
+    "Update a community service entry by ID",
+    {
+      id: z.number(),
+      title: z.string().optional(),
+      description: z.string().optional(),
+      service_date: z.string().optional(),
+      featured: z.boolean().optional(),
+      published: z.boolean().optional(),
+    },
+    async ({ id, featured, published, ...fields }) => {
+      const now = new Date().toISOString();
+      const updates: string[] = ["updated_at = ?"];
+      const params: (string | number | null)[] = [now];
+
+      for (const [key, value] of Object.entries(fields)) {
+        if (value !== undefined) {
+          updates.push(`${key} = ?`);
+          params.push(value as string);
+        }
+      }
+      if (featured !== undefined) {
+        updates.push("featured = ?");
+        params.push(featured ? 1 : 0);
+      }
+      if (published !== undefined) {
+        updates.push("published = ?");
+        params.push(published ? 1 : 0);
+      }
+      params.push(id);
+
+      await db.run(
+        `UPDATE community_service SET ${updates.join(", ")} WHERE id = ?`,
+        params,
+      );
+      return {
+        content: [{ type: "text", text: `Community service entry ${id} updated.` }],
+      };
+    },
+  );
+
+  server.tool(
+    "community_service_delete",
+    "Delete a community service entry by ID",
+    { id: z.number() },
+    async ({ id }) => {
+      await db.run("DELETE FROM community_service WHERE id = ?", [id]);
+      return {
+        content: [{ type: "text", text: `Community service entry ${id} deleted.` }],
+      };
+    },
+  );
+}
