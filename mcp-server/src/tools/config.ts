@@ -23,7 +23,7 @@ export function registerConfigTools(server: McpServer, db: D1Client) {
     "Update one or more lodge configuration values",
     {
       updates: z
-        .record(z.string())
+        .record(z.string(), z.string())
         .describe(
           "Key-value pairs to update. Valid keys: lodge_name, lodge_number, state, grand_domain, city, meeting_schedule, meeting_location, phone, email, facebook_url, primary_color, accent_color, tagline, founded_year, logo_key",
         ),
