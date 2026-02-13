@@ -1,106 +1,156 @@
 ---
-import Base from "../layouts/Base.astro";
-import {
-  getConfig,
-  getUpcomingEvents,
-  getPublishedPosts,
-  getCommunityService,
-} from "../lib/db";
-import { renderMarkdown } from "../lib/markdown";
+import { getAllLodges } from "../lib/db";
 
 const db = Astro.locals.runtime.env.DB;
-const config = await getConfig(db);
-const upcomingEvents = await getUpcomingEvents(db, undefined, 3);
-const latestPosts    = await getPublishedPosts(db, 3);
-const featured       = await getCommunityService(db, true, 3);
+const lodges = await getAllLodges(db);
 
-function fmtDate(d: string) {
-  return new Date(d + "T00:00:00").toLocaleDateString("en-US", {
-    weekday: "short", month: "long", day: "numeric", year: "numeric",
-  });
-}
-
-const levelLabel: Record<string, string> = {
-  lodge: "Lodge Event",
-  grand: "Grand Lodge",
-  supreme: "Supreme Lodge",
-};
+const primary   = "#4B0082";
+const accent    = "#FFD700";
+const secondary = "#C41230";
 ---
 
-<Base config={config}>
-  <!-- Hero -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Oregon Knights of Pythias – Lodge Directory</title>
+  <meta name="description" content="Oregon Knights of Pythias — Lodge Directory. Friendship, Charity, Benevolence." />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <style define:vars={{ primary, accent, secondary }}>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: var(--primary); --accent: var(--accent);
+      --text: #1a1a2e; --bg: #f7f8fc; --card-bg: #fff;
+      --border: #dde0eb; --radius: 6px; --shadow: 0 2px 8px rgba(0,0,0,.08);
+      --max-w: 1100px; --font: 'Trebuchet MS', Trebuchet, 'Gill Sans MT', Arial, sans-serif;
+    }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.7; }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .tricolor { display: flex; height: 5px; }
+    .tricolor span { flex: 1; }
+
+    header { background: var(--primary); padding: 0 1.5rem; }
+    .header-inner {
+      max-width: var(--max-w); margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 0;
+    }
+    .brand-name { font-size: 1.4rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; }
+    .brand-sub  { font-size: .78rem; color: rgba(255,255,255,.8); }
+    .ext-link {
+      color: rgba(255,255,255,.8); font-size: .85rem; padding: .35rem .7rem;
+      border-radius: 4px; border: 1px solid rgba(255,255,255,.3);
+    }
+    .ext-link:hover { background: rgba(255,255,255,.15); text-decoration: none; }
+
+    .hero {
+      background: linear-gradient(160deg, var(--primary) 55%, color-mix(in srgb, var(--primary) 70%, #000));
+      color: #fff; text-align: center; padding: 4rem 1.5rem; position: relative;
+    }
+    .hero::after {
+      content: ''; display: block; position: absolute; bottom: 0; left: 0; right: 0; height: 5px;
+      background: linear-gradient(to right, var(--primary) 33.3%, var(--secondary) 33.3% 66.6%, var(--accent) 66.6%);
+    }
+    .hero h1 { font-size: 2.5rem; color: var(--accent); text-transform: uppercase; letter-spacing: .06em; margin-bottom: .5rem; }
+    .hero .tagline { font-size: 1rem; letter-spacing: .1em; text-transform: uppercase; opacity: .88; }
+
+    main { max-width: var(--max-w); margin: 2.5rem auto; padding: 0 1.5rem; }
+
+    .section-heading {
+      font-size: 1.4rem; color: var(--primary); text-transform: uppercase;
+      letter-spacing: .04em; border-bottom: 3px solid var(--accent); padding-bottom: .3rem; margin-bottom: 1.25rem;
+    }
+
+    .lodge-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 2.5rem;
+    }
+    .lodge-card {
+      background: var(--card-bg); border: 1px solid var(--border); border-top: 4px solid var(--primary);
+      border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.25rem;
+      display: flex; flex-direction: column; gap: .4rem;
+      transition: box-shadow .15s, transform .15s;
+    }
+    .lodge-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,.14); transform: translateY(-2px); text-decoration: none; }
+    .lodge-num  { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #888; }
+    .lodge-name { font-size: 1.05rem; font-weight: 700; color: var(--primary); }
+    .lodge-arrow { margin-top: .5rem; font-size: .82rem; color: var(--primary); font-weight: 600; }
+
+    .about-box {
+      background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 1.75rem; box-shadow: var(--shadow);
+    }
+    .about-box p { margin-bottom: .75rem; font-size: .95rem; }
+
+    footer {
+      background: var(--primary); color: rgba(255,255,255,.8); text-align: center;
+      padding: 1.5rem; margin-top: 3rem; font-size: .85rem;
+    }
+    footer a { color: var(--accent); }
+
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 1.7rem; }
+      .lodge-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="tricolor">
+    <span style={`background:${primary}`}></span>
+    <span style={`background:${secondary}`}></span>
+    <span style={`background:${accent}`}></span>
+  </div>
+
+  <header>
+    <div class="header-inner">
+      <a href="/" style="text-decoration:none">
+        <div class="brand-name">Oregon Knights of Pythias</div>
+        <div class="brand-sub">Grand Domain of Oregon &middot; Lodge Directory</div>
+      </a>
+      <a href="https://www.pythias.org" target="_blank" rel="noopener" class="ext-link">Supreme Lodge ↗</a>
+    </div>
+  </header>
+
   <div class="hero">
-    <h1>{config.lodge_name}</h1>
-    <p>{config.tagline || "Friendship · Charity · Benevolence"}</p>
-    {config.founded_year && <p style="margin-top:.5rem;font-size:.9rem;opacity:.7">Founded {config.founded_year}</p>}
+    <h1>Oregon Knights of Pythias</h1>
+    <p class="tagline">Friendship &middot; Charity &middot; Benevolence</p>
   </div>
 
   <main>
-    <!-- Upcoming Events -->
-    {upcomingEvents.length > 0 && (
-      <section>
-        <h2 class="section-heading">Upcoming Events</h2>
-        <div class="card-grid">
-          {upcomingEvents.map((ev) => (
-            <div class="card">
-              <span class="tag">{levelLabel[ev.level] ?? ev.level}</span>
-              <h3>{ev.title}</h3>
-              <p class="meta">{fmtDate(ev.event_date)}{ev.location ? ` · ${ev.location}` : ""}</p>
-              {ev.description && <p>{ev.description}</p>}
-              {ev.url
-                ? <a class="cta" href={ev.url} target="_blank" rel="noopener">Details &rarr;</a>
-                : <a class="cta" href="/events">See All Events &rarr;</a>}
-            </div>
-          ))}
-        </div>
-        <p><a href="/events">View full calendar &rarr;</a></p>
-      </section>
-    )}
+    <h2 class="section-heading">Oregon Lodges</h2>
+    <p style="margin-bottom:1.25rem;font-size:.95rem;color:#555">
+      Select a lodge below to visit their website, view events, meet their officers, and learn about their community service.
+    </p>
 
-    <!-- Featured Community Service -->
-    {featured.length > 0 && (
-      <section style="margin-top:2.5rem">
-        <h2 class="section-heading">Community Service</h2>
-        <div class="card-grid">
-          {featured.map((cs) => (
-            <div class="card">
-              <h3>{cs.title}</h3>
-              {cs.service_date && <p class="meta">{fmtDate(cs.service_date)}</p>}
-              <div class="prose" set:html={renderMarkdown(cs.description)} />
-            </div>
-          ))}
-        </div>
-        <p><a href="/community-service">See all service projects &rarr;</a></p>
-      </section>
-    )}
+    <div class="lodge-grid">
+      {lodges.map((lodge) => (
+        <a href={`/${lodge.slug}/`} class="lodge-card">
+          <div class="lodge-num">Lodge No. {lodge.number}</div>
+          <div class="lodge-name">{lodge.name.replace(` Lodge No. ${lodge.number}`, "").replace(` No. ${lodge.number}`, "")}</div>
+          <div class="lodge-arrow">Visit site &rarr;</div>
+        </a>
+      ))}
+    </div>
 
-    <!-- Latest Blog Posts -->
-    {latestPosts.length > 0 && (
-      <section style="margin-top:2.5rem">
-        <h2 class="section-heading">From the Blog</h2>
-        <div class="card-grid">
-          {latestPosts.map((post) => (
-            <div class="card">
-              <h3><a href={`/blog/${post.slug}`}>{post.title}</a></h3>
-              {post.published_at && <p class="meta">{fmtDate(post.published_at)}{post.author ? ` · ${post.author}` : ""}</p>}
-              {post.excerpt && <p>{post.excerpt}</p>}
-              <a class="cta" href={`/blog/${post.slug}`}>Read more &rarr;</a>
-            </div>
-          ))}
-        </div>
-        <p><a href="/blog">All posts &rarr;</a></p>
-      </section>
-    )}
-
-    <!-- About blurb -->
-    <section style="margin-top:2.5rem;background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow)">
+    <div class="about-box">
       <h2 class="section-heading">About the Knights of Pythias</h2>
       <p>
         The Knights of Pythias is a non-sectarian fraternal organization founded in 1864 in Washington, D.C.
-        by Justus H. Rathbone. It was the first fraternal organization to receive a charter from an Act
-        of Congress. Members are united by the ideals of <strong>Friendship, Charity, and Benevolence</strong>.
+        by Justus H. Rathbone. It was the first fraternal organization to receive a charter from an Act of Congress.
       </p>
-      <p style="margin-top:.75rem"><a href="/about">Learn about our lodge &rarr;</a></p>
-    </section>
+      <p>
+        Oregon lodges are united by the ideals of <strong>Friendship, Charity, and Benevolence</strong>,
+        serving their local communities while connected through the Grand Domain of Oregon.
+      </p>
+    </div>
   </main>
-</Base>
+
+  <footer>
+    <p>
+      &copy; {new Date().getFullYear()} Grand Domain of Oregon &mdash; Knights of Pythias &middot;
+      <a href="https://www.pythias.org" target="_blank" rel="noopener">pythias.org</a>
+    </p>
+  </footer>
+</body>
+</html>

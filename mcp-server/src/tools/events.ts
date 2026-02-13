@@ -1,11 +1,13 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import type { D1Client } from "../db/client.js";
+import { getLodgeId } from "../db/client.js";
 
 const EventLevel = z.enum(["lodge", "grand", "supreme"]);
 
 interface Event {
   id: number;
+  lodge_id: number;
   title: string;
   description: string | null;
   event_date: string;
@@ -22,8 +24,9 @@ interface Event {
 export function registerEventTools(server: McpServer, db: D1Client) {
   server.tool(
     "event_list",
-    "List events. Optionally filter by level (lodge/grand/supreme) and whether to include past events.",
+    "List events for a lodge. Optionally filter by level (lodge/grand/supreme) and whether to include past events.",
     {
+      lodge_slug: z.string().describe("Lodge slug, e.g. 'ivanhoe-1'"),
       level: EventLevel.optional().describe("Filter by lodge, grand, or supreme"),
       include_past: z
         .boolean()
@@ -32,9 +35,10 @@ export function registerEventTools(server: McpServer, db: D1Client) {
         .describe("Include events that have already occurred"),
       published_only: z.boolean().optional().default(true),
     },
-    async ({ level, include_past, published_only }) => {
-      const conditions: string[] = [];
-      const params: (string | number)[] = [];
+    async ({ lodge_slug, level, include_past, published_only }) => {
+      const lodgeId = await getLodgeId(db, lodge_slug);
+      const conditions: string[] = ["lodge_id = ?"];
+      const params: (string | number)[] = [lodgeId];
 
       if (level) {
         conditions.push("level = ?");
@@ -47,7 +51,7 @@ export function registerEventTools(server: McpServer, db: D1Client) {
         conditions.push("published = 1");
       }
 
-      const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+      const where = `WHERE ${conditions.join(" AND ")}`;
       const rows = await db.all<Event>(
         `SELECT * FROM events ${where} ORDER BY event_date ASC`,
         params,
@@ -60,8 +64,9 @@ export function registerEventTools(server: McpServer, db: D1Client) {
 
   server.tool(
     "event_create",
-    "Add a new event to the lodge calendar",
+    "Add a new event to a lodge calendar",
     {
+      lodge_slug: z.string().describe("Lodge slug, e.g. 'ivanhoe-1'"),
       title: z.string(),
       event_date: z.string().describe("ISO 8601 date, e.g. 2025-03-15 or 2025-03-15T19:00"),
       level: EventLevel.describe("lodge = local, grand = state, supreme = national"),
@@ -71,11 +76,13 @@ export function registerEventTools(server: McpServer, db: D1Client) {
       url: z.string().optional().describe("External link for more info"),
       published: z.boolean().optional().default(true),
     },
-    async ({ title, event_date, level, description, end_date, location, url, published }) => {
+    async ({ lodge_slug, title, event_date, level, description, end_date, location, url, published }) => {
+      const lodgeId = await getLodgeId(db, lodge_slug);
       const meta = await db.run(
-        `INSERT INTO events (title, event_date, level, description, end_date, location, url, published)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO events (lodge_id, title, event_date, level, description, end_date, location, url, published)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
+          lodgeId,
           title,
           event_date,
           level,
@@ -90,7 +97,7 @@ export function registerEventTools(server: McpServer, db: D1Client) {
         content: [
           {
             type: "text",
-            text: `Event created with ID ${meta.last_row_id}: "${title}"`,
+            text: `Event created with ID ${meta.last_row_id}: "${title}" for lodge '${lodge_slug}'`,
           },
         ],
       };

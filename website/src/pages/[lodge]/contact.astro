@@ -1,0 +1,52 @@
+---
+import Base from "../../layouts/Base.astro";
+import { getLodgeBySlug, getConfig, getPage } from "../../lib/db";
+import { renderMarkdown } from "../../lib/markdown";
+
+const lodgeSlug = Astro.params.lodge!;
+const db = Astro.locals.runtime.env.DB;
+
+const lodge = await getLodgeBySlug(db, lodgeSlug);
+if (!lodge) return Astro.redirect("/", 302);
+
+const config = await getConfig(db, lodge.id);
+const page   = await getPage(db, lodge.id, "contact");
+---
+
+<Base config={config} lodgeSlug={lodgeSlug} title="Contact">
+  <div class="hero">
+    <h1>Contact Us</h1>
+    <p>{config.lodge_name}</p>
+  </div>
+  <main style="display:grid;grid-template-columns:1fr 1fr;gap:2rem">
+    <section>
+      {page
+        ? <div class="prose" set:html={renderMarkdown(page.content)} />
+        : (
+          <div class="prose">
+            <h2>Get in Touch</h2>
+            <p>We welcome inquiries from the public, prospective members, and visiting knights.</p>
+            {config.meeting_schedule && <p><strong>Meetings:</strong> {config.meeting_schedule}</p>}
+            {config.meeting_location && <p><strong>Location:</strong> {config.meeting_location}</p>}
+            {config.phone && <p><strong>Phone:</strong> <a href={`tel:${config.phone}`}>{config.phone}</a></p>}
+            {config.email && <p><strong>Email:</strong> <a href={`mailto:${config.email}`}>{config.email}</a></p>}
+          </div>
+        )
+      }
+    </section>
+    <section>
+      <div class="card">
+        <h3 style="color:var(--primary)">Lodge Information</h3>
+        {config.lodge_name && <p><strong>{config.lodge_name}</strong>{config.lodge_number && config.lodge_number !== "0" ? ` · No. ${config.lodge_number}` : ""}</p>}
+        {config.state && <p>Grand Domain of {config.state}</p>}
+        {config.meeting_schedule && <p class="meta">{config.meeting_schedule}</p>}
+        {config.meeting_location && <p class="meta">{config.meeting_location}</p>}
+        {config.email && <p><a href={`mailto:${config.email}`}>{config.email}</a></p>}
+        {config.phone && <p><a href={`tel:${config.phone}`}>{config.phone}</a></p>}
+        {config.facebook_url && (
+          <a class="cta" href={config.facebook_url} target="_blank" rel="noopener">Visit us on Facebook</a>
+        )}
+      </div>
+    </section>
+  </main>
+</Base>

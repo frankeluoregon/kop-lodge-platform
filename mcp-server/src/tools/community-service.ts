@@ -1,26 +1,30 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import type { D1Client } from "../db/client.js";
+import { getLodgeId } from "../db/client.js";
 
 export function registerCommunityServiceTools(server: McpServer, db: D1Client) {
   server.tool(
     "community_service_list",
-    "List community service showcase entries",
+    "List community service showcase entries for a lodge",
     {
+      lodge_slug: z.string().describe("Lodge slug, e.g. 'ivanhoe-1'"),
       featured_only: z.boolean().optional().default(false),
       include_unpublished: z.boolean().optional().default(false),
       limit: z.number().optional().default(20),
     },
-    async ({ featured_only, include_unpublished, limit }) => {
-      const conditions: string[] = [];
+    async ({ lodge_slug, featured_only, include_unpublished, limit }) => {
+      const lodgeId = await getLodgeId(db, lodge_slug);
+      const conditions: string[] = ["lodge_id = ?"];
+      const params: (string | number)[] = [lodgeId];
       if (featured_only) conditions.push("featured = 1");
       if (!include_unpublished) conditions.push("published = 1");
-      const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+      const where = `WHERE ${conditions.join(" AND ")}`;
       const rows = await db.all(
         `SELECT * FROM community_service ${where}
          ORDER BY COALESCE(service_date, created_at) DESC
          LIMIT ?`,
-        [limit],
+        [...params, limit],
       );
       return {
         content: [{ type: "text", text: JSON.stringify(rows, null, 2) }],
@@ -30,8 +34,9 @@ export function registerCommunityServiceTools(server: McpServer, db: D1Client) {
 
   server.tool(
     "community_service_create",
-    "Add a community service entry to the showcase. Description supports Markdown.",
+    "Add a community service entry to a lodge's showcase. Description supports Markdown.",
     {
+      lodge_slug: z.string().describe("Lodge slug, e.g. 'ivanhoe-1'"),
       title: z.string(),
       description: z.string().describe("Description in Markdown"),
       service_date: z
@@ -45,17 +50,18 @@ export function registerCommunityServiceTools(server: McpServer, db: D1Client) {
         .describe("Show prominently on homepage/featured section"),
       published: z.boolean().optional().default(true),
     },
-    async ({ title, description, service_date, featured, published }) => {
+    async ({ lodge_slug, title, description, service_date, featured, published }) => {
+      const lodgeId = await getLodgeId(db, lodge_slug);
       const meta = await db.run(
-        `INSERT INTO community_service (title, description, service_date, featured, published)
-         VALUES (?, ?, ?, ?, ?)`,
-        [title, description, service_date ?? null, featured ? 1 : 0, published ? 1 : 0],
+        `INSERT INTO community_service (lodge_id, title, description, service_date, featured, published)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [lodgeId, title, description, service_date ?? null, featured ? 1 : 0, published ? 1 : 0],
       );
       return {
         content: [
           {
             type: "text",
-            text: `Community service entry created (ID: ${meta.last_row_id}): "${title}"`,
+            text: `Community service entry created (ID: ${meta.last_row_id}): "${title}" for lodge '${lodge_slug}'`,
           },
         ],
       };

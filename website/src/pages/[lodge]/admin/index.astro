@@ -1,0 +1,192 @@
+---
+import { getSession, canAccessLodge } from "../../../lib/auth";
+import { getLodgeBySlug, getConfig, getUpcomingEvents, getAllPosts, getAllOfficers, getCommunityService, getAllPages } from "../../../lib/db";
+
+const lodgeSlug = Astro.params.lodge!;
+const env = Astro.locals.runtime.env;
+
+const session = await getSession(Astro.request, env);
+if (!session || !canAccessLodge(session, lodgeSlug)) {
+  const redirect = encodeURIComponent(Astro.url.pathname);
+  return Astro.redirect(`/auth/login?redirect=${redirect}`, 302);
+}
+
+const lodge = await getLodgeBySlug(env.DB, lodgeSlug);
+if (!lodge) return Astro.redirect("/", 302);
+
+const config   = await getConfig(env.DB, lodge.id);
+const events   = await getUpcomingEvents(env.DB, lodge.id, undefined, 5);
+const posts    = await getAllPosts(env.DB, lodge.id, 5);
+const officers = await getAllOfficers(env.DB, lodge.id);
+const service  = await getCommunityService(env.DB, lodge.id, false, 5);
+const pages    = await getAllPages(env.DB, lodge.id);
+
+const primary = config.primary_color || "#4B0082";
+const accent  = config.accent_color  || "#FFD700";
+const base    = `/${lodgeSlug}`;
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin – {config.lodge_name}</title>
+  <style define:vars={{ primary, accent }}>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif; background: #f0f0f5; color: #1a1a2e; }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .topbar { background: var(--primary); color: #fff; padding: .6rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+    .topbar .brand { color: var(--accent); font-weight: bold; font-size: 1.1rem; }
+    .topbar nav { display: flex; gap: .5rem; align-items: center; }
+    .topbar nav a { color: rgba(255,255,255,.85); font-size: .85rem; padding: .3rem .6rem; border-radius: 4px; }
+    .topbar nav a:hover { background: rgba(255,255,255,.15); text-decoration: none; }
+    .topbar .user { font-size: .78rem; color: rgba(255,255,255,.6); }
+
+    main { max-width: 1100px; margin: 1.5rem auto; padding: 0 1rem; }
+    h1 { font-size: 1.4rem; margin-bottom: 1.25rem; color: var(--primary); }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px,1fr)); gap: 1rem; }
+    .panel { background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 1.1rem; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+    .panel h2 { font-size: 1rem; border-bottom: 2px solid var(--accent); padding-bottom: .35rem; margin-bottom: .85rem; color: var(--primary); }
+    .panel ul { list-style: none; }
+    .panel li { padding: .35rem 0; border-bottom: 1px solid #f0f0f0; font-size: .88rem; display: flex; justify-content: space-between; align-items: center; gap: .5rem; }
+    .panel li:last-child { border-bottom: none; }
+    .panel li span { flex: 1; }
+    .panel li .acts { display: flex; gap: .4rem; flex-shrink: 0; }
+    .btn { display: inline-block; padding: .25rem .6rem; font-size: .78rem; border-radius: 4px; border: 1.5px solid var(--primary); color: var(--primary); cursor: pointer; background: transparent; font-family: inherit; transition: background .15s, color .15s; }
+    .btn:hover { background: var(--primary); color: #fff; text-decoration: none; }
+    .btn.add { background: var(--primary); color: #fff; margin-top: .75rem; border: none; padding: .4rem .9rem; font-size: .85rem; }
+    .btn.add:hover { opacity: .88; }
+    .btn.danger { border-color: #c00; color: #c00; }
+    .btn.danger:hover { background: #c00; color: #fff; }
+
+    .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; font-size: .85rem; }
+    .config-key { color: #666; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <span class="brand">{config.lodge_name} &mdash; Admin</span>
+    <nav>
+      <a href={base}>View Site</a>
+      <a href={`${base}/admin/config`}>Settings</a>
+      <span class="user">{session.email}</span>
+      <a href="/auth/logout">Log out</a>
+    </nav>
+  </div>
+
+  <main>
+    <h1>Dashboard</h1>
+
+    <div class="grid">
+      <!-- Config summary -->
+      <div class="panel">
+        <h2>Lodge Settings</h2>
+        <div class="config-grid">
+          <span class="config-key">Name</span><span>{config.lodge_name}</span>
+          <span class="config-key">Number</span><span>{config.lodge_number}</span>
+          <span class="config-key">City</span><span>{config.city}</span>
+          <span class="config-key">State</span><span>{config.state}</span>
+          <span class="config-key">Meetings</span><span>{config.meeting_schedule}</span>
+        </div>
+        <a class="btn add" href={`${base}/admin/config`}>Edit Settings</a>
+      </div>
+
+      <!-- Events -->
+      <div class="panel">
+        <h2>Upcoming Events</h2>
+        {events.length === 0
+          ? <p style="font-size:.85rem;color:#666">No upcoming events.</p>
+          : (
+            <ul>
+              {events.map((ev) => (
+                <li>
+                  <span>{ev.event_date.slice(0,10)} &mdash; {ev.title}</span>
+                  <div class="acts"><a class="btn" href={`${base}/admin/events/edit?id=${ev.id}`}>Edit</a></div>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+        <a class="btn add" href={`${base}/admin/events/new`}>+ Add Event</a>
+      </div>
+
+      <!-- Officers -->
+      <div class="panel">
+        <h2>Officers</h2>
+        {officers.length === 0
+          ? <p style="font-size:.85rem;color:#666">No officers listed.</p>
+          : (
+            <ul>
+              {officers.map((o) => (
+                <li>
+                  <span>{o.title} &mdash; {o.name}</span>
+                  <div class="acts"><a class="btn" href={`${base}/admin/officers/edit?id=${o.id}`}>Edit</a></div>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+        <a class="btn add" href={`${base}/admin/officers/new`}>+ Add Officer</a>
+      </div>
+
+      <!-- Blog -->
+      <div class="panel">
+        <h2>Blog Posts</h2>
+        {posts.length === 0
+          ? <p style="font-size:.85rem;color:#666">No posts yet.</p>
+          : (
+            <ul>
+              {posts.map((p) => (
+                <li>
+                  <span>{p.published ? "" : "✏ "}{p.title}</span>
+                  <div class="acts">
+                    <a class="btn" href={`${base}/admin/blog/edit?id=${p.id}`}>Edit</a>
+                    {p.published && <a class="btn" href={`${base}/blog/${p.slug}`} target="_blank">View</a>}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+        <a class="btn add" href={`${base}/admin/blog/new`}>+ New Post</a>
+      </div>
+
+      <!-- Community Service -->
+      <div class="panel">
+        <h2>Community Service</h2>
+        {service.length === 0
+          ? <p style="font-size:.85rem;color:#666">No entries yet.</p>
+          : (
+            <ul>
+              {service.map((cs) => (
+                <li>
+                  <span>{cs.title}</span>
+                  <div class="acts"><a class="btn" href={`${base}/admin/service/edit?id=${cs.id}`}>Edit</a></div>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+        <a class="btn add" href={`${base}/admin/service/new`}>+ Add Entry</a>
+      </div>
+
+      <!-- Pages -->
+      <div class="panel">
+        <h2>Pages</h2>
+        <ul>
+          <li><span>About Us</span><div class="acts"><a class="btn" href={`${base}/admin/pages/edit?slug=about`}>Edit</a></div></li>
+          <li><span>Contact</span><div class="acts"><a class="btn" href={`${base}/admin/pages/edit?slug=contact`}>Edit</a></div></li>
+          {pages.filter(p => p.slug !== "about" && p.slug !== "contact").map((p) => (
+            <li><span>{p.title}</span><div class="acts"><a class="btn" href={`${base}/admin/pages/edit?slug=${p.slug}`}>Edit</a></div></li>
+          ))}
+        </ul>
+        <a class="btn add" href={`${base}/admin/pages/new`}>+ New Page</a>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

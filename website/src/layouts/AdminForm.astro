@@ -1,27 +1,35 @@
 ---
 /**
  * Shared layout for admin edit forms.
- * Handles auth check — redirects to /admin/login if not authenticated.
+ * Checks OIDC session and lodge access; redirects to /auth/login if needed.
  */
-import { getAdminToken, isValidAdminToken } from "../lib/auth";
-import { getConfig } from "../lib/db";
+import { getSession, canAccessLodge } from "../lib/auth";
+import { getLodgeBySlug, getConfig } from "../lib/db";
 
 interface Props {
   title: string;
+  lodgeSlug: string;
   backUrl?: string;
   backLabel?: string;
 }
 
-const { title, backUrl = "/admin", backLabel = "← Dashboard" } = Astro.props;
+const { title, lodgeSlug, backUrl, backLabel = "← Dashboard" } = Astro.props;
+const backHref = backUrl ?? `/${lodgeSlug}/admin`;
 
-const { DB, ADMIN_TOKEN_HASH } = Astro.locals.runtime.env;
-const token = getAdminToken(Astro.request);
-const authed = await isValidAdminToken(token ?? "", ADMIN_TOKEN_HASH ?? "");
-if (!authed) return Astro.redirect("/admin/login", 302);
+const env = Astro.locals.runtime.env;
+const session = await getSession(Astro.request, env);
 
-const config = await getConfig(DB);
-const primary = config.primary_color || "#1B3D8C";
-const accent  = config.accent_color  || "#F5C800";
+if (!session || !canAccessLodge(session, lodgeSlug)) {
+  const redirect = encodeURIComponent(Astro.url.pathname);
+  return Astro.redirect(`/auth/login?redirect=${redirect}`, 302);
+}
+
+const lodge = await getLodgeBySlug(env.DB, lodgeSlug);
+if (!lodge) return Astro.redirect("/", 302);
+
+const config = await getConfig(env.DB, lodge.id);
+const primary = config.primary_color || "#4B0082";
+const accent  = config.accent_color  || "#FFD700";
 ---
 
 <!doctype html>
@@ -37,19 +45,16 @@ const accent  = config.accent_color  || "#F5C800";
     a:hover { text-decoration: underline; }
 
     .topbar {
-      background: var(--primary);
-      color: #fff;
-      padding: .6rem 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      background: var(--primary); color: #fff; padding: .6rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
     }
     .topbar .brand { color: var(--accent); font-weight: bold; font-size: 1.1rem; }
+    .topbar nav { display: flex; gap: .5rem; align-items: center; }
     .topbar nav a { color: rgba(255,255,255,.8); font-size: .85rem; padding: .3rem .6rem; border-radius: 4px; }
     .topbar nav a:hover { background: rgba(255,255,255,.15); text-decoration: none; }
+    .topbar .user { font-size: .78rem; color: rgba(255,255,255,.6); }
 
     main { max-width: 780px; margin: 1.5rem auto; padding: 0 1rem; }
-
     .back-link { font-size: .85rem; margin-bottom: 1rem; display: inline-block; color: var(--primary); }
     h1 { font-size: 1.4rem; color: var(--primary); margin-bottom: 1.25rem; }
 
@@ -59,41 +64,20 @@ const accent  = config.accent_color  || "#F5C800";
     label { display: block; font-size: .85rem; font-weight: 600; color: #333; margin-bottom: .3rem; }
     label .hint { font-weight: 400; color: #888; font-size: .8rem; margin-left: .4rem; }
 
-    input[type="text"],
-    input[type="email"],
-    input[type="url"],
-    input[type="date"],
-    input[type="number"],
-    select,
-    textarea {
-      width: 100%;
-      padding: .55rem .75rem;
-      border: 1.5px solid #ccc;
-      border-radius: 5px;
-      font-size: .9rem;
-      font-family: inherit;
-      background: #fff;
+    input[type="text"], input[type="email"], input[type="url"],
+    input[type="date"], input[type="number"], select, textarea {
+      width: 100%; padding: .55rem .75rem; border: 1.5px solid #ccc;
+      border-radius: 5px; font-size: .9rem; font-family: inherit; background: #fff;
     }
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-    textarea { min-height: 220px; resize: vertical; font-family: 'Cascadia Code', 'Consolas', monospace; font-size: .85rem; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); }
+    textarea { min-height: 220px; resize: vertical; font-family: 'Cascadia Code', Consolas, monospace; font-size: .85rem; }
 
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     .checkbox-row { display: flex; align-items: center; gap: .5rem; }
     .checkbox-row input { width: auto; }
 
     .actions { display: flex; gap: .75rem; margin-top: 1.5rem; align-items: center; }
-    .btn {
-      padding: .55rem 1.2rem;
-      border-radius: 5px;
-      border: 1.5px solid var(--primary);
-      font-size: .9rem;
-      font-family: inherit;
-      cursor: pointer;
-      transition: background .15s, color .15s;
-    }
+    .btn { padding: .55rem 1.2rem; border-radius: 5px; border: 1.5px solid var(--primary); font-size: .9rem; font-family: inherit; cursor: pointer; transition: background .15s, color .15s; }
     .btn.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
     .btn.primary:hover { opacity: .88; }
     .btn.secondary { background: transparent; color: var(--primary); }
@@ -109,13 +93,14 @@ const accent  = config.accent_color  || "#F5C800";
   <div class="topbar">
     <span class="brand">{config.lodge_name} — Admin</span>
     <nav>
-      <a href="/">View Site</a>
-      <a href="/admin">Dashboard</a>
-      <a href="/admin/logout">Log out</a>
+      <a href={`/${lodgeSlug}`}>View Site</a>
+      <a href={`/${lodgeSlug}/admin`}>Dashboard</a>
+      <span class="user">{session.email}</span>
+      <a href="/auth/logout">Log out</a>
     </nav>
   </div>
   <main>
-    <a class="back-link" href={backUrl}>{backLabel}</a>
+    <a class="back-link" href={backHref}>{backLabel}</a>
     <h1>{title}</h1>
     <slot />
   </main>

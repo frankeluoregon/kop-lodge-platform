@@ -5,16 +5,25 @@ interface Props {
   title?: string;
   description?: string;
   config: LodgeConfig;
+  lodgeSlug: string;
 }
 
-const { title, description, config } = Astro.props;
+const { title, description, config, lodgeSlug } = Astro.props;
+const base = `/${lodgeSlug}`;
 const pageTitle = title
   ? `${title} | ${config.lodge_name}`
   : `${config.lodge_name} – Knights of Pythias`;
 const metaDesc = description ?? config.tagline;
-const primary = config.primary_color || "#1B3D8C";
-const accent = config.accent_color || "#F5C800";
-const secondary = "#C41230"; // KoP red — always fixed
+const primary = config.primary_color || "#4B0082";
+const accent = config.accent_color || "#FFD700";
+const secondary = "#C41230";
+
+function isActive(path: string): boolean {
+  return Astro.url.pathname === path;
+}
+function isActivePrefix(prefix: string): boolean {
+  return Astro.url.pathname.startsWith(prefix);
+}
 ---
 
 <!doctype html>
@@ -42,216 +51,90 @@ const secondary = "#C41230"; // KoP red — always fixed
         --font:      'Trebuchet MS', Trebuchet, 'Gill Sans MT', Arial, sans-serif;
       }
 
-      body {
-        font-family: var(--font);
-        background: var(--bg);
-        color: var(--text);
-        line-height: 1.7;
-      }
-
+      body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.7; }
       a { color: var(--primary); text-decoration: none; }
       a:hover { text-decoration: underline; }
 
-      /* ── Tri-color stripe ── */
-      .tricolor-stripe {
-        display: flex;
-        height: 5px;
-      }
-      .tricolor-stripe span {
-        flex: 1;
-      }
+      .tricolor-stripe { display: flex; height: 5px; }
+      .tricolor-stripe span { flex: 1; }
 
-      /* ── Header ── */
-      header {
-        background: var(--primary);
-        color: #fff;
-        padding: 0 1.5rem;
+      .site-banner {
+        background: #2a2a3e;
+        color: rgba(255,255,255,.7);
+        font-size: .75rem;
+        text-align: center;
+        padding: .3rem 1rem;
       }
+      .site-banner a { color: var(--accent); font-weight: 600; }
+
+      header { background: var(--primary); color: #fff; padding: 0 1.5rem; }
       .header-inner {
-        max-width: var(--max-w);
-        margin: 0 auto;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
-        padding: .8rem 0;
+        max-width: var(--max-w); margin: 0 auto;
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 1rem; padding: .8rem 0;
       }
-      .lodge-brand {
-        display: flex;
-        flex-direction: column;
-        gap: .15rem;
-      }
-      .lodge-brand .name {
-        font-size: 1.4rem;
-        font-weight: 700;
-        color: var(--accent);
-        letter-spacing: .04em;
-        text-transform: uppercase;
-      }
-      .lodge-brand .sub {
-        font-size: .78rem;
-        opacity: .88;
-        letter-spacing: .02em;
-      }
+      .lodge-brand { display: flex; flex-direction: column; gap: .15rem; }
+      .lodge-brand .name { font-size: 1.4rem; font-weight: 700; color: var(--accent); letter-spacing: .04em; text-transform: uppercase; }
+      .lodge-brand .sub  { font-size: .78rem; opacity: .88; letter-spacing: .02em; }
 
-      /* ── Nav ── */
       nav { display: flex; gap: .1rem; flex-wrap: wrap; align-items: center; }
       nav a {
-        color: #fff;
-        padding: .45rem .8rem;
-        border-radius: var(--radius);
-        font-family: var(--font);
-        font-size: .875rem;
-        font-weight: 600;
-        letter-spacing: .02em;
-        transition: background .15s;
+        color: #fff; padding: .45rem .8rem; border-radius: var(--radius);
+        font-size: .875rem; font-weight: 600; letter-spacing: .02em; transition: background .15s;
       }
-      nav a:hover {
-        background: rgba(255,255,255,.18);
-        text-decoration: none;
-      }
-      nav a[aria-current="page"] {
-        background: var(--accent);
-        color: var(--primary);
-      }
+      nav a:hover { background: rgba(255,255,255,.18); text-decoration: none; }
+      nav a[aria-current="page"] { background: var(--accent); color: var(--primary); }
 
-      /* ── Hero banner ── */
       .hero {
         background: linear-gradient(160deg, var(--primary) 55%, color-mix(in srgb, var(--primary) 75%, #000));
-        color: #fff;
-        text-align: center;
-        padding: 3.5rem 1.5rem;
-        position: relative;
+        color: #fff; text-align: center; padding: 3.5rem 1.5rem; position: relative;
       }
       .hero::after {
-        content: '';
-        display: block;
-        position: absolute;
-        bottom: 0; left: 0; right: 0;
-        height: 4px;
+        content: ''; display: block; position: absolute; bottom: 0; left: 0; right: 0; height: 4px;
         background: linear-gradient(to right, var(--primary) 33.3%, var(--secondary) 33.3% 66.6%, var(--accent) 66.6%);
       }
-      .hero h1 {
-        font-size: 2.3rem;
-        color: var(--accent);
-        margin-bottom: .5rem;
-        text-transform: uppercase;
-        letter-spacing: .06em;
-      }
-      .hero p { font-size: 1.05rem; opacity: .92; }
+      .hero h1 { font-size: 2.3rem; color: var(--accent); margin-bottom: .5rem; text-transform: uppercase; letter-spacing: .06em; }
+      .hero p  { font-size: 1.05rem; opacity: .92; }
 
-      /* ── Main content ── */
-      main {
-        max-width: var(--max-w);
-        margin: 2rem auto;
-        padding: 0 1.5rem;
-      }
+      main { max-width: var(--max-w); margin: 2rem auto; padding: 0 1.5rem; }
 
-      /* ── Section headings ── */
       .section-heading {
-        font-size: 1.45rem;
-        color: var(--primary);
-        text-transform: uppercase;
-        letter-spacing: .04em;
-        border-bottom: 3px solid var(--accent);
-        padding-bottom: .35rem;
-        margin-bottom: 1.5rem;
+        font-size: 1.45rem; color: var(--primary); text-transform: uppercase;
+        letter-spacing: .04em; border-bottom: 3px solid var(--accent); padding-bottom: .35rem; margin-bottom: 1.5rem;
       }
 
-      /* ── Cards ── */
-      .card-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 1.25rem;
-        margin-bottom: 2.5rem;
-      }
+      .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 1.25rem; margin-bottom: 2.5rem; }
       .card {
-        background: var(--card-bg);
-        border: 1px solid var(--border);
-        border-top: 3px solid var(--primary);
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-        padding: 1.25rem;
-        display: flex;
-        flex-direction: column;
-        gap: .5rem;
+        background: var(--card-bg); border: 1px solid var(--border); border-top: 3px solid var(--primary);
+        border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.25rem; display: flex; flex-direction: column; gap: .5rem;
       }
-      .card .tag {
-        display: inline-block;
-        font-size: .68rem;
-        font-family: var(--font);
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: .07em;
-        padding: .2rem .55rem;
-        border-radius: 99px;
-        background: var(--accent);
-        color: var(--primary);
-      }
-      .card h3 { font-size: 1.05rem; color: var(--primary); font-weight: 700; }
+      .card .tag { display: inline-block; font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; padding: .2rem .55rem; border-radius: 99px; background: var(--accent); color: var(--primary); }
+      .card h3   { font-size: 1.05rem; color: var(--primary); font-weight: 700; }
       .card .meta { font-size: .8rem; color: #666; }
-      .card p { font-size: .9rem; }
+      .card p    { font-size: .9rem; }
       .card a.cta {
-        margin-top: auto;
-        display: inline-block;
-        font-family: var(--font);
-        font-size: .83rem;
-        font-weight: 700;
-        color: var(--primary);
-        border: 2px solid var(--primary);
-        border-radius: var(--radius);
-        padding: .35rem .85rem;
-        align-self: flex-start;
-        text-transform: uppercase;
-        letter-spacing: .03em;
+        margin-top: auto; display: inline-block; font-size: .83rem; font-weight: 700;
+        color: var(--primary); border: 2px solid var(--primary); border-radius: var(--radius);
+        padding: .35rem .85rem; align-self: flex-start; text-transform: uppercase; letter-spacing: .03em;
         transition: background .15s, color .15s;
       }
-      .card a.cta:hover {
-        background: var(--primary);
-        color: #fff;
-        text-decoration: none;
-      }
+      .card a.cta:hover { background: var(--primary); color: #fff; text-decoration: none; }
 
-      /* ── Page prose ── */
-      .prose h1, .prose h2, .prose h3 {
-        color: var(--primary);
-        margin: 1.3rem 0 .5rem;
-        text-transform: uppercase;
-        letter-spacing: .03em;
-      }
+      .prose h1, .prose h2, .prose h3 { color: var(--primary); margin: 1.3rem 0 .5rem; text-transform: uppercase; letter-spacing: .03em; }
       .prose p  { margin-bottom: 1rem; }
       .prose ul { padding-left: 1.5rem; margin-bottom: 1rem; }
       .prose a  { color: var(--primary); text-decoration: underline; }
       .prose hr { border: none; border-top: 2px solid var(--accent); margin: 2rem 0; }
 
-      /* ── Footer ── */
-      footer {
-        background: var(--primary);
-        color: rgba(255,255,255,.82);
-        text-align: center;
-        padding: 1.5rem;
-        margin-top: 3rem;
-        font-family: var(--font);
-        font-size: .85rem;
-      }
+      footer { background: var(--primary); color: rgba(255,255,255,.82); text-align: center; padding: 1.5rem; margin-top: 3rem; font-size: .85rem; }
       footer a { color: var(--accent); }
       footer .footer-grid {
-        max-width: var(--max-w);
-        margin: 0 auto 1rem;
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 1rem;
-        text-align: left;
+        max-width: var(--max-w); margin: 0 auto 1rem;
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 1rem; text-align: left;
       }
-      footer h4 {
-        color: var(--accent);
-        margin-bottom: .4rem;
-        font-size: .88rem;
-        text-transform: uppercase;
-        letter-spacing: .05em;
-      }
-      footer ul { list-style: none; }
-      footer li { margin-bottom: .25rem; }
+      footer h4  { color: var(--accent); margin-bottom: .4rem; font-size: .88rem; text-transform: uppercase; letter-spacing: .05em; }
+      footer ul  { list-style: none; }
+      footer li  { margin-bottom: .25rem; }
 
       @media (max-width: 640px) {
         .header-inner { flex-direction: column; align-items: flex-start; }
@@ -266,20 +149,23 @@ const secondary = "#C41230"; // KoP red — always fixed
       <span style="background:var(--secondary)"></span>
       <span style="background:var(--accent)"></span>
     </div>
+    <div class="site-banner">
+      <a href="/">← Oregon Knights of Pythias</a>
+    </div>
     <header>
       <div class="header-inner">
-        <a href="/" class="lodge-brand" style="text-decoration:none">
+        <a href={base} class="lodge-brand" style="text-decoration:none">
           <span class="name">{config.lodge_name}</span>
-          <span class="sub">Knights of Pythias{config.lodge_number !== "0" ? ` · Lodge No. ${config.lodge_number}` : ""}{config.city ? ` · ${config.city}` : ""}</span>
+          <span class="sub">Knights of Pythias{config.lodge_number && config.lodge_number !== "0" ? ` · Lodge No. ${config.lodge_number}` : ""}{config.city ? ` · ${config.city}` : ""}</span>
         </a>
         <nav>
-          <a href="/" aria-current={Astro.url.pathname === "/" ? "page" : undefined}>Home</a>
-          <a href="/about" aria-current={Astro.url.pathname === "/about" ? "page" : undefined}>About</a>
-          <a href="/events" aria-current={Astro.url.pathname.startsWith("/events") ? "page" : undefined}>Events</a>
-          <a href="/officers" aria-current={Astro.url.pathname === "/officers" ? "page" : undefined}>Officers</a>
-          <a href="/community-service" aria-current={Astro.url.pathname === "/community-service" ? "page" : undefined}>Service</a>
-          <a href="/blog" aria-current={Astro.url.pathname.startsWith("/blog") ? "page" : undefined}>Blog</a>
-          <a href="/contact" aria-current={Astro.url.pathname === "/contact" ? "page" : undefined}>Contact</a>
+          <a href={base}                          aria-current={isActive(`${base}`) || isActive(`${base}/`) ? "page" : undefined}>Home</a>
+          <a href={`${base}/about`}               aria-current={isActive(`${base}/about`) ? "page" : undefined}>About</a>
+          <a href={`${base}/events`}              aria-current={isActivePrefix(`${base}/events`) ? "page" : undefined}>Events</a>
+          <a href={`${base}/officers`}            aria-current={isActive(`${base}/officers`) ? "page" : undefined}>Officers</a>
+          <a href={`${base}/community-service`}   aria-current={isActive(`${base}/community-service`) ? "page" : undefined}>Service</a>
+          <a href={`${base}/blog`}                aria-current={isActivePrefix(`${base}/blog`) ? "page" : undefined}>Blog</a>
+          <a href={`${base}/contact`}             aria-current={isActive(`${base}/contact`) ? "page" : undefined}>Contact</a>
         </nav>
       </div>
     </header>
@@ -296,10 +182,10 @@ const secondary = "#C41230"; // KoP red — always fixed
         <div>
           <h4>Quick Links</h4>
           <ul>
-            <li><a href="/about">About Us</a></li>
-            <li><a href="/events">Events</a></li>
-            <li><a href="/officers">Officers</a></li>
-            <li><a href="/contact">Contact</a></li>
+            <li><a href={`${base}/about`}>About Us</a></li>
+            <li><a href={`${base}/events`}>Events</a></li>
+            <li><a href={`${base}/officers`}>Officers</a></li>
+            <li><a href={`${base}/contact`}>Contact</a></li>
           </ul>
         </div>
         <div>
@@ -312,9 +198,7 @@ const secondary = "#C41230"; // KoP red — always fixed
       </div>
       <p>
         &copy; {new Date().getFullYear()} {config.lodge_name} &mdash; Knights of Pythias.
-        <span style="margin-left:.5rem">
-          <a href="/admin">Admin</a>
-        </span>
+        <span style="margin-left:.5rem"><a href={`${base}/admin`}>Admin</a></span>
       </p>
     </footer>
   </body>

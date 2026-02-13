@@ -1,0 +1,78 @@
+---
+import AdminForm from "../../../../layouts/AdminForm.astro";
+import { getLodgeBySlug } from "../../../../lib/db";
+
+const lodgeSlug = Astro.params.lodge!;
+const env = Astro.locals.runtime.env;
+
+const lodge = await getLodgeBySlug(env.DB, lodgeSlug);
+if (!lodge) return Astro.redirect("/", 302);
+
+const id = Number(new URL(Astro.request.url).searchParams.get("id"));
+if (!id) return Astro.redirect(`/${lodgeSlug}/admin`, 302);
+
+const officer = await env.DB.prepare("SELECT * FROM officers WHERE id = ? AND lodge_id = ?").bind(id, lodge.id).first<Record<string, unknown>>();
+if (!officer) return Astro.redirect(`/${lodgeSlug}/admin`, 302);
+
+let message = "";
+let isError = false;
+
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  if (form.get("_action") === "delete") {
+    await env.DB.prepare("DELETE FROM officers WHERE id = ? AND lodge_id = ?").bind(id, lodge.id).run();
+    return Astro.redirect(`/${lodgeSlug}/admin`, 302);
+  }
+  try {
+    const now = new Date().toISOString();
+    await env.DB.prepare(
+      "UPDATE officers SET title=?,name=?,email=?,display_order=?,active=?,updated_at=? WHERE id=? AND lodge_id=?"
+    ).bind(
+      form.get("title")?.toString() ?? "",
+      form.get("name")?.toString() ?? "",
+      form.get("email")?.toString() || null,
+      Number(form.get("display_order") ?? 0),
+      form.get("active") === "1" ? 1 : 0,
+      now, id, lodge.id,
+    ).run();
+    message = "Officer updated.";
+  } catch (e: unknown) {
+    isError = true;
+    message = `Error: ${e instanceof Error ? e.message : String(e)}`;
+  }
+}
+---
+
+<AdminForm title="Edit Officer" lodgeSlug={lodgeSlug}>
+  {message && <div class={isError ? "error-msg" : "success-msg"}>{message}</div>}
+  <form method="POST">
+    <div class="field">
+      <label>Officer Title</label>
+      <input type="text" name="title" value={String(officer.title ?? "")} required />
+    </div>
+    <div class="field">
+      <label>Full Name</label>
+      <input type="text" name="name" value={String(officer.name ?? "")} required />
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" name="email" value={String(officer.email ?? "")} />
+      </div>
+      <div class="field">
+        <label>Display Order</label>
+        <input type="number" name="display_order" value={Number(officer.display_order ?? 0)} min="0" />
+      </div>
+    </div>
+    <div class="field">
+      <label class="checkbox-row">
+        <input type="checkbox" name="active" value="1" checked={Boolean(officer.active)} /> Active
+      </label>
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn primary">Save Changes</button>
+      <a href={`/${lodgeSlug}/admin`} class="btn secondary">Cancel</a>
+      <button type="submit" name="_action" value="delete" class="btn danger" onclick="return confirm('Delete this officer?')">Delete</button>
+    </div>
+  </form>
+</AdminForm>

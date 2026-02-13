@@ -1,0 +1,69 @@
+---
+import AdminForm from "../../../../layouts/AdminForm.astro";
+import { getLodgeBySlug } from "../../../../lib/db";
+
+const lodgeSlug = Astro.params.lodge!;
+const env = Astro.locals.runtime.env;
+
+const lodge = await getLodgeBySlug(env.DB, lodgeSlug);
+if (!lodge) return Astro.redirect("/", 302);
+
+let message = "";
+let isError = false;
+
+if (Astro.request.method === "POST") {
+  try {
+    const form = await Astro.request.formData();
+    const now = new Date().toISOString();
+    await env.DB.prepare(
+      "INSERT INTO community_service (lodge_id,title,description,service_date,featured,published,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?)"
+    ).bind(
+      lodge.id,
+      form.get("title")?.toString() ?? "",
+      form.get("description")?.toString() ?? "",
+      form.get("service_date")?.toString() || null,
+      form.get("featured") === "1" ? 1 : 0,
+      form.get("published") === "1" ? 1 : 0,
+      now, now,
+    ).run();
+    return Astro.redirect(`/${lodgeSlug}/admin`, 302);
+  } catch (e: unknown) {
+    isError = true;
+    message = `Error: ${e instanceof Error ? e.message : String(e)}`;
+  }
+}
+---
+
+<AdminForm title="New Service Entry" lodgeSlug={lodgeSlug}>
+  {message && <div class={isError ? "error-msg" : "success-msg"}>{message}</div>}
+  <form method="POST">
+    <div class="field">
+      <label>Title</label>
+      <input type="text" name="title" required />
+    </div>
+    <div class="field">
+      <label>Service Date</label>
+      <input type="date" name="service_date" />
+    </div>
+    <div class="field">
+      <label>Description <span class="hint">(Markdown)</span></label>
+      <textarea name="description" required></textarea>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label class="checkbox-row">
+          <input type="checkbox" name="featured" value="1" /> Featured on home page
+        </label>
+      </div>
+      <div class="field">
+        <label class="checkbox-row">
+          <input type="checkbox" name="published" value="1" checked /> Published
+        </label>
+      </div>
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn primary">Save Entry</button>
+      <a href={`/${lodgeSlug}/admin`} class="btn secondary">Cancel</a>
+    </div>
+  </form>
+</AdminForm>
