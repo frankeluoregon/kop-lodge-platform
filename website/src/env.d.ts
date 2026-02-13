@@ -10,7 +10,10 @@ declare namespace App {
       env: {
         DB: D1Database;
         MEDIA: R2Bucket;
-        ADMIN_TOKEN_HASH: string;
+        OIDC_ISSUER: string;
+        OIDC_CLIENT_ID: string;
+        OIDC_CLIENT_SECRET: string;
+        SESSION_SECRET: string;
       };
     };
   }

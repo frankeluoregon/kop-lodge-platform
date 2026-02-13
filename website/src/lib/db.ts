@@ -1,6 +1,15 @@
 /**
  * Typed helpers for querying D1 from Astro SSR pages.
+ * All content is scoped by lodge_id.
  */
+
+export interface Lodge {
+  id: number;
+  slug: string;
+  name: string;
+  number: string;
+  active: number;
+}
 
 export interface LodgeConfig {
   lodge_name: string;
@@ -22,6 +31,7 @@ export interface LodgeConfig {
 
 export interface Event {
   id: number;
+  lodge_id: number;
   title: string;
   description: string | null;
   event_date: string;
@@ -35,6 +45,7 @@ export interface Event {
 
 export interface BlogPost {
   id: number;
+  lodge_id: number;
   slug: string;
   title: string;
   excerpt: string | null;
@@ -47,6 +58,7 @@ export interface BlogPost {
 
 export interface Officer {
   id: number;
+  lodge_id: number;
   title: string;
   name: string;
   email: string | null;
@@ -56,6 +68,7 @@ export interface Officer {
 
 export interface CommunityService {
   id: number;
+  lodge_id: number;
   title: string;
   description: string;
   service_date: string | null;
@@ -64,41 +77,92 @@ export interface CommunityService {
 }
 
 export interface Page {
+  id: number;
+  lodge_id: number;
   slug: string;
   title: string;
   content: string;
   meta_description: string | null;
 }
 
-export async function getConfig(db: D1Database): Promise<LodgeConfig> {
+// ─── Lodge helpers ──────────────────────────────────────────────────────────
+
+export async function getAllLodges(db: D1Database): Promise<Lodge[]> {
+  const res = await db
+    .prepare("SELECT * FROM lodges WHERE active = 1 ORDER BY CAST(number AS INTEGER) ASC")
+    .all<Lodge>();
+  return res.results;
+}
+
+export async function getLodgeBySlug(
+  db: D1Database,
+  slug: string,
+): Promise<Lodge | null> {
+  return db
+    .prepare("SELECT * FROM lodges WHERE slug = ? AND active = 1")
+    .bind(slug)
+    .first<Lodge>();
+}
+
+// ─── Config ─────────────────────────────────────────────────────────────────
+
+export async function getConfig(
+  db: D1Database,
+  lodgeId: number,
+): Promise<LodgeConfig> {
   const rows = await db
-    .prepare("SELECT key, value FROM lodge_config")
+    .prepare("SELECT key, value FROM lodge_config WHERE lodge_id = ?")
+    .bind(lodgeId)
     .all<{ key: string; value: string }>();
   const map: Record<string, string> = {};
   for (const row of rows.results) map[row.key] = row.value;
+  // Defaults
+  if (!map.lodge_name) map.lodge_name = "Lodge";
+  if (!map.primary_color) map.primary_color = "#4B0082";
+  if (!map.accent_color) map.accent_color = "#FFD700";
   return map as unknown as LodgeConfig;
 }
 
-export async function getPage(db: D1Database, slug: string): Promise<Page | null> {
+// ─── Pages ──────────────────────────────────────────────────────────────────
+
+export async function getPage(
+  db: D1Database,
+  lodgeId: number,
+  slug: string,
+): Promise<Page | null> {
   return db
-    .prepare("SELECT * FROM pages WHERE slug = ?")
-    .bind(slug)
+    .prepare("SELECT * FROM pages WHERE lodge_id = ? AND slug = ?")
+    .bind(lodgeId, slug)
     .first<Page>();
 }
 
+export async function getAllPages(
+  db: D1Database,
+  lodgeId: number,
+): Promise<Page[]> {
+  const res = await db
+    .prepare("SELECT * FROM pages WHERE lodge_id = ? ORDER BY slug")
+    .bind(lodgeId)
+    .all<Page>();
+  return res.results;
+}
+
+// ─── Events ─────────────────────────────────────────────────────────────────
+
 export async function getUpcomingEvents(
   db: D1Database,
+  lodgeId: number,
   level?: "lodge" | "grand" | "supreme",
   limit = 10,
 ): Promise<Event[]> {
   const levelClause = level ? "AND level = ?" : "";
   const params = level
-    ? [new Date().toISOString().slice(0, 10), level, limit]
-    : [new Date().toISOString().slice(0, 10), limit];
+    ? [lodgeId, new Date().toISOString().slice(0, 10), level, limit]
+    : [lodgeId, new Date().toISOString().slice(0, 10), limit];
   const res = await db
     .prepare(
       `SELECT * FROM events
-       WHERE event_date >= ? AND published = 1 ${levelClause}
+       WHERE lodge_id = ? AND event_date >= ? AND published = 1 ${levelClause}
        ORDER BY event_date ASC LIMIT ?`,
     )
     .bind(...params)
@@ -106,43 +170,95 @@ export async function getUpcomingEvents(
   return res.results;
 }
 
-export async function getAllEvents(db: D1Database): Promise<Event[]> {
+export async function getAllEvents(
+  db: D1Database,
+  lodgeId: number,
+): Promise<Event[]> {
   const res = await db
     .prepare(
-      "SELECT * FROM events WHERE published = 1 ORDER BY event_date ASC",
+      "SELECT * FROM events WHERE lodge_id = ? AND published = 1 ORDER BY event_date ASC",
     )
+    .bind(lodgeId)
     .all<Event>();
   return res.results;
 }
 
-export async function getPublishedPosts(db: D1Database, limit = 10): Promise<BlogPost[]> {
+// ─── Blog ────────────────────────────────────────────────────────────────────
+
+export async function getPublishedPosts(
+  db: D1Database,
+  lodgeId: number,
+  limit = 10,
+): Promise<BlogPost[]> {
   const res = await db
     .prepare(
-      "SELECT * FROM blog_posts WHERE published = 1 ORDER BY COALESCE(published_at, created_at) DESC LIMIT ?",
+      "SELECT * FROM blog_posts WHERE lodge_id = ? AND published = 1 ORDER BY COALESCE(published_at, created_at) DESC LIMIT ?",
     )
-    .bind(limit)
+    .bind(lodgeId, limit)
     .all<BlogPost>();
   return res.results;
 }
 
-export async function getBlogPost(db: D1Database, slug: string): Promise<BlogPost | null> {
+export async function getBlogPost(
+  db: D1Database,
+  lodgeId: number,
+  slug: string,
+): Promise<BlogPost | null> {
   return db
-    .prepare("SELECT * FROM blog_posts WHERE slug = ? AND published = 1")
-    .bind(slug)
+    .prepare(
+      "SELECT * FROM blog_posts WHERE lodge_id = ? AND slug = ? AND published = 1",
+    )
+    .bind(lodgeId, slug)
     .first<BlogPost>();
 }
 
-export async function getOfficers(db: D1Database): Promise<Officer[]> {
+export async function getAllPosts(
+  db: D1Database,
+  lodgeId: number,
+  limit = 20,
+): Promise<BlogPost[]> {
   const res = await db
     .prepare(
-      "SELECT * FROM officers WHERE active = 1 ORDER BY display_order ASC",
+      "SELECT * FROM blog_posts WHERE lodge_id = ? ORDER BY COALESCE(published_at, created_at) DESC LIMIT ?",
     )
+    .bind(lodgeId, limit)
+    .all<BlogPost>();
+  return res.results;
+}
+
+// ─── Officers ────────────────────────────────────────────────────────────────
+
+export async function getOfficers(
+  db: D1Database,
+  lodgeId: number,
+): Promise<Officer[]> {
+  const res = await db
+    .prepare(
+      "SELECT * FROM officers WHERE lodge_id = ? AND active = 1 ORDER BY display_order ASC",
+    )
+    .bind(lodgeId)
     .all<Officer>();
   return res.results;
 }
 
+export async function getAllOfficers(
+  db: D1Database,
+  lodgeId: number,
+): Promise<Officer[]> {
+  const res = await db
+    .prepare(
+      "SELECT * FROM officers WHERE lodge_id = ? ORDER BY display_order ASC, id ASC",
+    )
+    .bind(lodgeId)
+    .all<Officer>();
+  return res.results;
+}
+
+// ─── Community Service ───────────────────────────────────────────────────────
+
 export async function getCommunityService(
   db: D1Database,
+  lodgeId: number,
   featuredOnly = false,
   limit = 12,
 ): Promise<CommunityService[]> {
@@ -150,10 +266,10 @@ export async function getCommunityService(
   const res = await db
     .prepare(
       `SELECT * FROM community_service
-       WHERE published = 1 ${clause}
+       WHERE lodge_id = ? AND published = 1 ${clause}
        ORDER BY COALESCE(service_date, created_at) DESC LIMIT ?`,
     )
-    .bind(limit)
+    .bind(lodgeId, limit)
     .all<CommunityService>();
   return res.results;
 }

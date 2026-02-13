@@ -1,0 +1,90 @@
+---
+import AdminForm from "../../../../layouts/AdminForm.astro";
+import { getLodgeBySlug } from "../../../../lib/db";
+
+const lodgeSlug = Astro.params.lodge!;
+const env = Astro.locals.runtime.env;
+
+const lodge = await getLodgeBySlug(env.DB, lodgeSlug);
+if (!lodge) return Astro.redirect("/", 302);
+
+let message = "";
+let isError = false;
+
+if (Astro.request.method === "POST") {
+  try {
+    const form = await Astro.request.formData();
+    const now = new Date().toISOString();
+    await env.DB.prepare(
+      `INSERT INTO events (lodge_id, title, event_date, level, description, end_date, location, url, published, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).bind(
+      lodge.id,
+      form.get("title")?.toString() ?? "",
+      form.get("event_date")?.toString() ?? "",
+      form.get("level")?.toString() ?? "lodge",
+      form.get("description")?.toString() || null,
+      form.get("end_date")?.toString() || null,
+      form.get("location")?.toString() || null,
+      form.get("url")?.toString() || null,
+      form.get("published") === "1" ? 1 : 0,
+      now, now,
+    ).run();
+    return Astro.redirect(`/${lodgeSlug}/admin`, 302);
+  } catch (e: unknown) {
+    isError = true;
+    message = `Error: ${e instanceof Error ? e.message : String(e)}`;
+  }
+}
+---
+
+<AdminForm title="New Event" lodgeSlug={lodgeSlug}>
+  {message && <div class={isError ? "error-msg" : "success-msg"}>{message}</div>}
+  <form method="POST">
+    <div class="field">
+      <label>Event Title</label>
+      <input type="text" name="title" required />
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Event Date</label>
+        <input type="date" name="event_date" required />
+      </div>
+      <div class="field">
+        <label>End Date <span class="hint">(optional)</span></label>
+        <input type="date" name="end_date" />
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Level</label>
+        <select name="level">
+          <option value="lodge">Lodge</option>
+          <option value="grand">Grand Lodge</option>
+          <option value="supreme">Supreme Lodge</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Location</label>
+        <input type="text" name="location" />
+      </div>
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <textarea name="description" style="min-height:100px"></textarea>
+    </div>
+    <div class="field">
+      <label>URL <span class="hint">(optional link for more info)</span></label>
+      <input type="url" name="url" />
+    </div>
+    <div class="field">
+      <label class="checkbox-row">
+        <input type="checkbox" name="published" value="1" checked /> Published
+      </label>
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn primary">Save Event</button>
+      <a href={`/${lodgeSlug}/admin`} class="btn secondary">Cancel</a>
+    </div>
+  </form>
+</AdminForm>

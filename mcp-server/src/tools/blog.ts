@@ -1,6 +1,7 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import type { D1Client } from "../db/client.js";
+import { getLodgeId } from "../db/client.js";
 
 function slugify(text: string): string {
   return text
@@ -14,19 +15,22 @@ function slugify(text: string): string {
 export function registerBlogTools(server: McpServer, db: D1Client) {
   server.tool(
     "blog_list",
-    "List blog posts. Defaults to published posts only.",
+    "List blog posts for a lodge. Defaults to published posts only.",
     {
+      lodge_slug: z.string().describe("Lodge slug, e.g. 'ivanhoe-1'"),
       include_drafts: z.boolean().optional().default(false),
       limit: z.number().optional().default(20),
     },
-    async ({ include_drafts, limit }) => {
-      const where = include_drafts ? "" : "WHERE published = 1";
+    async ({ lodge_slug, include_drafts, limit }) => {
+      const lodgeId = await getLodgeId(db, lodge_slug);
+      const publishedClause = include_drafts ? "" : "AND published = 1";
       const rows = await db.all(
         `SELECT id, slug, title, excerpt, author, published, published_at, updated_at
-         FROM blog_posts ${where}
+         FROM blog_posts
+         WHERE lodge_id = ? ${publishedClause}
          ORDER BY COALESCE(published_at, created_at) DESC
          LIMIT ?`,
-        [limit],
+        [lodgeId, limit],
       );
       return {
         content: [{ type: "text", text: JSON.stringify(rows, null, 2) }],
@@ -38,19 +42,21 @@ export function registerBlogTools(server: McpServer, db: D1Client) {
     "blog_get",
     "Get the full content of a blog post by slug or ID",
     {
+      lodge_slug: z.string().describe("Lodge slug, e.g. 'ivanhoe-1'"),
       slug: z.string().optional(),
       id: z.number().optional(),
     },
-    async ({ slug, id }) => {
+    async ({ lodge_slug, slug, id }) => {
       if (!slug && !id) {
         return {
           content: [{ type: "text", text: "Provide either slug or id." }],
           isError: true,
         };
       }
+      const lodgeId = await getLodgeId(db, lodge_slug);
       const row = slug
-        ? await db.first("SELECT * FROM blog_posts WHERE slug = ?", [slug])
-        : await db.first("SELECT * FROM blog_posts WHERE id = ?", [id!]);
+        ? await db.first("SELECT * FROM blog_posts WHERE lodge_id = ? AND slug = ?", [lodgeId, slug])
+        : await db.first("SELECT * FROM blog_posts WHERE lodge_id = ? AND id = ?", [lodgeId, id!]);
 
       if (!row) {
         return {
@@ -66,8 +72,9 @@ export function registerBlogTools(server: McpServer, db: D1Client) {
 
   server.tool(
     "blog_create",
-    "Create a new blog post (saved as draft by default). Content is Markdown.",
+    "Create a new blog post for a lodge (saved as draft by default). Content is Markdown.",
     {
+      lodge_slug: z.string().describe("Lodge slug, e.g. 'ivanhoe-1'"),
       title: z.string(),
       content: z.string().describe("Post body in Markdown"),
       excerpt: z.string().optional().describe("Short summary shown in listings"),
@@ -75,13 +82,15 @@ export function registerBlogTools(server: McpServer, db: D1Client) {
       slug: z.string().optional().describe("URL slug; auto-generated from title if omitted"),
       publish: z.boolean().optional().default(false).describe("Publish immediately"),
     },
-    async ({ title, content, excerpt, author, slug, publish }) => {
+    async ({ lodge_slug, title, content, excerpt, author, slug, publish }) => {
+      const lodgeId = await getLodgeId(db, lodge_slug);
       const finalSlug = slug ?? slugify(title);
       const now = new Date().toISOString();
       const meta = await db.run(
-        `INSERT INTO blog_posts (slug, title, content, excerpt, author, published, published_at, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO blog_posts (lodge_id, slug, title, content, excerpt, author, published, published_at, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
+          lodgeId,
           finalSlug,
           title,
           content,
@@ -97,7 +106,7 @@ export function registerBlogTools(server: McpServer, db: D1Client) {
         content: [
           {
             type: "text",
-            text: `Blog post created (ID: ${meta.last_row_id}, slug: "${finalSlug}", ${publish ? "published" : "draft"}).`,
+            text: `Blog post created (ID: ${meta.last_row_id}, slug: "${finalSlug}", ${publish ? "published" : "draft"}) for lodge '${lodge_slug}'.`,
           },
         ],
       };

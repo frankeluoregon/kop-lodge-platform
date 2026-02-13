@@ -92,3 +92,13 @@ export function createD1Client(): D1Client {
 
   return new D1Client(accountId, databaseId, apiToken);
 }
+
+/** Resolve a lodge slug to its numeric ID. Throws if not found or inactive. */
+export async function getLodgeId(db: D1Client, slug: string): Promise<number> {
+  const row = await db.first<{ id: number }>(
+    "SELECT id FROM lodges WHERE slug = ? AND active = 1",
+    [slug],
+  );
+  if (!row) throw new Error(`Lodge '${slug}' not found or inactive`);
+  return row.id;
+}

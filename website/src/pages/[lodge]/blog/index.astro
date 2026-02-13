@@ -1,0 +1,46 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getLodgeBySlug, getConfig, getPublishedPosts } from "../../../lib/db";
+
+const lodgeSlug = Astro.params.lodge!;
+const db = Astro.locals.runtime.env.DB;
+
+const lodge = await getLodgeBySlug(db, lodgeSlug);
+if (!lodge) return Astro.redirect("/", 302);
+
+const config = await getConfig(db, lodge.id);
+const posts  = await getPublishedPosts(db, lodge.id, 20);
+const base   = `/${lodgeSlug}`;
+
+function fmtDate(d: string) {
+  return new Date(d + "T00:00:00").toLocaleDateString("en-US", {
+    month: "long", day: "numeric", year: "numeric",
+  });
+}
+---
+
+<Base config={config} lodgeSlug={lodgeSlug} title="Blog">
+  <div class="hero">
+    <h1>Blog</h1>
+    <p>{config.lodge_name}</p>
+  </div>
+  <main>
+    {posts.length === 0
+      ? <p style="color:#666">No posts yet. Check back soon!</p>
+      : (
+        <div class="card-grid">
+          {posts.map((post) => (
+            <div class="card">
+              <h3><a href={`${base}/blog/${post.slug}`}>{post.title}</a></h3>
+              {post.published_at && (
+                <p class="meta">{fmtDate(post.published_at)}{post.author ? ` · ${post.author}` : ""}</p>
+              )}
+              {post.excerpt && <p>{post.excerpt}</p>}
+              <a class="cta" href={`${base}/blog/${post.slug}`}>Read more &rarr;</a>
+            </div>
+          ))}
+        </div>
+      )
+    }
+  </main>
+</Base>

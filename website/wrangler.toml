@@ -13,4 +13,8 @@ binding = "MEDIA"
 bucket_name = "kop-lodge-media"
 
 [vars]
-ADMIN_TOKEN_HASH = "9e78061e6eb11997bba0cd537bda08756d3d5a9480c7ec2f45737ebafc8c34aa"
+# Public OIDC config (non-secret)
+# Set secrets via: wrangler secret put OIDC_CLIENT_SECRET
+#                  wrangler secret put SESSION_SECRET
+OIDC_ISSUER    = "https://your-authentik.example.com/application/o/kop/"
+OIDC_CLIENT_ID = "kop-lodge-platform"

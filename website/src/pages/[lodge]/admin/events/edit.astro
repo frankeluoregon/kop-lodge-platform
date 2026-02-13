@@ -1,0 +1,102 @@
+---
+import AdminForm from "../../../../layouts/AdminForm.astro";
+import { getLodgeBySlug } from "../../../../lib/db";
+
+const lodgeSlug = Astro.params.lodge!;
+const env = Astro.locals.runtime.env;
+
+const lodge = await getLodgeBySlug(env.DB, lodgeSlug);
+if (!lodge) return Astro.redirect("/", 302);
+
+const id = Number(new URL(Astro.request.url).searchParams.get("id"));
+if (!id) return Astro.redirect(`/${lodgeSlug}/admin`, 302);
+
+const event = await env.DB.prepare("SELECT * FROM events WHERE id = ? AND lodge_id = ?").bind(id, lodge.id).first<Record<string, unknown>>();
+if (!event) return Astro.redirect(`/${lodgeSlug}/admin`, 302);
+
+let message = "";
+let isError = false;
+
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  const action = form.get("_action");
+
+  if (action === "delete") {
+    await env.DB.prepare("DELETE FROM events WHERE id = ? AND lodge_id = ?").bind(id, lodge.id).run();
+    return Astro.redirect(`/${lodgeSlug}/admin`, 302);
+  }
+
+  try {
+    const now = new Date().toISOString();
+    await env.DB.prepare(
+      `UPDATE events SET title=?,event_date=?,level=?,description=?,end_date=?,location=?,url=?,published=?,updated_at=? WHERE id=? AND lodge_id=?`
+    ).bind(
+      form.get("title")?.toString() ?? "",
+      form.get("event_date")?.toString() ?? "",
+      form.get("level")?.toString() ?? "lodge",
+      form.get("description")?.toString() || null,
+      form.get("end_date")?.toString() || null,
+      form.get("location")?.toString() || null,
+      form.get("url")?.toString() || null,
+      form.get("published") === "1" ? 1 : 0,
+      now, id, lodge.id,
+    ).run();
+    message = "Event updated.";
+  } catch (e: unknown) {
+    isError = true;
+    message = `Error: ${e instanceof Error ? e.message : String(e)}`;
+  }
+}
+---
+
+<AdminForm title="Edit Event" lodgeSlug={lodgeSlug}>
+  {message && <div class={isError ? "error-msg" : "success-msg"}>{message}</div>}
+  <form method="POST">
+    <div class="field">
+      <label>Event Title</label>
+      <input type="text" name="title" value={String(event.title ?? "")} required />
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Event Date</label>
+        <input type="date" name="event_date" value={String(event.event_date ?? "")} required />
+      </div>
+      <div class="field">
+        <label>End Date</label>
+        <input type="date" name="end_date" value={String(event.end_date ?? "")} />
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Level</label>
+        <select name="level">
+          <option value="lodge"   selected={event.level === "lodge"}>Lodge</option>
+          <option value="grand"   selected={event.level === "grand"}>Grand Lodge</option>
+          <option value="supreme" selected={event.level === "supreme"}>Supreme Lodge</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Location</label>
+        <input type="text" name="location" value={String(event.location ?? "")} />
+      </div>
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <textarea name="description" style="min-height:100px">{String(event.description ?? "")}</textarea>
+    </div>
+    <div class="field">
+      <label>URL</label>
+      <input type="url" name="url" value={String(event.url ?? "")} />
+    </div>
+    <div class="field">
+      <label class="checkbox-row">
+        <input type="checkbox" name="published" value="1" checked={Boolean(event.published)} /> Published
+      </label>
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn primary">Save Changes</button>
+      <a href={`/${lodgeSlug}/admin`} class="btn secondary">Cancel</a>
+      <button type="submit" name="_action" value="delete" class="btn danger" onclick="return confirm('Delete this event?')">Delete</button>
+    </div>
+  </form>
+</AdminForm>

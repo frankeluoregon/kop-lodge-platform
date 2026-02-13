@@ -1,0 +1,79 @@
+---
+import AdminForm from "../../../../layouts/AdminForm.astro";
+import { getLodgeBySlug } from "../../../../lib/db";
+
+const lodgeSlug = Astro.params.lodge!;
+const env = Astro.locals.runtime.env;
+
+const lodge = await getLodgeBySlug(env.DB, lodgeSlug);
+if (!lodge) return Astro.redirect("/", 302);
+
+const id = Number(new URL(Astro.request.url).searchParams.get("id"));
+if (!id) return Astro.redirect(`/${lodgeSlug}/admin`, 302);
+
+const entry = await env.DB.prepare("SELECT * FROM community_service WHERE id = ? AND lodge_id = ?").bind(id, lodge.id).first<Record<string, unknown>>();
+if (!entry) return Astro.redirect(`/${lodgeSlug}/admin`, 302);
+
+let message = "";
+let isError = false;
+
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  if (form.get("_action") === "delete") {
+    await env.DB.prepare("DELETE FROM community_service WHERE id = ? AND lodge_id = ?").bind(id, lodge.id).run();
+    return Astro.redirect(`/${lodgeSlug}/admin`, 302);
+  }
+  try {
+    const now = new Date().toISOString();
+    await env.DB.prepare(
+      "UPDATE community_service SET title=?,description=?,service_date=?,featured=?,published=?,updated_at=? WHERE id=? AND lodge_id=?"
+    ).bind(
+      form.get("title")?.toString() ?? "",
+      form.get("description")?.toString() ?? "",
+      form.get("service_date")?.toString() || null,
+      form.get("featured") === "1" ? 1 : 0,
+      form.get("published") === "1" ? 1 : 0,
+      now, id, lodge.id,
+    ).run();
+    message = "Entry updated.";
+  } catch (e: unknown) {
+    isError = true;
+    message = `Error: ${e instanceof Error ? e.message : String(e)}`;
+  }
+}
+---
+
+<AdminForm title="Edit Service Entry" lodgeSlug={lodgeSlug}>
+  {message && <div class={isError ? "error-msg" : "success-msg"}>{message}</div>}
+  <form method="POST">
+    <div class="field">
+      <label>Title</label>
+      <input type="text" name="title" value={String(entry.title ?? "")} required />
+    </div>
+    <div class="field">
+      <label>Service Date</label>
+      <input type="date" name="service_date" value={String(entry.service_date ?? "")} />
+    </div>
+    <div class="field">
+      <label>Description <span class="hint">(Markdown)</span></label>
+      <textarea name="description">{String(entry.description ?? "")}</textarea>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label class="checkbox-row">
+          <input type="checkbox" name="featured" value="1" checked={Boolean(entry.featured)} /> Featured
+        </label>
+      </div>
+      <div class="field">
+        <label class="checkbox-row">
+          <input type="checkbox" name="published" value="1" checked={Boolean(entry.published)} /> Published
+        </label>
+      </div>
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn primary">Save Changes</button>
+      <a href={`/${lodgeSlug}/admin`} class="btn secondary">Cancel</a>
+      <button type="submit" name="_action" value="delete" class="btn danger" onclick="return confirm('Delete this entry?')">Delete</button>
+    </div>
+  </form>
+</AdminForm>
