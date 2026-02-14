@@ -17,6 +17,7 @@ const metaDesc = description ?? config.tagline;
 const primary = config.primary_color || "#252e67";
 const accent = config.accent_color || "#f5a71c";
 const secondary = "#a91e23";
+const neutral = "#4a5072";
 
 function isActive(path: string): boolean {
   return Astro.url.pathname === path;
@@ -34,13 +35,14 @@ function isActivePrefix(prefix: string): boolean {
     <title>{pageTitle}</title>
     <meta name="description" content={metaDesc} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <style define:vars={{ primary, accent, secondary }}>
+    <style define:vars={{ primary, accent, secondary, neutral }}>
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
       :root {
         --primary:   var(--primary);
         --accent:    var(--accent);
         --secondary: var(--secondary);
+        --neutral:   var(--neutral);
         --text:      #1a1a2e;
         --bg:        #f7f8fc;
         --card-bg:   #ffffff;
@@ -59,7 +61,7 @@ function isActivePrefix(prefix: string): boolean {
       .tricolor-stripe span { flex: 1; }
 
       .site-banner {
-        background: #2a2a3e;
+        background: var(--primary);
         color: rgba(255,255,255,.7);
         font-size: .75rem;
         text-align: center;
@@ -67,7 +69,7 @@ function isActivePrefix(prefix: string): boolean {
       }
       .site-banner a { color: var(--accent); font-weight: 600; }
 
-      header { background: var(--primary); color: #fff; padding: 0 1.5rem; }
+      header { background: var(--neutral); color: #fff; padding: 0 1.5rem; }
       .header-inner {
         max-width: var(--max-w); margin: 0 auto;
         display: flex; align-items: center; justify-content: space-between;
@@ -115,7 +117,7 @@ function isActivePrefix(prefix: string): boolean {
       }
       .card .tag { display: inline-block; font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; padding: .2rem .55rem; border-radius: 99px; background: var(--accent); color: var(--primary); }
       .card h3   { font-size: 1.05rem; color: var(--primary); font-weight: 700; }
-      .card .meta { font-size: .8rem; color: #666; }
+      .card .meta { font-size: .8rem; color: var(--neutral); }
       .card p    { font-size: .9rem; }
       .card a.cta {
         margin-top: auto; display: inline-block; font-size: .83rem; font-weight: 700;

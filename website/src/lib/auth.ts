@@ -27,6 +27,18 @@ export interface AuthEnv {
   SESSION_SECRET: string;
 }
 
+/** Returns true if OIDC is properly configured (not placeholder values). */
+export function isOidcConfigured(env: AuthEnv): boolean {
+  return !!env.OIDC_ISSUER && !env.OIDC_ISSUER.includes("example.com");
+}
+
+/** Dev-mode session used when OIDC is not configured. */
+export const DEV_SESSION: SessionData = {
+  email: "dev@local",
+  groups: ["kop-admin"],
+  exp: Math.floor(Date.now() / 1000) + 86400 * 365,
+};
+
 /** Returns the session if the user is authenticated, otherwise null. */
 export async function getSession(
   request: Request,

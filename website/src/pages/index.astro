@@ -7,6 +7,7 @@ const lodges = await getAllLodges(db);
 const primary   = "#252e67";
 const accent    = "#f5a71c";
 const secondary = "#a91e23";
+const neutral   = "#4a5072";
 ---
 
 <!doctype html>
@@ -17,10 +18,10 @@ const secondary = "#a91e23";
   <title>Oregon Knights of Pythias – Lodge Directory</title>
   <meta name="description" content="Oregon Knights of Pythias — Lodge Directory. Friendship, Charity, Benevolence." />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <style define:vars={{ primary, accent, secondary }}>
+  <style define:vars={{ primary, accent, secondary, neutral }}>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --primary: var(--primary); --accent: var(--accent);
+      --primary: var(--primary); --accent: var(--accent); --neutral: var(--neutral);
       --text: #1a1a2e; --bg: #f7f8fc; --card-bg: #fff;
       --border: #dde0eb; --radius: 6px; --shadow: 0 2px 8px rgba(0,0,0,.08);
       --max-w: 1100px; --font: 'Trebuchet MS', Trebuchet, 'Gill Sans MT', Arial, sans-serif;
@@ -32,7 +33,7 @@ const secondary = "#a91e23";
     .tricolor { display: flex; height: 5px; }
     .tricolor span { flex: 1; }
 
-    header { background: var(--primary); padding: 0 1.5rem; }
+    header { background: var(--neutral); padding: 0 1.5rem; }
     .header-inner {
       max-width: var(--max-w); margin: 0 auto;
       display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 0;
@@ -82,7 +83,7 @@ const secondary = "#a91e23";
       transition: box-shadow .15s, transform .15s;
     }
     .lodge-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,.14); transform: translateY(-2px); text-decoration: none; }
-    .lodge-num  { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #888; }
+    .lodge-num  { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--neutral); }
     .lodge-name { font-size: 1.05rem; font-weight: 700; color: var(--primary); }
     .lodge-arrow { margin-top: .5rem; font-size: .82rem; color: var(--primary); font-weight: 600; }
 

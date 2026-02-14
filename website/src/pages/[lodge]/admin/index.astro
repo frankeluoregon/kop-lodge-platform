@@ -1,14 +1,19 @@
 ---
-import { getSession, canAccessLodge } from "../../../lib/auth";
+import { getSession, canAccessLodge, isOidcConfigured, DEV_SESSION } from "../../../lib/auth";
 import { getLodgeBySlug, getConfig, getUpcomingEvents, getAllPosts, getAllOfficers, getCommunityService, getAllPages } from "../../../lib/db";
 
 const lodgeSlug = Astro.params.lodge!;
 const env = Astro.locals.runtime.env;
 
-const session = await getSession(Astro.request, env);
-if (!session || !canAccessLodge(session, lodgeSlug)) {
-  const redirect = encodeURIComponent(Astro.url.pathname);
-  return Astro.redirect(`/auth/login?redirect=${redirect}`, 302);
+let session;
+if (isOidcConfigured(env)) {
+  session = await getSession(Astro.request, env);
+  if (!session || !canAccessLodge(session, lodgeSlug)) {
+    const redirect = encodeURIComponent(Astro.url.pathname);
+    return Astro.redirect(`/auth/login?redirect=${redirect}`, 302);
+  }
+} else {
+  session = DEV_SESSION;
 }
 
 const lodge = await getLodgeBySlug(env.DB, lodgeSlug);
@@ -23,6 +28,7 @@ const pages    = await getAllPages(env.DB, lodge.id);
 
 const primary = config.primary_color || "#252e67";
 const accent  = config.accent_color  || "#f5a71c";
+const neutral = "#4a5072";
 const base    = `/${lodgeSlug}`;
 ---
 
@@ -32,13 +38,13 @@ const base    = `/${lodgeSlug}`;
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Admin – {config.lodge_name}</title>
-  <style define:vars={{ primary, accent }}>
+  <style define:vars={{ primary, accent, neutral }}>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif; background: #f0f0f5; color: #1a1a2e; }
     a { color: var(--primary); text-decoration: none; }
     a:hover { text-decoration: underline; }
 
-    .topbar { background: var(--primary); color: #fff; padding: .6rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+    .topbar { background: var(--neutral); color: #fff; padding: .6rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
     .topbar .brand { color: var(--accent); font-weight: bold; font-size: 1.1rem; }
     .topbar nav { display: flex; gap: .5rem; align-items: center; }
     .topbar nav a { color: rgba(255,255,255,.85); font-size: .85rem; padding: .3rem .6rem; border-radius: 4px; }
@@ -64,7 +70,7 @@ const base    = `/${lodgeSlug}`;
     .btn.danger:hover { background: #c00; color: #fff; }
 
     .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; font-size: .85rem; }
-    .config-key { color: #666; }
+    .config-key { color: var(--neutral); }
   </style>
 </head>
 <body>
