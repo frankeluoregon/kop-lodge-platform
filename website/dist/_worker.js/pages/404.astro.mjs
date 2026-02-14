@@ -1,7 +1,7 @@
 globalThis.process ??= {}; globalThis.process.env ??= {};
 import { e as createComponent, k as renderComponent, r as renderTemplate, h as createAstro, m as maybeRenderHead } from '../chunks/astro/server_Bbl4cOtW.mjs';
-import { g as getConfig } from '../chunks/db_gU-B10Xp.mjs';
-import { $ as $$Base } from '../chunks/Base_CDh63bjS.mjs';
+import { g as getConfig } from '../chunks/db_io3TIJnB.mjs';
+import { $ as $$Base } from '../chunks/Base_BEa6pC1J.mjs';
 export { renderers } from '../renderers.mjs';
 
 const $$Astro = createAstro();
@@ -11,8 +11,8 @@ const $$404 = createComponent(async ($$result, $$props, $$slots) => {
   const db = Astro2.locals.runtime.env.DB;
   const config = await getConfig(db).catch(() => ({
     lodge_name: "Our Lodge",
-    primary_color: "#4B0082",
-    accent_color: "#FFD700",
+    primary_color: "#252e67",
+    accent_color: "#f5a71c",
     tagline: "",
     lodge_number: "0",
     city: "",
