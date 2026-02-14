@@ -1,0 +1,122 @@
+---
+import { getSession, isOidcConfigured, DEV_SESSION } from "../../../lib/auth";
+import { createLodge } from "../../../lib/db";
+
+const env = Astro.locals.runtime.env;
+
+let session;
+if (isOidcConfigured(env)) {
+  session = await getSession(Astro.request, env);
+  if (!session || !session.groups.includes("kop-admin")) {
+    return Astro.redirect(`/auth/login?redirect=${encodeURIComponent(Astro.url.pathname)}`, 302);
+  }
+} else {
+  session = DEV_SESSION;
+}
+
+let error = "";
+let success = "";
+
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  const name = (form.get("name") as string || "").trim();
+  const number = (form.get("number") as string || "").trim();
+  const slug = (form.get("slug") as string || "").trim().toLowerCase().replace(/[^a-z0-9-]/g, "");
+
+  if (!name || !number || !slug) {
+    error = "All fields are required.";
+  } else {
+    try {
+      const id = await createLodge(env.DB, slug, name, number);
+      return Astro.redirect(`/admin/lodges/edit?id=${id}&created=1`, 302);
+    } catch (e: any) {
+      error = e.message?.includes("UNIQUE") ? "A lodge with that slug already exists." : `Error: ${e.message}`;
+    }
+  }
+}
+
+const primary = "#252e67";
+const accent  = "#f5a71c";
+const neutral = "#4a5072";
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Create Lodge – Site Admin</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <style define:vars={{ primary, accent, neutral }}>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif; background: #f0f0f5; color: #1a1a2e; }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .topbar { background: var(--neutral); color: #fff; padding: .6rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+    .topbar .brand { display: flex; align-items: center; gap: .5rem; }
+    .topbar .brand img { height: 28px; width: auto; }
+    .topbar .brand span { color: var(--accent); font-weight: bold; font-size: 1.1rem; }
+    .topbar nav { display: flex; gap: .5rem; align-items: center; }
+    .topbar nav a { color: rgba(255,255,255,.85); font-size: .85rem; padding: .3rem .6rem; border-radius: 4px; }
+    .topbar nav a:hover { background: rgba(255,255,255,.15); text-decoration: none; }
+
+    main { max-width: 600px; margin: 1.5rem auto; padding: 0 1rem; }
+    .back-link { font-size: .85rem; margin-bottom: 1rem; display: inline-block; }
+    h1 { font-size: 1.4rem; color: var(--primary); margin-bottom: 1.25rem; }
+
+    form { background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+    .field { margin-bottom: 1.1rem; }
+    label { display: block; font-size: .85rem; font-weight: 600; color: #333; margin-bottom: .3rem; }
+    label .hint { font-weight: 400; color: #888; font-size: .8rem; margin-left: .4rem; }
+    input[type="text"], input[type="number"] {
+      width: 100%; padding: .55rem .75rem; border: 1.5px solid #ccc;
+      border-radius: 5px; font-size: .9rem; font-family: inherit; background: #fff;
+    }
+    input:focus { outline: none; border-color: var(--primary); }
+
+    .actions { display: flex; gap: .75rem; margin-top: 1.5rem; align-items: center; }
+    .btn { padding: .55rem 1.2rem; border-radius: 5px; border: 1.5px solid var(--primary); font-size: .9rem; font-family: inherit; cursor: pointer; transition: background .15s, color .15s; }
+    .btn.primary { background: var(--primary); color: #fff; }
+    .btn.primary:hover { opacity: .88; }
+
+    .error-msg { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; border-radius: 5px; padding: .6rem 1rem; margin-bottom: 1rem; font-size: .88rem; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <img src="/seal.svg" alt="KoP Seal" />
+      <span>Site Admin</span>
+    </div>
+    <nav>
+      <a href="/admin">Dashboard</a>
+      <a href="/">View Site</a>
+    </nav>
+  </div>
+  <main>
+    <a class="back-link" href="/admin">&larr; Back to Dashboard</a>
+    <h1>Create Lodge</h1>
+
+    {error && <div class="error-msg">{error}</div>}
+
+    <form method="POST">
+      <div class="field">
+        <label>Lodge Name</label>
+        <input type="text" name="name" placeholder="e.g. Damon Lodge No. 4" required />
+      </div>
+      <div class="field">
+        <label>Lodge Number</label>
+        <input type="text" name="number" placeholder="e.g. 4" required />
+      </div>
+      <div class="field">
+        <label>URL Slug <span class="hint">lowercase, letters/numbers/hyphens only</span></label>
+        <input type="text" name="slug" placeholder="e.g. damon" required pattern="[a-z0-9-]+" />
+      </div>
+      <div class="actions">
+        <button type="submit" class="btn primary">Create Lodge</button>
+      </div>
+    </form>
+  </main>
+</body>
+</html>

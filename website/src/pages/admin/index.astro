@@ -1,3 +1,143 @@
 ---
-return Astro.redirect("/", 302);
+import { getSession, canAccessLodge, isOidcConfigured, DEV_SESSION } from "../../lib/auth";
+import { getAllLodgesAdmin } from "../../lib/db";
+
+const env = Astro.locals.runtime.env;
+
+let session;
+if (isOidcConfigured(env)) {
+  session = await getSession(Astro.request, env);
+  if (!session || !session.groups.includes("kop-admin")) {
+    const redirect = encodeURIComponent(Astro.url.pathname);
+    return Astro.redirect(`/auth/login?redirect=${redirect}`, 302);
+  }
+} else {
+  session = DEV_SESSION;
+}
+
+const lodges = await getAllLodgesAdmin(env.DB);
+
+const primary   = "#252e67";
+const accent    = "#f5a71c";
+const secondary = "#a91e23";
+const neutral   = "#4a5072";
 ---
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Site Admin – Oregon Knights of Pythias</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <style define:vars={{ primary, accent, secondary, neutral }}>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif; background: #f0f0f5; color: #1a1a2e; }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .topbar {
+      background: var(--neutral); color: #fff; padding: .6rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .topbar .brand { display: flex; align-items: center; gap: .5rem; }
+    .topbar .brand img { height: 28px; width: auto; }
+    .topbar .brand span { color: var(--accent); font-weight: bold; font-size: 1.1rem; }
+    .topbar nav { display: flex; gap: .5rem; align-items: center; }
+    .topbar nav a { color: rgba(255,255,255,.85); font-size: .85rem; padding: .3rem .6rem; border-radius: 4px; }
+    .topbar nav a:hover { background: rgba(255,255,255,.15); text-decoration: none; }
+    .topbar .user { font-size: .78rem; color: rgba(255,255,255,.6); }
+
+    .tricolor-stripe { display: flex; height: 4px; }
+    .tricolor-stripe span { flex: 1; }
+
+    main { max-width: 900px; margin: 1.5rem auto; padding: 0 1rem; }
+    h1 { font-size: 1.4rem; margin-bottom: .5rem; color: var(--primary); }
+    .subtitle { font-size: .88rem; color: var(--neutral); margin-bottom: 1.5rem; }
+
+    .lodge-table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+    .lodge-table th { background: var(--primary); color: #fff; text-align: left; padding: .6rem .8rem; font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; }
+    .lodge-table td { padding: .55rem .8rem; border-bottom: 1px solid #eee; font-size: .88rem; }
+    .lodge-table tr:last-child td { border-bottom: none; }
+    .lodge-table tr:hover td { background: #f8f8fc; }
+    .lodge-table .slug { font-family: 'Cascadia Code', Consolas, monospace; font-size: .82rem; color: var(--neutral); }
+    .lodge-table .inactive { opacity: .5; }
+    .badge { display: inline-block; font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; padding: .15rem .45rem; border-radius: 99px; }
+    .badge.active { background: #d4edda; color: #155724; }
+    .badge.disabled { background: #f8d7da; color: #721c24; }
+
+    .btn { display: inline-block; padding: .3rem .7rem; font-size: .8rem; border-radius: 4px; border: 1.5px solid var(--primary); color: var(--primary); font-weight: 600; transition: background .15s, color .15s; }
+    .btn:hover { background: var(--primary); color: #fff; text-decoration: none; }
+    .btn.add { background: var(--primary); color: #fff; border: none; padding: .45rem 1rem; font-size: .88rem; margin-bottom: 1.25rem; }
+    .btn.add:hover { opacity: .88; text-decoration: none; }
+
+    .empty { text-align: center; padding: 2rem; color: var(--neutral); font-size: .9rem; }
+  </style>
+</head>
+<body>
+  <div class="tricolor-stripe">
+    <span style={`background:${primary}`}></span>
+    <span style={`background:${secondary}`}></span>
+    <span style={`background:${accent}`}></span>
+  </div>
+  <div class="topbar">
+    <div class="brand">
+      <img src="/seal.svg" alt="KoP Seal" />
+      <span>Site Admin</span>
+    </div>
+    <nav>
+      <a href="/">View Site</a>
+      <span class="user">{session.email}</span>
+      {isOidcConfigured(env) && <a href="/auth/logout">Log out</a>}
+    </nav>
+  </div>
+
+  <main>
+    <h1>Lodge Management</h1>
+    <p class="subtitle">Create and manage lodges across the Oregon Grand Domain.</p>
+
+    <a class="btn add" href="/admin/lodges/new">+ Create Lodge</a>
+
+    {lodges.length === 0 ? (
+      <div class="empty">
+        <p>No lodges yet. Create your first lodge to get started.</p>
+      </div>
+    ) : (
+      <table class="lodge-table">
+        <thead>
+          <tr>
+            <th>No.</th>
+            <th>Name</th>
+            <th>Slug</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {lodges.map((lodge) => (
+            <tr class={lodge.active ? "" : "inactive"}>
+              <td>{lodge.number}</td>
+              <td>{lodge.name}</td>
+              <td class="slug">/{lodge.slug}</td>
+              <td>
+                <span class={`badge ${lodge.active ? "active" : "disabled"}`}>
+                  {lodge.active ? "Active" : "Inactive"}
+                </span>
+              </td>
+              <td>
+                <a class="btn" href={`/admin/lodges/edit?id=${lodge.id}`}>Edit</a>
+                {lodge.active ? (
+                  <>
+                    <a class="btn" href={`/${lodge.slug}/`}>Site</a>
+                    <a class="btn" href={`/${lodge.slug}/admin`}>Admin</a>
+                  </>
+                ) : null}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </main>
+</body>
+</html>

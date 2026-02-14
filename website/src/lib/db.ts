@@ -94,6 +94,17 @@ export async function getAllLodges(db: D1Database): Promise<Lodge[]> {
   return res.results;
 }
 
+export async function getAllLodgesAdmin(db: D1Database): Promise<Lodge[]> {
+  const res = await db
+    .prepare("SELECT * FROM lodges ORDER BY CAST(number AS INTEGER) ASC")
+    .all<Lodge>();
+  return res.results;
+}
+
+export async function getLodgeById(db: D1Database, id: number): Promise<Lodge | null> {
+  return db.prepare("SELECT * FROM lodges WHERE id = ?").bind(id).first<Lodge>();
+}
+
 export async function getLodgeBySlug(
   db: D1Database,
   slug: string,
@@ -102,6 +113,38 @@ export async function getLodgeBySlug(
     .prepare("SELECT * FROM lodges WHERE slug = ? AND active = 1")
     .bind(slug)
     .first<Lodge>();
+}
+
+export async function createLodge(
+  db: D1Database,
+  slug: string,
+  name: string,
+  number: string,
+): Promise<number> {
+  const res = await db
+    .prepare("INSERT INTO lodges (slug, name, number, active) VALUES (?, ?, ?, 1)")
+    .bind(slug, name, number)
+    .run();
+  const id = res.meta.last_row_id as number;
+  await db
+    .prepare("INSERT INTO lodge_config (lodge_id, key, value) VALUES (?, 'lodge_name', ?), (?, 'lodge_number', ?)")
+    .bind(id, name, id, number)
+    .run();
+  return id;
+}
+
+export async function updateLodge(
+  db: D1Database,
+  id: number,
+  slug: string,
+  name: string,
+  number: string,
+  active: number,
+): Promise<void> {
+  await db
+    .prepare("UPDATE lodges SET slug = ?, name = ?, number = ?, active = ? WHERE id = ?")
+    .bind(slug, name, number, active, id)
+    .run();
 }
 
 // ─── Config ─────────────────────────────────────────────────────────────────
