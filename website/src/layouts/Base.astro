@@ -14,9 +14,9 @@ const pageTitle = title
   ? `${title} | ${config.lodge_name}`
   : `${config.lodge_name} – Knights of Pythias`;
 const metaDesc = description ?? config.tagline;
-const primary = config.primary_color || "#4B0082";
-const accent = config.accent_color || "#FFD700";
-const secondary = "#C41230";
+const primary = config.primary_color || "#252e67";
+const accent = config.accent_color || "#f5a71c";
+const secondary = "#a91e23";
 
 function isActive(path: string): boolean {
   return Astro.url.pathname === path;
@@ -73,7 +73,9 @@ function isActivePrefix(prefix: string): boolean {
         display: flex; align-items: center; justify-content: space-between;
         gap: 1rem; padding: .8rem 0;
       }
-      .lodge-brand { display: flex; flex-direction: column; gap: .15rem; }
+      .lodge-brand { display: flex; align-items: center; gap: .75rem; }
+      .lodge-brand .header-logo { height: 40px; width: auto; flex-shrink: 0; }
+      .lodge-brand .brand-text { display: flex; flex-direction: column; gap: .15rem; }
       .lodge-brand .name { font-size: 1.4rem; font-weight: 700; color: var(--accent); letter-spacing: .04em; text-transform: uppercase; }
       .lodge-brand .sub  { font-size: .78rem; opacity: .88; letter-spacing: .02em; }
 
@@ -101,7 +103,10 @@ function isActivePrefix(prefix: string): boolean {
       .section-heading {
         font-size: 1.45rem; color: var(--primary); text-transform: uppercase;
         letter-spacing: .04em; border-bottom: 3px solid var(--accent); padding-bottom: .35rem; margin-bottom: 1.5rem;
+        display: flex; align-items: center; gap: .5rem;
       }
+      .tri-accent { display: inline-flex; gap: 3px; flex-shrink: 0; }
+      .tri-accent img { height: 14px; width: auto; }
 
       .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 1.25rem; margin-bottom: 2.5rem; }
       .card {
@@ -122,7 +127,13 @@ function isActivePrefix(prefix: string): boolean {
 
       .prose h1, .prose h2, .prose h3 { color: var(--primary); margin: 1.3rem 0 .5rem; text-transform: uppercase; letter-spacing: .03em; }
       .prose p  { margin-bottom: 1rem; }
-      .prose ul { padding-left: 1.5rem; margin-bottom: 1rem; }
+      .prose ul { padding-left: 1.5rem; margin-bottom: 1rem; list-style: none; }
+      .prose ul li { position: relative; padding-left: 1.2rem; }
+      .prose ul li::before {
+        content: ''; position: absolute; left: 0; top: .55em;
+        width: 10px; height: 9px;
+        background: url('/bluetri.svg') no-repeat center/contain;
+      }
       .prose a  { color: var(--primary); text-decoration: underline; }
       .prose hr { border: none; border-top: 2px solid var(--accent); margin: 2rem 0; }
 
@@ -134,7 +145,12 @@ function isActivePrefix(prefix: string): boolean {
       }
       footer h4  { color: var(--accent); margin-bottom: .4rem; font-size: .88rem; text-transform: uppercase; letter-spacing: .05em; }
       footer ul  { list-style: none; }
-      footer li  { margin-bottom: .25rem; }
+      footer li  { margin-bottom: .25rem; padding-left: 1rem; position: relative; }
+      footer li::before {
+        content: ''; position: absolute; left: 0; top: .45em;
+        width: 8px; height: 7px;
+        background: url('/yeltri.svg') no-repeat center/contain;
+      }
 
       @media (max-width: 640px) {
         .header-inner { flex-direction: column; align-items: flex-start; }
@@ -155,8 +171,11 @@ function isActivePrefix(prefix: string): boolean {
     <header>
       <div class="header-inner">
         <a href={base} class="lodge-brand" style="text-decoration:none">
-          <span class="name">{config.lodge_name}</span>
-          <span class="sub">Knights of Pythias{config.lodge_number && config.lodge_number !== "0" ? ` · Lodge No. ${config.lodge_number}` : ""}{config.city ? ` · ${config.city}` : ""}</span>
+          <img src="/seal.svg" alt="KoP Seal" class="header-logo" />
+          <div class="brand-text">
+            <span class="name">{config.lodge_name}</span>
+            <span class="sub">Knights of Pythias{config.lodge_number && config.lodge_number !== "0" ? ` · Lodge No. ${config.lodge_number}` : ""}{config.city ? ` · ${config.city}` : ""}</span>
+          </div>
         </a>
         <nav>
           <a href={base}                          aria-current={isActive(`${base}`) || isActive(`${base}/`) ? "page" : undefined}>Home</a>

@@ -28,8 +28,8 @@ const lodge = await getLodgeBySlug(env.DB, lodgeSlug);
 if (!lodge) return Astro.redirect("/", 302);
 
 const config = await getConfig(env.DB, lodge.id);
-const primary = config.primary_color || "#4B0082";
-const accent  = config.accent_color  || "#FFD700";
+const primary = config.primary_color || "#252e67";
+const accent  = config.accent_color  || "#f5a71c";
 ---
 
 <!doctype html>

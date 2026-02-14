@@ -118,8 +118,8 @@ export async function getConfig(
   for (const row of rows.results) map[row.key] = row.value;
   // Defaults
   if (!map.lodge_name) map.lodge_name = "Lodge";
-  if (!map.primary_color) map.primary_color = "#4B0082";
-  if (!map.accent_color) map.accent_color = "#FFD700";
+  if (!map.primary_color) map.primary_color = "#252e67";
+  if (!map.accent_color) map.accent_color = "#f5a71c";
   return map as unknown as LodgeConfig;
 }
 

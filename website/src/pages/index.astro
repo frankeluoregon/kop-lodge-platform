@@ -4,9 +4,9 @@ import { getAllLodges } from "../lib/db";
 const db = Astro.locals.runtime.env.DB;
 const lodges = await getAllLodges(db);
 
-const primary   = "#4B0082";
-const accent    = "#FFD700";
-const secondary = "#C41230";
+const primary   = "#252e67";
+const accent    = "#f5a71c";
+const secondary = "#a91e23";
 ---
 
 <!doctype html>
@@ -39,6 +39,8 @@ const secondary = "#C41230";
     }
     .brand-name { font-size: 1.4rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; }
     .brand-sub  { font-size: .78rem; color: rgba(255,255,255,.8); }
+    .header-logo { height: 44px; width: auto; flex-shrink: 0; }
+    .brand-group { display: flex; align-items: center; gap: .75rem; }
     .ext-link {
       color: rgba(255,255,255,.8); font-size: .85rem; padding: .35rem .7rem;
       border-radius: 4px; border: 1px solid rgba(255,255,255,.3);
@@ -53,6 +55,8 @@ const secondary = "#C41230";
       content: ''; display: block; position: absolute; bottom: 0; left: 0; right: 0; height: 5px;
       background: linear-gradient(to right, var(--primary) 33.3%, var(--secondary) 33.3% 66.6%, var(--accent) 66.6%);
     }
+    .hero-content { display: flex; align-items: center; justify-content: center; gap: 2rem; flex-wrap: wrap; }
+    .hero-logo { height: 120px; width: auto; filter: drop-shadow(0 2px 8px rgba(0,0,0,.3)); }
     .hero h1 { font-size: 2.5rem; color: var(--accent); text-transform: uppercase; letter-spacing: .06em; margin-bottom: .5rem; }
     .hero .tagline { font-size: 1rem; letter-spacing: .1em; text-transform: uppercase; opacity: .88; }
 
@@ -61,7 +65,12 @@ const secondary = "#C41230";
     .section-heading {
       font-size: 1.4rem; color: var(--primary); text-transform: uppercase;
       letter-spacing: .04em; border-bottom: 3px solid var(--accent); padding-bottom: .3rem; margin-bottom: 1.25rem;
+      display: flex; align-items: center; gap: .5rem;
     }
+    .section-heading .tri-accent {
+      display: inline-flex; gap: 3px; flex-shrink: 0;
+    }
+    .section-heading .tri-accent img { height: 14px; width: auto; }
 
     .lodge-grid {
       display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 2.5rem;
@@ -104,21 +113,33 @@ const secondary = "#C41230";
 
   <header>
     <div class="header-inner">
-      <a href="/" style="text-decoration:none">
-        <div class="brand-name">Oregon Knights of Pythias</div>
-        <div class="brand-sub">Grand Domain of Oregon &middot; Lodge Directory</div>
+      <a href="/" style="text-decoration:none" class="brand-group">
+        <img src="/seal.svg" alt="KoP Seal" class="header-logo" />
+        <div>
+          <div class="brand-name">Oregon Knights of Pythias</div>
+          <div class="brand-sub">Grand Domain of Oregon &middot; Lodge Directory</div>
+        </div>
       </a>
       <a href="https://www.pythias.org" target="_blank" rel="noopener" class="ext-link">Supreme Lodge ↗</a>
     </div>
   </header>
 
   <div class="hero">
-    <h1>Oregon Knights of Pythias</h1>
-    <p class="tagline">Friendship &middot; Charity &middot; Benevolence</p>
+    <div class="hero-content">
+      <img src="/knight.svg" alt="Knight" class="hero-logo" />
+      <div>
+        <h1>Oregon Knights of Pythias</h1>
+        <p class="tagline">Friendship &middot; Charity &middot; Benevolence</p>
+      </div>
+      <img src="/seal.svg" alt="FCB Seal" class="hero-logo" />
+    </div>
   </div>
 
   <main>
-    <h2 class="section-heading">Oregon Lodges</h2>
+    <h2 class="section-heading">
+      <span class="tri-accent"><img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" /></span>
+      Oregon Lodges
+    </h2>
     <p style="margin-bottom:1.25rem;font-size:.95rem;color:#555">
       Select a lodge below to visit their website, view events, meet their officers, and learn about their community service.
     </p>
@@ -134,7 +155,10 @@ const secondary = "#C41230";
     </div>
 
     <div class="about-box">
-      <h2 class="section-heading">About the Knights of Pythias</h2>
+      <h2 class="section-heading">
+        <span class="tri-accent"><img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" /></span>
+        About the Knights of Pythias
+      </h2>
       <p>
         The Knights of Pythias is a non-sectarian fraternal organization founded in 1864 in Washington, D.C.
         by Justus H. Rathbone. It was the first fraternal organization to receive a charter from an Act of Congress.

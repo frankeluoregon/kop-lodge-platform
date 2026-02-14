@@ -2,7 +2,7 @@
 import { getConfig } from "../lib/db";
 const db = Astro.locals.runtime.env.DB;
 const config = await getConfig(db).catch(() => ({
-  lodge_name: "Our Lodge", primary_color: "#4B0082", accent_color: "#FFD700",
+  lodge_name: "Our Lodge", primary_color: "#252e67", accent_color: "#f5a71c",
   tagline: "", lodge_number: "0", city: "", state: "", grand_domain: "",
   meeting_schedule: "", meeting_location: "", phone: "", email: "",
   facebook_url: "", founded_year: "", logo_key: "",
