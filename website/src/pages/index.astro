@@ -50,7 +50,7 @@ const contentBg = "#ded3c3";
     .ext-link:hover { background: rgba(255,255,255,.15); text-decoration: none; }
 
     .hero { background: var(--contentBg); padding: 2rem 1.5rem; }
-    .hero img { display: block; max-width: var(--max-w); width: 100%; height: auto; margin: 0 auto; border-radius: var(--radius); }
+    .hero img { display: block; max-width: var(--max-w); width: 100%; height: auto; margin: 0 auto; border-radius: var(--radius); margin-bottom: -30px; clip-path: inset(0 0 30px 0); }
 
     main { max-width: var(--max-w); margin: 2.5rem auto; padding: 0 1.5rem; color: #fff; }
 
@@ -68,7 +68,7 @@ const contentBg = "#ded3c3";
       display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 2.5rem;
     }
     .lodge-card {
-      background: var(--card-bg); border: 1px solid var(--border); border-top: 4px solid var(--secondary);
+      background: #f7f0e7; border: 1px solid var(--border); border-top: 4px solid var(--secondary);
       border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.25rem;
       display: flex; flex-direction: column; gap: .4rem;
       transition: box-shadow .15s, transform .15s;
