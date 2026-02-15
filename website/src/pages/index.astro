@@ -49,10 +49,10 @@ const contentBg = "#ded3c3";
     }
     .ext-link:hover { background: rgba(255,255,255,.15); text-decoration: none; }
 
-    .hero { background: var(--contentBg); padding: 0 1.5rem; }
-    .hero img { display: block; max-width: var(--max-w); width: 100%; height: auto; margin: 0 auto; margin-bottom: -30px; clip-path: inset(0 0 30px 0); }
+    .hero img { display: block; width: 100%; height: auto; margin-bottom: -30px; clip-path: inset(0 0 30px 0); }
 
-    main { max-width: var(--max-w); margin: 2.5rem auto; padding: 0 1.5rem; color: #fff; }
+    main { max-width: 100%; margin: 0; padding: 0; color: #fff; }
+    main .content-box { max-width: var(--max-w); margin: 0 auto; border-radius: 0; border-left: none; border-right: none; }
 
     .section-heading {
       font-size: 1.4rem; color: var(--accent); text-transform: uppercase;
@@ -84,7 +84,7 @@ const contentBg = "#ded3c3";
     }
     .content-box p { margin-bottom: .75rem; font-size: .95rem; }
     .content-box .section-heading { color: var(--primary); }
-    .content-box + .content-box { margin-top: 2rem; }
+    .content-box + .content-box { border-top: 3px solid var(--primary); }
 
     footer {
       background: var(--secondary); color: var(--accent); text-align: center;
