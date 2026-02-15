@@ -27,7 +27,7 @@ const heroBg = "#e8eaef";
       --border: #dde0eb; --radius: 6px; --shadow: 0 2px 8px rgba(0,0,0,.08);
       --max-w: 1100px; --font: 'Trebuchet MS', Trebuchet, 'Gill Sans MT', Arial, sans-serif;
     }
-    body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.7; }
+    body { font-family: var(--font); background: var(--primary); color: var(--text); line-height: 1.7; }
     a { color: var(--primary); text-decoration: none; }
     a:hover { text-decoration: underline; }
 
@@ -67,10 +67,10 @@ const heroBg = "#e8eaef";
     .hero h1 { font-size: 2.5rem; color: var(--secondary); text-transform: uppercase; letter-spacing: .06em; margin-bottom: .5rem; }
     .hero .tagline { font-size: 1rem; letter-spacing: .1em; text-transform: uppercase; color: var(--neutral); }
 
-    main { max-width: var(--max-w); margin: 2.5rem auto; padding: 0 1.5rem; }
+    main { max-width: var(--max-w); margin: 2.5rem auto; padding: 0 1.5rem; color: #fff; }
 
     .section-heading {
-      font-size: 1.4rem; color: var(--primary); text-transform: uppercase;
+      font-size: 1.4rem; color: var(--accent); text-transform: uppercase;
       letter-spacing: .04em; border-bottom: 3px solid var(--accent); padding-bottom: .3rem; margin-bottom: 1.25rem;
       display: flex; align-items: center; gap: .5rem;
     }
@@ -83,7 +83,7 @@ const heroBg = "#e8eaef";
       display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 2.5rem;
     }
     .lodge-card {
-      background: var(--card-bg); border: 1px solid var(--border); border-top: 4px solid var(--primary);
+      background: var(--card-bg); border: 1px solid var(--border); border-top: 4px solid var(--secondary);
       border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.25rem;
       display: flex; flex-direction: column; gap: .4rem;
       transition: box-shadow .15s, transform .15s;
@@ -91,19 +91,22 @@ const heroBg = "#e8eaef";
     .lodge-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,.14); transform: translateY(-2px); text-decoration: none; }
     .lodge-num  { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--neutral); }
     .lodge-name { font-size: 1.05rem; font-weight: 700; color: var(--primary); }
-    .lodge-arrow { margin-top: .5rem; font-size: .82rem; color: var(--primary); font-weight: 600; }
+    .lodge-arrow { margin-top: .5rem; font-size: .82rem; color: var(--secondary); font-weight: 600; }
 
-    .about-box {
+    .content-box {
       background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 1.75rem; box-shadow: var(--shadow);
+      padding: 1.75rem; box-shadow: var(--shadow); color: var(--text);
     }
-    .about-box p { margin-bottom: .75rem; font-size: .95rem; }
+    .content-box p { margin-bottom: .75rem; font-size: .95rem; }
+    .content-box .section-heading { color: var(--primary); }
+    .content-box + .content-box { margin-top: 2rem; }
 
     footer {
-      background: var(--primary); color: rgba(255,255,255,.8); text-align: center;
+      background: var(--secondary); color: var(--accent); text-align: center;
       padding: 1.5rem; margin-top: 3rem; font-size: .85rem;
     }
-    footer a { color: var(--accent); }
+    footer a { color: var(--accent); opacity: .85; }
+    footer a:hover { opacity: 1; }
 
     @media (max-width: 640px) {
       .hero h1 { font-size: 1.7rem; }
@@ -143,25 +146,27 @@ const heroBg = "#e8eaef";
   </div>
 
   <main>
-    <h2 class="section-heading">
-      <span class="tri-accent"><img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" /></span>
-      Oregon Lodges
-    </h2>
-    <p style="margin-bottom:1.25rem;font-size:.95rem;color:#555">
-      Select a lodge below to visit their website, view events, meet their officers, and learn about their community service.
-    </p>
+    <div class="content-box">
+      <h2 class="section-heading">
+        <span class="tri-accent"><img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" /></span>
+        Oregon Lodges
+      </h2>
+      <p style="margin-bottom:1.25rem;font-size:.95rem;color:#555">
+        Select a lodge below to visit their website, view events, meet their officers, and learn about their community service.
+      </p>
 
-    <div class="lodge-grid">
-      {lodges.map((lodge) => (
-        <a href={`/${lodge.slug}/`} class="lodge-card">
-          <div class="lodge-num">Lodge No. {lodge.number}</div>
-          <div class="lodge-name">{lodge.name.replace(` Lodge No. ${lodge.number}`, "").replace(` No. ${lodge.number}`, "")}</div>
-          <div class="lodge-arrow">Visit site &rarr;</div>
-        </a>
-      ))}
+      <div class="lodge-grid">
+        {lodges.map((lodge) => (
+          <a href={`/${lodge.slug}/`} class="lodge-card">
+            <div class="lodge-num">Lodge No. {lodge.number}</div>
+            <div class="lodge-name">{lodge.name.replace(` Lodge No. ${lodge.number}`, "").replace(` No. ${lodge.number}`, "")}</div>
+            <div class="lodge-arrow">Visit site &rarr;</div>
+          </a>
+        ))}
+      </div>
     </div>
 
-    <div class="about-box">
+    <div class="content-box">
       <h2 class="section-heading">
         <span class="tri-accent"><img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" /></span>
         About the Knights of Pythias
