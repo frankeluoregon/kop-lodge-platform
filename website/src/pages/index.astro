@@ -49,8 +49,8 @@ const contentBg = "#ded3c3";
     }
     .ext-link:hover { background: rgba(255,255,255,.15); text-decoration: none; }
 
-    .hero { background: var(--contentBg); padding: 2rem 1.5rem; }
-    .hero img { display: block; max-width: var(--max-w); width: 100%; height: auto; margin: 0 auto; border-radius: var(--radius); margin-bottom: -30px; clip-path: inset(0 0 30px 0); }
+    .hero { background: var(--contentBg); padding: 0 1.5rem; }
+    .hero img { display: block; max-width: var(--max-w); width: 100%; height: auto; margin: 0 auto; margin-bottom: -30px; clip-path: inset(0 0 30px 0); }
 
     main { max-width: var(--max-w); margin: 2.5rem auto; padding: 0 1.5rem; color: #fff; }
 
@@ -119,8 +119,20 @@ const contentBg = "#ded3c3";
     </div>
   </header>
 
+  <div class="tricolor">
+    <span style={`background:${primary}`}></span>
+    <span style={`background:${secondary}`}></span>
+    <span style={`background:${accent}`}></span>
+  </div>
+
   <div class="hero">
     <img src="/hero.png" alt="Oregon Knights of Pythias — Friendship, Charity, Benevolence" />
+  </div>
+
+  <div class="tricolor">
+    <span style={`background:${primary}`}></span>
+    <span style={`background:${secondary}`}></span>
+    <span style={`background:${accent}`}></span>
   </div>
 
   <main>
