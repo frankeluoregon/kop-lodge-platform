@@ -1,0 +1,134 @@
+---
+import { getSession, canAccessLodge, isAccessConfigured, DEV_SESSION } from "../../../../../lib/auth";
+import { getLodgeBySlug, getConfig, getAllMembers } from "../../../../../lib/db";
+
+const lodgeSlug = Astro.params.lodge!;
+const env = Astro.locals.runtime.env;
+
+let session;
+if (isAccessConfigured(env)) {
+  session = await getSession(Astro.request, env);
+  if (!session || !canAccessLodge(session, lodgeSlug)) return new Response("Forbidden", { status: 403 });
+} else {
+  session = DEV_SESSION;
+}
+
+const lodge = await getLodgeBySlug(env.DB, lodgeSlug);
+if (!lodge) return Astro.redirect("/", 302);
+
+const config  = await getConfig(env.DB, lodge.id);
+const members = await getAllMembers(env.DB, lodge.id);
+
+const DEGREES: Record<number, string> = { 1: "1st", 2: "2nd", 3: "3rd (Knight)" };
+
+const primary = config.primary_color || "#252e67";
+const accent  = config.accent_color  || "#f5a71c";
+const neutral = "#4a5072";
+const adminBase = `/lodges/admin/${lodgeSlug}`;
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Members – {config.lodge_name} Admin</title>
+  <style define:vars={{ primary, accent, neutral }}>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif; color: #1a1a2e;
+      background-image: url('/mainbg.png'); background-size: cover; background-position: center;
+      background-attachment: fixed; background-color: #252e67; }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .tricolor { display: flex; height: 5px; border-top: 2px solid #000; border-bottom: 2px solid #000; }
+    .tricolor span { flex: 1; }
+    .topbar { background: rgba(74,80,114,.92); color: #fff; padding: .4rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+    .topbar .brand { color: var(--accent); font-weight: bold; font-size: .95rem; }
+    .topbar nav { display: flex; gap: .5rem; align-items: center; }
+    .topbar nav a { color: rgba(255,255,255,.85); font-size: .8rem; padding: .25rem .5rem; border-radius: 4px; }
+    .topbar nav a:hover { background: rgba(255,255,255,.15); text-decoration: none; }
+    main { max-width: 900px; margin: 1.5rem auto; padding: 1.25rem 1rem 2rem;
+      background: rgba(222,211,195,0.90); border-radius: 6px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.18); }
+    h1 { font-size: 1.3rem; margin-bottom: 1rem; color: var(--primary); }
+    .btn { display: inline-block; padding: .3rem .7rem; font-size: .8rem; border-radius: 4px; border: 1.5px solid var(--primary); color: var(--primary); font-weight: 600; transition: background .15s, color .15s; }
+    .btn:hover { background: var(--primary); color: #fff; text-decoration: none; }
+    .btn.add { background: var(--primary); color: #fff; border: none; padding: .4rem .9rem; font-size: .85rem; margin-bottom: 1rem; }
+    .btn.add:hover { opacity: .88; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+    th { background: var(--primary); color: #fff; text-align: left; padding: .55rem .8rem; font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; }
+    td { padding: .5rem .8rem; border-bottom: 1px solid #eee; font-size: .87rem; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8f8fb; }
+    .badge { display: inline-block; font-size: .68rem; font-weight: 700; padding: .1rem .4rem; border-radius: 99px; }
+    .badge.active { background: #d4edda; color: #155724; }
+    .badge.inactive { background: #f8d7da; color: #721c24; }
+    .empty { text-align: center; padding: 2rem; color: #888; }
+    .stats { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .stat { background: #fff; border-radius: 6px; padding: .6rem 1rem; font-size: .85rem; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+    .stat strong { display: block; font-size: 1.4rem; color: var(--primary); }
+  </style>
+</head>
+<body>
+  <div class="tricolor">
+    <span style={`background:${primary}`}></span>
+    <span style="background:#a91e23"></span>
+    <span style={`background:${accent}`}></span>
+  </div>
+  <div class="topbar">
+    <span class="brand">{config.lodge_name} &mdash; Members</span>
+    <nav>
+      <a href={adminBase}>Dashboard</a>
+      <a href={`/lodges/${lodgeSlug}/`}>View Site</a>
+    </nav>
+  </div>
+  <div class="tricolor">
+    <span style={`background:${primary}`}></span>
+    <span style="background:#a91e23"></span>
+    <span style={`background:${accent}`}></span>
+  </div>
+
+  <main>
+    <h1>Member Roster</h1>
+
+    <div class="stats">
+      <div class="stat"><strong>{members.filter(m => m.active).length}</strong>Active Members</div>
+      <div class="stat"><strong>{members.filter(m => !m.active).length}</strong>Inactive</div>
+      <div class="stat"><strong>{members.filter(m => m.degree === 3).length}</strong>Knights (3rd Degree)</div>
+    </div>
+
+    <a class="btn add" href={`${adminBase}/members/new`}>+ Add Member</a>
+
+    {members.length === 0 ? (
+      <div class="empty">No members yet. Add your first member above.</div>
+    ) : (
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Degree</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Joined</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {members.map((m) => (
+            <tr>
+              <td><strong>{m.name}</strong></td>
+              <td>{DEGREES[m.degree] ?? m.degree}</td>
+              <td>{m.email ?? <span style="color:#bbb">—</span>}</td>
+              <td>{m.phone ?? <span style="color:#bbb">—</span>}</td>
+              <td>{m.joined_date ?? <span style="color:#bbb">—</span>}</td>
+              <td><span class={`badge ${m.active ? "active" : "inactive"}`}>{m.active ? "Active" : "Inactive"}</span></td>
+              <td><a class="btn" href={`${adminBase}/members/edit?id=${m.id}`}>Edit</a></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </main>
+</body>
+</html>

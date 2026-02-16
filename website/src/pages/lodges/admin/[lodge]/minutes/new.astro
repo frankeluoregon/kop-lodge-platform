@@ -1,0 +1,67 @@
+---
+import AdminForm from "../../../../../layouts/AdminForm.astro";
+import { getLodgeBySlug } from "../../../../../lib/db";
+
+const lodgeSlug = Astro.params.lodge!;
+const env = Astro.locals.runtime.env;
+
+const lodge = await getLodgeBySlug(env.DB, lodgeSlug);
+if (!lodge) return Astro.redirect("/", 302);
+
+let message = "";
+let isError = false;
+const today = new Date().toISOString().slice(0, 10);
+
+if (Astro.request.method === "POST") {
+  try {
+    const form = await Astro.request.formData();
+    const now = new Date().toISOString();
+    const meeting_date = (form.get("meeting_date") as string || "").trim();
+    const content = (form.get("content") as string || "").trim();
+    if (!meeting_date || !content) throw new Error("Meeting date and content are required.");
+    await env.DB.prepare(
+      "INSERT INTO meeting_minutes (lodge_id,meeting_date,title,content,published,created_at) VALUES (?,?,?,?,?,?)"
+    ).bind(
+      lodge.id,
+      meeting_date,
+      (form.get("title") as string || "").trim() || null,
+      content,
+      form.get("published") === "1" ? 1 : 0,
+      now,
+    ).run();
+    return Astro.redirect(`/lodges/admin/${lodgeSlug}/minutes`, 302);
+  } catch (e: unknown) {
+    isError = true;
+    message = `Error: ${e instanceof Error ? e.message : String(e)}`;
+  }
+}
+---
+
+<AdminForm title="Add Meeting Minutes" lodgeSlug={lodgeSlug}>
+  {message && <div class={isError ? "error-msg" : "success-msg"}>{message}</div>}
+  <form method="POST">
+    <div class="row">
+      <div class="field">
+        <label>Meeting Date</label>
+        <input type="date" name="meeting_date" value={today} required />
+      </div>
+      <div class="field">
+        <label>Title <span class="hint">optional</span></label>
+        <input type="text" name="title" placeholder="e.g. Regular Meeting" />
+      </div>
+    </div>
+    <div class="field">
+      <label>Minutes Content <span class="hint">Markdown supported</span></label>
+      <textarea name="content" rows="14" required style="width:100%;padding:.55rem .75rem;border:1.5px solid #ccc;border-radius:5px;font-size:.9rem;font-family:inherit;background:#fff;resize:vertical;font-family:monospace"></textarea>
+    </div>
+    <div class="field">
+      <label class="checkbox-row">
+        <input type="checkbox" name="published" value="1" checked /> Visible to lodge admins
+      </label>
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn primary">Save Minutes</button>
+      <a href={`/lodges/admin/${lodgeSlug}/minutes`} class="btn secondary">Cancel</a>
+    </div>
+  </form>
+</AdminForm>

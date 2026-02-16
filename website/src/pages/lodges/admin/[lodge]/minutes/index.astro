@@ -1,0 +1,104 @@
+---
+import { getSession, canAccessLodge, isAccessConfigured, DEV_SESSION } from "../../../../../lib/auth";
+import { getLodgeBySlug, getConfig, getAllMinutes } from "../../../../../lib/db";
+
+const lodgeSlug = Astro.params.lodge!;
+const env = Astro.locals.runtime.env;
+
+let session;
+if (isAccessConfigured(env)) {
+  session = await getSession(Astro.request, env);
+  if (!session || !canAccessLodge(session, lodgeSlug)) return new Response("Forbidden", { status: 403 });
+} else {
+  session = DEV_SESSION;
+}
+
+const lodge = await getLodgeBySlug(env.DB, lodgeSlug);
+if (!lodge) return Astro.redirect("/", 302);
+
+const config  = await getConfig(env.DB, lodge.id);
+const minutes = await getAllMinutes(env.DB, lodge.id);
+
+const primary = config.primary_color || "#252e67";
+const accent  = config.accent_color  || "#f5a71c";
+const neutral = "#4a5072";
+const adminBase = `/lodges/admin/${lodgeSlug}`;
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Meeting Minutes – {config.lodge_name} Admin</title>
+  <style define:vars={{ primary, accent, neutral }}>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif; color: #1a1a2e;
+      background-image: url('/mainbg.png'); background-size: cover; background-position: center;
+      background-attachment: fixed; background-color: #252e67; }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .tricolor { display: flex; height: 5px; border-top: 2px solid #000; border-bottom: 2px solid #000; }
+    .tricolor span { flex: 1; }
+    .topbar { background: rgba(74,80,114,.92); color: #fff; padding: .4rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+    .topbar .brand { color: var(--accent); font-weight: bold; font-size: .95rem; }
+    .topbar nav { display: flex; gap: .5rem; align-items: center; }
+    .topbar nav a { color: rgba(255,255,255,.85); font-size: .8rem; padding: .25rem .5rem; border-radius: 4px; }
+    .topbar nav a:hover { background: rgba(255,255,255,.15); text-decoration: none; }
+    main { max-width: 800px; margin: 1.5rem auto; padding: 1.25rem 1rem 2rem;
+      background: rgba(222,211,195,0.90); border-radius: 6px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.18); }
+    h1 { font-size: 1.3rem; margin-bottom: 1rem; color: var(--primary); }
+    .btn { display: inline-block; padding: .3rem .7rem; font-size: .8rem; border-radius: 4px; border: 1.5px solid var(--primary); color: var(--primary); font-weight: 600; transition: background .15s, color .15s; }
+    .btn:hover { background: var(--primary); color: #fff; text-decoration: none; }
+    .btn.add { background: var(--primary); color: #fff; border: none; padding: .4rem .9rem; font-size: .85rem; margin-bottom: 1rem; }
+    .btn.add:hover { opacity: .88; }
+    .list { display: flex; flex-direction: column; gap: .5rem; }
+    .row { background: #fff; border-radius: 6px; padding: .75rem 1rem; display: flex; align-items: center; gap: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+    .row .date { font-weight: 700; color: var(--primary); min-width: 90px; font-size: .9rem; }
+    .row .label { flex: 1; font-size: .9rem; }
+    .badge { font-size: .68rem; font-weight: 700; padding: .1rem .4rem; border-radius: 99px; background: #f8d7da; color: #721c24; }
+    .badge.pub { background: #d4edda; color: #155724; }
+    .empty { text-align: center; padding: 2rem; color: #888; }
+  </style>
+</head>
+<body>
+  <div class="tricolor">
+    <span style={`background:${primary}`}></span>
+    <span style="background:#a91e23"></span>
+    <span style={`background:${accent}`}></span>
+  </div>
+  <div class="topbar">
+    <span class="brand">{config.lodge_name} &mdash; Meeting Minutes</span>
+    <nav>
+      <a href={adminBase}>Dashboard</a>
+      <a href={`/lodges/${lodgeSlug}/`}>View Site</a>
+    </nav>
+  </div>
+  <div class="tricolor">
+    <span style={`background:${primary}`}></span>
+    <span style="background:#a91e23"></span>
+    <span style={`background:${accent}`}></span>
+  </div>
+
+  <main>
+    <h1>Meeting Minutes</h1>
+    <a class="btn add" href={`${adminBase}/minutes/new`}>+ Add Minutes</a>
+
+    {minutes.length === 0 ? (
+      <div class="empty">No minutes recorded yet.</div>
+    ) : (
+      <div class="list">
+        {minutes.map((m) => (
+          <div class="row">
+            <span class="date">{m.meeting_date}</span>
+            <span class="label">{m.title || "Meeting Minutes"}</span>
+            <span class={`badge ${m.published ? "pub" : ""}`}>{m.published ? "Published" : "Draft"}</span>
+            <a class="btn" href={`${adminBase}/minutes/edit?id=${m.id}`}>Edit</a>
+          </div>
+        ))}
+      </div>
+    )}
+  </main>
+</body>
+</html>

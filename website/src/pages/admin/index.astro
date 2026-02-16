@@ -32,29 +32,31 @@ const contentBg = "#ded3c3";
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <style define:vars={{ primary, accent, secondary, neutral, contentBg }}>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif; background: var(--primary); color: #1a1a2e; }
+    body { font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif; color: #1a1a2e;
+      background-image: url('/mainbg.png'); background-size: cover; background-position: center;
+      background-attachment: fixed; background-color: var(--primary); }
     a { color: var(--primary); text-decoration: none; }
     a:hover { text-decoration: underline; }
 
     .topbar {
-      background: var(--neutral); color: #fff; padding: .6rem 1.5rem;
+      background: rgba(74,80,114,.92); color: #fff; padding: .4rem 1.5rem;
       display: flex; align-items: center; justify-content: space-between;
     }
     .topbar .brand { display: flex; align-items: center; gap: .5rem; }
-    .topbar .brand img { height: 28px; width: auto; }
-    .topbar .brand span { color: var(--accent); font-weight: bold; font-size: 1.1rem; }
+    .topbar .brand img { height: 22px; width: auto; }
+    .topbar .brand span { color: var(--accent); font-weight: bold; font-size: .95rem; }
     .topbar nav { display: flex; gap: .5rem; align-items: center; }
-    .topbar nav a { color: rgba(255,255,255,.85); font-size: .85rem; padding: .3rem .6rem; border-radius: 4px; }
+    .topbar nav a { color: rgba(255,255,255,.85); font-size: .8rem; padding: .25rem .5rem; border-radius: 4px; }
     .topbar nav a:hover { background: rgba(255,255,255,.15); text-decoration: none; }
-    .topbar .user { font-size: .78rem; color: rgba(255,255,255,.6); }
+    .topbar .user { font-size: .75rem; color: rgba(255,255,255,.6); }
 
-    .tricolor { display: flex; height: 5px; }
+    .tricolor { display: flex; height: 5px; border-top: 2px solid #000; border-bottom: 2px solid #000; }
     .tricolor span { flex: 1; }
 
     main { max-width: 900px; margin: 0 auto; padding: 1.5rem 1rem; }
     .content-panel {
-      background: var(--contentBg); border-radius: 6px; padding: 1.75rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+      background: rgba(222,211,195,0.90); border-radius: 6px; padding: 1.75rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,.12);
     }
     h1 { font-size: 1.4rem; margin-bottom: .5rem; color: var(--primary); }
     .subtitle { font-size: .88rem; color: var(--neutral); margin-bottom: 1.5rem; }

@@ -1,19 +1,55 @@
 ---
 import AdminForm from "../../../../layouts/AdminForm.astro";
 import { getLodgeBySlug, getConfig } from "../../../../lib/db";
+import { isSiteAdmin, getSession, isAccessConfigured, DEV_SESSION } from "../../../../lib/auth";
 
 const lodgeSlug = Astro.params.lodge!;
 const env = Astro.locals.runtime.env;
 
+let session;
+if (isAccessConfigured(env)) {
+  session = await getSession(Astro.request, env);
+} else {
+  session = DEV_SESSION;
+}
+
 const lodge = await getLodgeBySlug(env.DB, lodgeSlug);
 if (!lodge) return Astro.redirect("/", 302);
 
+// Fetch current admin emails for this lodge
+const adminRoles = await env.DB.prepare(
+  "SELECT email FROM admin_roles WHERE role = ?"
+).bind(`lodge:${lodge.slug}`).all<{ email: string }>();
+let currentAdminEmails = adminRoles.results.map(r => r.email).join("\n");
+
 let message = "";
 let isError = false;
+let adminMessage = "";
+let adminIsError = false;
 
 if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+
+  // Admin email management (separate action)
+  if (form.get("_action") === "save_admins") {
+    try {
+      const emails = (form.get("admin_emails") as string || "")
+        .split(/[\n,]+/).map(e => e.trim().toLowerCase()).filter(Boolean);
+      const now = new Date().toISOString();
+      await env.DB.prepare("DELETE FROM admin_roles WHERE role = ?").bind(`lodge:${lodge.slug}`).run();
+      for (const email of emails) {
+        await env.DB.prepare(
+          "INSERT OR IGNORE INTO admin_roles (email, role, created_at) VALUES (?, ?, ?)"
+        ).bind(email, `lodge:${lodge.slug}`, now).run();
+      }
+      currentAdminEmails = emails.join("\n");
+      adminMessage = "Lodge admins updated.";
+    } catch (e: unknown) {
+      adminIsError = true;
+      adminMessage = `Error: ${e instanceof Error ? e.message : String(e)}`;
+    }
+  } else {
   try {
-    const form = await Astro.request.formData();
     const fields = [
       "lodge_name","lodge_number","state","grand_domain","city",
       "meeting_schedule","meeting_location","phone","email",
@@ -44,6 +80,7 @@ if (Astro.request.method === "POST") {
     isError = true;
     message = `Error: ${e instanceof Error ? e.message : String(e)}`;
   }
+  } // end else
 }
 
 const config = await getConfig(env.DB, lodge.id);
@@ -208,6 +245,21 @@ const config = await getConfig(env.DB, lodge.id);
     <div class="actions">
       <button type="submit" class="btn primary">Save Settings</button>
       <a href={`/lodges/admin/${lodgeSlug}`} class="btn secondary">Cancel</a>
+    </div>
+  </form>
+
+  <hr style="margin: 1.75rem 0; border: none; border-top: 1px solid #ddd;" />
+
+  <h2 style="font-size:1rem;margin-bottom:.75rem;color:var(--primary)">Lodge Administrators</h2>
+  <p style="font-size:.83rem;color:#666;margin-bottom:.75rem">Emails listed here can access this lodge's admin panel. One per line or comma-separated. Changes replace all current lodge admins.</p>
+  {adminMessage && <div class={adminIsError ? "error-msg" : "success-msg"}>{adminMessage}</div>}
+  <form method="POST">
+    <input type="hidden" name="_action" value="save_admins" />
+    <div class="field">
+      <textarea name="admin_emails" rows="5" style="width:100%;padding:.55rem .75rem;border:1.5px solid #ccc;border-radius:5px;font-size:.9rem;font-family:inherit;background:#fff;resize:vertical">{currentAdminEmails}</textarea>
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn primary">Update Admins</button>
     </div>
   </form>
 </AdminForm>

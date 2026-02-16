@@ -1,0 +1,78 @@
+---
+import AdminForm from "../../../../../layouts/AdminForm.astro";
+import { getLodgeBySlug } from "../../../../../lib/db";
+
+const lodgeSlug = Astro.params.lodge!;
+const env = Astro.locals.runtime.env;
+
+const lodge = await getLodgeBySlug(env.DB, lodgeSlug);
+if (!lodge) return Astro.redirect("/", 302);
+
+let message = "";
+let isError = false;
+
+if (Astro.request.method === "POST") {
+  try {
+    const form = await Astro.request.formData();
+    const now = new Date().toISOString();
+    await env.DB.prepare(
+      "INSERT INTO lodge_members (lodge_id,name,email,phone,degree,joined_date,active,notes,created_at) VALUES (?,?,?,?,?,?,1,?,?)"
+    ).bind(
+      lodge.id,
+      (form.get("name") as string || "").trim(),
+      (form.get("email") as string || "").trim() || null,
+      (form.get("phone") as string || "").trim() || null,
+      Number(form.get("degree") ?? 1),
+      (form.get("joined_date") as string || "") || null,
+      (form.get("notes") as string || "").trim() || null,
+      now,
+    ).run();
+    return Astro.redirect(`/lodges/admin/${lodgeSlug}/members`, 302);
+  } catch (e: unknown) {
+    isError = true;
+    message = `Error: ${e instanceof Error ? e.message : String(e)}`;
+  }
+}
+---
+
+<AdminForm title="Add Member" lodgeSlug={lodgeSlug}>
+  {message && <div class={isError ? "error-msg" : "success-msg"}>{message}</div>}
+  <form method="POST">
+    <div class="field">
+      <label>Full Name</label>
+      <input type="text" name="name" required />
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" name="email" />
+      </div>
+      <div class="field">
+        <label>Phone</label>
+        <input type="tel" name="phone" />
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Degree</label>
+        <select name="degree" style="width:100%;padding:.55rem .75rem;border:1.5px solid #ccc;border-radius:5px;font-size:.9rem;font-family:inherit;background:#fff">
+          <option value="1">1st Degree</option>
+          <option value="2">2nd Degree</option>
+          <option value="3">3rd Degree (Knight)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Joined Date</label>
+        <input type="date" name="joined_date" />
+      </div>
+    </div>
+    <div class="field">
+      <label>Notes <span class="hint">internal only</span></label>
+      <textarea name="notes" rows="3" style="width:100%;padding:.55rem .75rem;border:1.5px solid #ccc;border-radius:5px;font-size:.9rem;font-family:inherit;background:#fff;resize:vertical"></textarea>
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn primary">Add Member</button>
+      <a href={`/lodges/admin/${lodgeSlug}/members`} class="btn secondary">Cancel</a>
+    </div>
+  </form>
+</AdminForm>

@@ -45,6 +45,39 @@ export interface LodgeConfig {
   show_service: string;
 }
 
+export interface LodgeMember {
+  id: number;
+  lodge_id: number;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  degree: number;
+  joined_date: string | null;
+  active: number;
+  notes: string | null;
+  created_at: string;
+}
+
+export interface MeetingMinutes {
+  id: number;
+  lodge_id: number;
+  meeting_date: string;
+  title: string | null;
+  content: string;
+  published: number;
+  created_at: string;
+}
+
+export interface LodgeAnnouncement {
+  id: number;
+  lodge_id: number;
+  title: string;
+  content: string;
+  expires_at: string | null;
+  published: number;
+  created_at: string;
+}
+
 export interface GalleryPhoto {
   id: number;
   lodge_id: number;
@@ -406,4 +439,109 @@ export async function getAllLinks(
     .bind(lodgeId)
     .all<Link>();
   return res.results;
+}
+
+// ─── Members ────────────────────────────────────────────────────────────────
+
+export async function getActiveMembers(
+  db: D1Database,
+  lodgeId: number,
+): Promise<LodgeMember[]> {
+  const res = await db
+    .prepare("SELECT * FROM lodge_members WHERE lodge_id = ? AND active = 1 ORDER BY name ASC")
+    .bind(lodgeId)
+    .all<LodgeMember>();
+  return res.results;
+}
+
+export async function getAllMembers(
+  db: D1Database,
+  lodgeId: number,
+): Promise<LodgeMember[]> {
+  const res = await db
+    .prepare("SELECT * FROM lodge_members WHERE lodge_id = ? ORDER BY active DESC, name ASC")
+    .bind(lodgeId)
+    .all<LodgeMember>();
+  return res.results;
+}
+
+export async function getMemberById(
+  db: D1Database,
+  id: number,
+): Promise<LodgeMember | null> {
+  return db
+    .prepare("SELECT * FROM lodge_members WHERE id = ?")
+    .bind(id)
+    .first<LodgeMember>();
+}
+
+// ─── Meeting Minutes ─────────────────────────────────────────────────────────
+
+export async function getPublishedMinutes(
+  db: D1Database,
+  lodgeId: number,
+): Promise<MeetingMinutes[]> {
+  const res = await db
+    .prepare("SELECT * FROM meeting_minutes WHERE lodge_id = ? AND published = 1 ORDER BY meeting_date DESC")
+    .bind(lodgeId)
+    .all<MeetingMinutes>();
+  return res.results;
+}
+
+export async function getAllMinutes(
+  db: D1Database,
+  lodgeId: number,
+): Promise<MeetingMinutes[]> {
+  const res = await db
+    .prepare("SELECT * FROM meeting_minutes WHERE lodge_id = ? ORDER BY meeting_date DESC")
+    .bind(lodgeId)
+    .all<MeetingMinutes>();
+  return res.results;
+}
+
+export async function getMinutesById(
+  db: D1Database,
+  id: number,
+): Promise<MeetingMinutes | null> {
+  return db
+    .prepare("SELECT * FROM meeting_minutes WHERE id = ?")
+    .bind(id)
+    .first<MeetingMinutes>();
+}
+
+// ─── Announcements ───────────────────────────────────────────────────────────
+
+export async function getActiveAnnouncements(
+  db: D1Database,
+  lodgeId: number,
+): Promise<LodgeAnnouncement[]> {
+  const now = new Date().toISOString().slice(0, 10);
+  const res = await db
+    .prepare(
+      "SELECT * FROM lodge_announcements WHERE lodge_id = ? AND published = 1 AND (expires_at IS NULL OR expires_at >= ?) ORDER BY created_at DESC",
+    )
+    .bind(lodgeId, now)
+    .all<LodgeAnnouncement>();
+  return res.results;
+}
+
+export async function getAllAnnouncements(
+  db: D1Database,
+  lodgeId: number,
+): Promise<LodgeAnnouncement[]> {
+  const res = await db
+    .prepare("SELECT * FROM lodge_announcements WHERE lodge_id = ? ORDER BY created_at DESC")
+    .bind(lodgeId)
+    .all<LodgeAnnouncement>();
+  return res.results;
+}
+
+export async function getAnnouncementById(
+  db: D1Database,
+  id: number,
+): Promise<LodgeAnnouncement | null> {
+  return db
+    .prepare("SELECT * FROM lodge_announcements WHERE id = ?")
+    .bind(id)
+    .first<LodgeAnnouncement>();
 }

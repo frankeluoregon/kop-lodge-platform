@@ -1,0 +1,76 @@
+---
+import AdminForm from "../../../../../layouts/AdminForm.astro";
+import { getLodgeBySlug, getAnnouncementById } from "../../../../../lib/db";
+
+const lodgeSlug = Astro.params.lodge!;
+const env = Astro.locals.runtime.env;
+
+const lodge = await getLodgeBySlug(env.DB, lodgeSlug);
+if (!lodge) return Astro.redirect("/", 302);
+
+const id = Number(new URL(Astro.request.url).searchParams.get("id"));
+if (!id) return Astro.redirect(`/lodges/admin/${lodgeSlug}/announcements`, 302);
+
+let ann = await getAnnouncementById(env.DB, id);
+if (!ann || ann.lodge_id !== lodge.id) return Astro.redirect(`/lodges/admin/${lodgeSlug}/announcements`, 302);
+
+let message = "";
+let isError = false;
+
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  if (form.get("_action") === "delete") {
+    await env.DB.prepare("DELETE FROM lodge_announcements WHERE id = ? AND lodge_id = ?").bind(id, lodge.id).run();
+    return Astro.redirect(`/lodges/admin/${lodgeSlug}/announcements`, 302);
+  }
+  try {
+    const title = (form.get("title") as string || "").trim();
+    const content = (form.get("content") as string || "").trim();
+    if (!title || !content) throw new Error("Title and content are required.");
+    await env.DB.prepare(
+      "UPDATE lodge_announcements SET title=?,content=?,expires_at=?,published=? WHERE id=? AND lodge_id=?"
+    ).bind(
+      title,
+      content,
+      (form.get("expires_at") as string || "") || null,
+      form.get("published") === "1" ? 1 : 0,
+      id, lodge.id,
+    ).run();
+    ann = await getAnnouncementById(env.DB, id);
+    message = "Announcement updated.";
+  } catch (e: unknown) {
+    isError = true;
+    message = `Error: ${e instanceof Error ? e.message : String(e)}`;
+  }
+}
+---
+
+<AdminForm title="Edit Announcement" lodgeSlug={lodgeSlug}>
+  {message && <div class={isError ? "error-msg" : "success-msg"}>{message}</div>}
+  <form method="POST">
+    <div class="field">
+      <label>Title</label>
+      <input type="text" name="title" value={ann!.title} required />
+    </div>
+    <div class="field">
+      <label>Content <span class="hint">Markdown supported — internal only</span></label>
+      <textarea name="content" rows="8" required style="width:100%;padding:.55rem .75rem;border:1.5px solid #ccc;border-radius:5px;font-size:.9rem;font-family:inherit;background:#fff;resize:vertical">{ann!.content}</textarea>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Expires <span class="hint">optional</span></label>
+        <input type="date" name="expires_at" value={ann!.expires_at ?? ""} />
+      </div>
+      <div class="field" style="padding-top:1.5rem">
+        <label class="checkbox-row">
+          <input type="checkbox" name="published" value="1" checked={!!ann!.published} /> Active
+        </label>
+      </div>
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn primary">Save Changes</button>
+      <a href={`/lodges/admin/${lodgeSlug}/announcements`} class="btn secondary">Cancel</a>
+      <button type="submit" name="_action" value="delete" class="btn danger" onclick="return confirm('Delete this announcement?')">Delete</button>
+    </div>
+  </form>
+</AdminForm>

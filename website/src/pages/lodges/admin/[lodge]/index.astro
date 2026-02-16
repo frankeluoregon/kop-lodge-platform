@@ -1,6 +1,6 @@
 ---
 import { getSession, canAccessLodge, isAccessConfigured, DEV_SESSION } from "../../../../lib/auth";
-import { getLodgeBySlug, getConfig, getUpcomingEvents, getAllPosts, getAllOfficers, getCommunityService, getAllPages, getAllGalleryPhotos, getAllLinks } from "../../../../lib/db";
+import { getLodgeBySlug, getConfig, getUpcomingEvents, getAllPosts, getAllOfficers, getCommunityService, getAllPages, getAllGalleryPhotos, getAllLinks, getAllMembers, getAllMinutes, getAllAnnouncements } from "../../../../lib/db";
 
 const lodgeSlug = Astro.params.lodge!;
 const env = Astro.locals.runtime.env;
@@ -26,6 +26,10 @@ const service  = await getCommunityService(env.DB, lodge.id, false, 5);
 const pages    = await getAllPages(env.DB, lodge.id);
 const photos   = await getAllGalleryPhotos(env.DB, lodge.id);
 const links    = await getAllLinks(env.DB, lodge.id);
+const members  = await getAllMembers(env.DB, lodge.id);
+const minutes  = await getAllMinutes(env.DB, lodge.id);
+const anns     = await getAllAnnouncements(env.DB, lodge.id);
+const today    = new Date().toISOString().slice(0, 10);
 
 const primary = config.primary_color || "#252e67";
 const accent  = config.accent_color  || "#f5a71c";
@@ -231,6 +235,70 @@ const adminBase = `/lodges/admin/${lodgeSlug}`;
           )
         }
         <a class="btn add" href={`${adminBase}/links/new`}>+ Add Link</a>
+      </div>
+
+      <!-- Members -->
+      <div class="panel">
+        <h2>Members</h2>
+        <p style="font-size:.82rem;color:#666;margin-bottom:.6rem">
+          {members.filter(m => m.active).length} active &middot; {members.length} total
+        </p>
+        {members.length === 0
+          ? <p style="font-size:.85rem;color:#666">No members yet.</p>
+          : (
+            <ul>
+              {members.slice(0, 5).map((m) => (
+                <li>
+                  <span>{m.name} <span style="font-size:.75rem;color:#999">(Deg. {m.degree})</span></span>
+                  <div class="acts"><a class="btn" href={`${adminBase}/members/edit?id=${m.id}`}>Edit</a></div>
+                </li>
+              ))}
+              {members.length > 5 && <li style="color:#888;font-size:.8rem">+ {members.length - 5} more</li>}
+            </ul>
+          )
+        }
+        <a class="btn add" href={`${adminBase}/members`}>Manage Members</a>
+      </div>
+
+      <!-- Meeting Minutes -->
+      <div class="panel">
+        <h2>Meeting Minutes</h2>
+        {minutes.length === 0
+          ? <p style="font-size:.85rem;color:#666">No minutes recorded.</p>
+          : (
+            <ul>
+              {minutes.slice(0, 5).map((m) => (
+                <li>
+                  <span>{m.meeting_date} &mdash; {m.title || "Meeting"}</span>
+                  <div class="acts"><a class="btn" href={`${adminBase}/minutes/edit?id=${m.id}`}>Edit</a></div>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+        <a class="btn add" href={`${adminBase}/minutes/new`}>+ Add Minutes</a>
+      </div>
+
+      <!-- Announcements -->
+      <div class="panel">
+        <h2>Announcements <span style="font-size:.75rem;font-weight:400;color:#888">(internal)</span></h2>
+        {anns.length === 0
+          ? <p style="font-size:.85rem;color:#666">No announcements.</p>
+          : (
+            <ul>
+              {anns.filter(a => a.published && (!a.expires_at || a.expires_at >= today)).slice(0, 5).map((a) => (
+                <li>
+                  <span>{a.title}</span>
+                  <div class="acts"><a class="btn" href={`${adminBase}/announcements/edit?id=${a.id}`}>Edit</a></div>
+                </li>
+              ))}
+              {anns.filter(a => !a.published || (a.expires_at && a.expires_at < today)).length > 0 && (
+                <li style="color:#888;font-size:.8rem">{anns.filter(a => !a.published || (a.expires_at && a.expires_at < today)).length} draft/expired</li>
+              )}
+            </ul>
+          )
+        }
+        <a class="btn add" href={`${adminBase}/announcements/new`}>+ New Announcement</a>
       </div>
     </div>
   </main>

@@ -1,0 +1,140 @@
+---
+const primary   = "#252e67";
+const accent    = "#f5a71c";
+const secondary = "#a91e23";
+const neutral   = "#4a5072";
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Grand Lodge History – Oregon Knights of Pythias</title>
+  <meta name="description" content="History of the Grand Domain of Oregon, Knights of Pythias." />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <style define:vars={{ primary, accent, secondary, neutral }}>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --max-w: 1100px; --font: 'Trebuchet MS', Trebuchet, 'Gill Sans MT', Arial, sans-serif; }
+    body { font-family: var(--font); color: #1a1a2e; line-height: 1.7;
+      background-image: url('/mainbg.png'); background-size: cover;
+      background-position: center; background-attachment: fixed;
+      background-color: var(--primary); }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .tricolor { display: flex; height: 5px; border-top: 2px solid #000; border-bottom: 2px solid #000; }
+    .tricolor span { flex: 1; }
+
+    header { background: rgba(74,80,114,.92); padding: 0 1.5rem; }
+    .header-inner { max-width: var(--max-w); margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .5rem 0; }
+    .brand-name { font-size: .95rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; }
+    .brand-sub  { font-size: .65rem; color: rgba(255,255,255,.8); }
+    .header-logo { height: 22px; width: auto; flex-shrink: 0; }
+    .brand-group { display: flex; align-items: center; gap: .5rem; }
+    .nav-links { display: flex; gap: .4rem; align-items: center; flex-wrap: wrap; }
+    .ext-link { color: rgba(255,255,255,.8); font-size: .75rem; padding: .2rem .4rem; border-radius: 4px; border: 1px solid rgba(255,255,255,.3); }
+    .ext-link:hover { background: rgba(255,255,255,.15); text-decoration: none; }
+    .ext-link.active { background: var(--accent); color: var(--primary); border-color: var(--accent); font-weight: 600; }
+
+    main { max-width: 860px; margin: 2rem auto; padding: 1.5rem;
+      background: rgba(222,211,195,0.90); border-radius: 6px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.18); }
+    .breadcrumb { font-size: .8rem; color: #888; margin-bottom: 1rem; }
+    .breadcrumb a { color: var(--primary); }
+    h1 { font-size: 1.6rem; color: var(--primary); text-transform: uppercase; letter-spacing: .04em;
+      border-bottom: 3px solid var(--accent); padding-bottom: .35rem; margin-bottom: 1.25rem; }
+    h2 { font-size: 1.1rem; color: var(--primary); margin: 1.5rem 0 .5rem; }
+    p { margin-bottom: .9rem; font-size: .95rem; color: #333; }
+    .stub-notice { background: #fff8e1; border: 1px solid #ffe082; border-radius: 6px;
+      padding: .75rem 1rem; font-size: .88rem; color: #6d4c00; margin-bottom: 1.5rem; }
+    .timeline { border-left: 3px solid var(--accent); padding-left: 1.25rem; margin-top: 1rem; }
+    .timeline-item { margin-bottom: 1.25rem; position: relative; }
+    .timeline-item::before { content: ''; position: absolute; left: -1.45rem; top: .35rem;
+      width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+    .timeline-item .year { font-weight: 700; color: var(--primary); font-size: .9rem; }
+    .timeline-item .event { font-size: .9rem; color: #444; }
+
+    footer { background: var(--secondary); color: var(--accent); text-align: center;
+      padding: 1rem; margin-top: 2rem; font-size: .82rem; }
+    footer a { color: var(--accent); opacity: .85; }
+    footer a:hover { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="tricolor">
+    <span style={`background:${primary}`}></span>
+    <span style={`background:${secondary}`}></span>
+    <span style={`background:${accent}`}></span>
+  </div>
+  <header>
+    <div class="header-inner">
+      <a href="/" style="text-decoration:none" class="brand-group">
+        <img src="/seal.svg" alt="KoP Seal" class="header-logo" />
+        <div>
+          <div class="brand-name">Oregon Knights of Pythias</div>
+          <div class="brand-sub">Grand Domain of Oregon</div>
+        </div>
+      </a>
+      <nav class="nav-links">
+        <a href="/grand-lodge/officers" class="ext-link">Grand Officers</a>
+        <a href="/grand-lodge/history" class="ext-link active">History</a>
+        <a href="https://www.pythias.org" target="_blank" rel="noopener" class="ext-link">Supreme Lodge ↗</a>
+      </nav>
+    </div>
+  </header>
+  <div class="tricolor">
+    <span style={`background:${primary}`}></span>
+    <span style={`background:${secondary}`}></span>
+    <span style={`background:${accent}`}></span>
+  </div>
+
+  <main>
+    <div class="breadcrumb"><a href="/">← Lodge Directory</a></div>
+    <h1>Grand Lodge History</h1>
+
+    <div class="stub-notice">
+      This page is a placeholder. Detailed Grand Lodge history will be added here.
+    </div>
+
+    <p>
+      The Knights of Pythias was founded on February 19, 1864 by Justus H. Rathbone in Washington, D.C.
+      It was the first fraternal organization to receive a charter under an Act of Congress.
+      The order's motto — <em>Friendship, Charity, Benevolence</em> — has guided its members for over 160 years.
+    </p>
+
+    <h2>The Grand Domain of Oregon</h2>
+    <p>
+      Oregon lodges have been part of the Knights of Pythias since the late 19th century, bringing the order's
+      ideals of brotherhood and service to communities across the state. The Grand Domain of Oregon
+      oversees all subordinate lodges within the state.
+    </p>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="year">1864</div>
+        <div class="event">Knights of Pythias founded in Washington, D.C. by Justus H. Rathbone.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="year">1868</div>
+        <div class="event">Supreme Lodge established; order expands nationally.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="year">Late 1800s</div>
+        <div class="event">Oregon lodges chartered; Grand Domain of Oregon established.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="year">Present</div>
+        <div class="event">Oregon lodges continue to serve their communities through Friendship, Charity, and Benevolence.</div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; {new Date().getFullYear()} Grand Domain of Oregon &mdash; Knights of Pythias &middot;
+      <a href="https://www.pythias.org" target="_blank" rel="noopener">pythias.org</a>
+      <span style="margin-left:.5rem"><a href="/admin">Admin</a></span>
+    </p>
+  </footer>
+</body>
+</html>

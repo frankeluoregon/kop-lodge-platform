@@ -126,11 +126,47 @@ CREATE TABLE IF NOT EXISTS admin_roles (
   UNIQUE(email, role)
 );
 
+CREATE TABLE IF NOT EXISTS lodge_members (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  lodge_id INTEGER NOT NULL REFERENCES lodges(id),
+  name TEXT NOT NULL,
+  email TEXT,
+  phone TEXT,
+  degree INTEGER DEFAULT 1,       -- 1=First, 2=Second, 3=Third (Knight)
+  joined_date TEXT,               -- ISO date
+  active INTEGER DEFAULT 1,
+  notes TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS meeting_minutes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  lodge_id INTEGER NOT NULL REFERENCES lodges(id),
+  meeting_date TEXT NOT NULL,     -- ISO date
+  title TEXT,
+  content TEXT NOT NULL,          -- markdown
+  published INTEGER DEFAULT 1,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS lodge_announcements (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  lodge_id INTEGER NOT NULL REFERENCES lodges(id),
+  title TEXT NOT NULL,
+  content TEXT NOT NULL,          -- markdown
+  expires_at TEXT,                -- optional ISO date
+  published INTEGER DEFAULT 1,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
 -- Indexes
-CREATE INDEX IF NOT EXISTS idx_events_lodge   ON events(lodge_id, event_date);
-CREATE INDEX IF NOT EXISTS idx_blog_lodge     ON blog_posts(lodge_id, published);
-CREATE INDEX IF NOT EXISTS idx_officers_lodge ON officers(lodge_id, active);
-CREATE INDEX IF NOT EXISTS idx_service_lodge  ON community_service(lodge_id, featured);
-CREATE INDEX IF NOT EXISTS idx_admin_roles_email ON admin_roles(email);
-CREATE INDEX IF NOT EXISTS idx_gallery_lodge  ON gallery_photos(lodge_id, display_order);
-CREATE INDEX IF NOT EXISTS idx_links_lodge    ON links(lodge_id, category);
+CREATE INDEX IF NOT EXISTS idx_events_lodge       ON events(lodge_id, event_date);
+CREATE INDEX IF NOT EXISTS idx_blog_lodge         ON blog_posts(lodge_id, published);
+CREATE INDEX IF NOT EXISTS idx_officers_lodge     ON officers(lodge_id, active);
+CREATE INDEX IF NOT EXISTS idx_service_lodge      ON community_service(lodge_id, featured);
+CREATE INDEX IF NOT EXISTS idx_admin_roles_email  ON admin_roles(email);
+CREATE INDEX IF NOT EXISTS idx_gallery_lodge      ON gallery_photos(lodge_id, display_order);
+CREATE INDEX IF NOT EXISTS idx_links_lodge        ON links(lodge_id, category);
+CREATE INDEX IF NOT EXISTS idx_members_lodge      ON lodge_members(lodge_id, active);
+CREATE INDEX IF NOT EXISTS idx_minutes_lodge      ON meeting_minutes(lodge_id, meeting_date);
+CREATE INDEX IF NOT EXISTS idx_announcements_lodge ON lodge_announcements(lodge_id, published);
