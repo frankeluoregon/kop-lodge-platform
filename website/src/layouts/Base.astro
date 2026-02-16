@@ -64,11 +64,11 @@ function isActivePrefix(prefix: string): boolean {
       a { color: var(--primary); text-decoration: none; }
       a:hover { text-decoration: underline; }
 
-      .tricolor-stripe { display: flex; height: 5px; }
+      .tricolor-stripe { display: flex; height: 5px; border-top: 1px solid #000; border-bottom: 1px solid #000; }
       .tricolor-stripe span { flex: 1; }
 
       .site-banner {
-        background: var(--primary);
+        background: rgba(37,46,103,.88);
         color: rgba(255,255,255,.7);
         font-size: .75rem;
         text-align: center;
@@ -76,7 +76,7 @@ function isActivePrefix(prefix: string): boolean {
       }
       .site-banner a { color: var(--accent); font-weight: 600; }
 
-      header { background: var(--neutral); color: #fff; padding: 0 1.5rem; }
+      header { background: rgba(74,80,114,.92); color: #fff; padding: 0 1.5rem; }
       .header-inner {
         max-width: var(--max-w); margin: 0 auto;
         display: flex; align-items: center; justify-content: space-between;
