@@ -43,7 +43,7 @@ const neutral = "#4a5072";
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>{title} – Admin</title>
-  <style define:vars={{ primary, accent, neutral }}>
+  <style is:global define:vars={{ primary, accent, neutral }}>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif; color: #1a1a2e;
       background-image: url('/mainbg.png'); background-size: cover; background-position: center;
@@ -64,44 +64,46 @@ const neutral = "#4a5072";
     .topbar nav a:hover { background: rgba(255,255,255,.15); text-decoration: none; }
     .topbar .user { font-size: .75rem; color: rgba(255,255,255,.6); }
 
-    main { max-width: 780px; margin: 1.5rem auto; padding: 1.25rem 1rem 2rem;
+    .af-main { max-width: 780px; margin: 1.5rem auto; padding: 1.25rem 1rem 2rem;
       background: rgba(222,211,195,0.90); border-radius: 6px;
       box-shadow: 0 4px 24px rgba(0,0,0,.18); }
-    .back-link { font-size: .85rem; margin-bottom: 1rem; display: inline-block; color: var(--primary); }
-    h1 { font-size: 1.4rem; color: var(--primary); margin-bottom: 1.25rem; }
+    .af-main .back-link { font-size: .85rem; margin-bottom: 1rem; display: inline-block; color: var(--primary); }
+    .af-main h1 { font-size: 1.4rem; color: var(--primary); margin-bottom: 1.25rem; }
 
-    form { background: #fff; border: none; border-radius: 10px; padding: 1.75rem 2rem; box-shadow: 0 2px 10px rgba(0,0,0,.07); }
+    .af-main form { background: #fff; border: none; border-radius: 10px; padding: 1.75rem 2rem; box-shadow: 0 2px 10px rgba(0,0,0,.07); }
 
-    .field { margin-bottom: 1rem; }
-    label { display: block; font-size: .68rem; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: .07em; margin-bottom: .3rem; }
-    label .hint { font-weight: 400; color: #bbb; font-size: .68rem; text-transform: none; letter-spacing: 0; margin-left: .3rem; }
-    label.checkbox-row { font-size: .88rem; font-weight: 400; color: #444; text-transform: none; letter-spacing: 0; display: flex; align-items: center; gap: .5rem; }
+    .af-main .field { margin-bottom: 1rem; }
+    .af-main label { display: block; font-size: .68rem; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: .07em; margin-bottom: .3rem; }
+    .af-main label .hint { font-weight: 400; color: #bbb; font-size: .68rem; text-transform: none; letter-spacing: 0; margin-left: .3rem; }
+    .af-main label.checkbox-row { font-size: .88rem; font-weight: 400; color: #444; text-transform: none; letter-spacing: 0; display: flex; align-items: center; gap: .5rem; }
 
-    input[type="text"], input[type="email"], input[type="url"],
-    input[type="date"], input[type="number"], input[type="tel"],
-    select, textarea {
+    .af-main input[type="text"], .af-main input[type="email"], .af-main input[type="url"],
+    .af-main input[type="date"], .af-main input[type="number"], .af-main input[type="tel"],
+    .af-main select, .af-main textarea {
       width: 100%; padding: .65rem .85rem;
       background: rgba(37,46,103,.07); border: none; border-radius: 6px;
       font-size: .88rem; font-family: inherit; color: #1a1a2e;
     }
-    input:focus, select:focus, textarea:focus { outline: none; background: rgba(37,46,103,.11); box-shadow: 0 0 0 2px rgba(37,46,103,.2); }
-    textarea { min-height: 200px; resize: vertical; font-family: 'Cascadia Code', Consolas, monospace; font-size: .84rem; }
+    .af-main input:focus, .af-main select:focus, .af-main textarea:focus {
+      outline: none; background: rgba(37,46,103,.11); box-shadow: 0 0 0 2px rgba(37,46,103,.2);
+    }
+    .af-main textarea { min-height: 200px; resize: vertical; font-family: 'Cascadia Code', Consolas, monospace; font-size: .84rem; }
 
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    .checkbox-row { display: flex; align-items: center; gap: .5rem; }
-    .checkbox-row input { width: auto; }
+    .af-main .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .af-main .checkbox-row { display: flex; align-items: center; gap: .5rem; }
+    .af-main .checkbox-row input { width: auto; }
 
-    .actions { display: flex; gap: .75rem; margin-top: 1.5rem; align-items: center; }
-    .btn { padding: .6rem 1.3rem; border-radius: 6px; border: 1.5px solid var(--primary); font-size: .88rem; font-family: inherit; cursor: pointer; transition: background .15s, color .15s; }
-    .btn.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
-    .btn.primary:hover { opacity: .88; }
-    .btn.secondary { background: transparent; color: var(--primary); }
-    .btn.secondary:hover { background: var(--primary); color: #fff; text-decoration: none; }
-    .btn.danger { border-color: #c00; color: #c00; background: transparent; }
-    .btn.danger:hover { background: #c00; color: #fff; }
+    .af-main .actions { display: flex; gap: .75rem; margin-top: 1.5rem; align-items: center; }
+    .af-main .btn { display: inline-block; padding: .6rem 1.3rem; border-radius: 6px; border: 1.5px solid var(--primary); font-size: .88rem; font-family: inherit; cursor: pointer; text-decoration: none; transition: background .15s, color .15s; }
+    .af-main .btn.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .af-main .btn.primary:hover { opacity: .88; text-decoration: none; }
+    .af-main .btn.secondary { background: transparent; color: var(--primary); }
+    .af-main .btn.secondary:hover { background: var(--primary); color: #fff; text-decoration: none; }
+    .af-main .btn.danger { border-color: #c00; color: #c00; background: transparent; }
+    .af-main .btn.danger:hover { background: #c00; color: #fff; }
 
-    .success-msg { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; border-radius: 5px; padding: .6rem 1rem; margin-bottom: 1rem; font-size: .88rem; }
-    .error-msg   { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; border-radius: 5px; padding: .6rem 1rem; margin-bottom: 1rem; font-size: .88rem; }
+    .af-main .success-msg { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; border-radius: 5px; padding: .6rem 1rem; margin-bottom: 1rem; font-size: .88rem; }
+    .af-main .error-msg   { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; border-radius: 5px; padding: .6rem 1rem; margin-bottom: 1rem; font-size: .88rem; }
   </style>
 </head>
 <body>
