@@ -1,7 +1,7 @@
 globalThis.process ??= {}; globalThis.process.env ??= {};
 import { renderers } from './renderers.mjs';
 import { c as createExports, s as serverEntrypointModule } from './chunks/_@astrojs-ssr-adapter_CPNwySah.mjs';
-import { manifest } from './manifest_C_-9Stf_.mjs';
+import { manifest } from './manifest_DcU4ptLk.mjs';
 
 const serverIslandMap = new Map();;
 
@@ -34,23 +34,33 @@ const _page25 = () => import('./pages/lodges/admin/_lodge_/blog/new.astro.mjs');
 const _page26 = () => import('./pages/lodges/admin/_lodge_/config.astro.mjs');
 const _page27 = () => import('./pages/lodges/admin/_lodge_/events/edit.astro.mjs');
 const _page28 = () => import('./pages/lodges/admin/_lodge_/events/new.astro.mjs');
-const _page29 = () => import('./pages/lodges/admin/_lodge_/officers/edit.astro.mjs');
-const _page30 = () => import('./pages/lodges/admin/_lodge_/officers/new.astro.mjs');
-const _page31 = () => import('./pages/lodges/admin/_lodge_/pages/edit.astro.mjs');
-const _page32 = () => import('./pages/lodges/admin/_lodge_/pages/new.astro.mjs');
-const _page33 = () => import('./pages/lodges/admin/_lodge_/service/edit.astro.mjs');
-const _page34 = () => import('./pages/lodges/admin/_lodge_/service/new.astro.mjs');
-const _page35 = () => import('./pages/lodges/admin/_lodge_.astro.mjs');
-const _page36 = () => import('./pages/lodges/_lodge_/about.astro.mjs');
-const _page37 = () => import('./pages/lodges/_lodge_/blog/_slug_.astro.mjs');
-const _page38 = () => import('./pages/lodges/_lodge_/blog.astro.mjs');
-const _page39 = () => import('./pages/lodges/_lodge_/community-service.astro.mjs');
-const _page40 = () => import('./pages/lodges/_lodge_/contact.astro.mjs');
-const _page41 = () => import('./pages/lodges/_lodge_/events.astro.mjs');
-const _page42 = () => import('./pages/lodges/_lodge_/officers.astro.mjs');
-const _page43 = () => import('./pages/lodges/_lodge_.astro.mjs');
-const _page44 = () => import('./pages/officers.astro.mjs');
-const _page45 = () => import('./pages/index.astro.mjs');
+const _page29 = () => import('./pages/lodges/admin/_lodge_/gallery/edit.astro.mjs');
+const _page30 = () => import('./pages/lodges/admin/_lodge_/gallery/new.astro.mjs');
+const _page31 = () => import('./pages/lodges/admin/_lodge_/links/edit.astro.mjs');
+const _page32 = () => import('./pages/lodges/admin/_lodge_/links/new.astro.mjs');
+const _page33 = () => import('./pages/lodges/admin/_lodge_/officers/edit.astro.mjs');
+const _page34 = () => import('./pages/lodges/admin/_lodge_/officers/new.astro.mjs');
+const _page35 = () => import('./pages/lodges/admin/_lodge_/pages/edit.astro.mjs');
+const _page36 = () => import('./pages/lodges/admin/_lodge_/pages/new.astro.mjs');
+const _page37 = () => import('./pages/lodges/admin/_lodge_/service/edit.astro.mjs');
+const _page38 = () => import('./pages/lodges/admin/_lodge_/service/new.astro.mjs');
+const _page39 = () => import('./pages/lodges/admin/_lodge_.astro.mjs');
+const _page40 = () => import('./pages/lodges/_lodge_/about.astro.mjs');
+const _page41 = () => import('./pages/lodges/_lodge_/blog/_slug_.astro.mjs');
+const _page42 = () => import('./pages/lodges/_lodge_/blog.astro.mjs');
+const _page43 = () => import('./pages/lodges/_lodge_/community-service.astro.mjs');
+const _page44 = () => import('./pages/lodges/_lodge_/contact.astro.mjs');
+const _page45 = () => import('./pages/lodges/_lodge_/events.astro.mjs');
+const _page46 = () => import('./pages/lodges/_lodge_/gallery.astro.mjs');
+const _page47 = () => import('./pages/lodges/_lodge_/history.astro.mjs');
+const _page48 = () => import('./pages/lodges/_lodge_/links.astro.mjs');
+const _page49 = () => import('./pages/lodges/_lodge_/membership.astro.mjs');
+const _page50 = () => import('./pages/lodges/_lodge_/newsletter.astro.mjs');
+const _page51 = () => import('./pages/lodges/_lodge_/officers.astro.mjs');
+const _page52 = () => import('./pages/lodges/_lodge_/programs.astro.mjs');
+const _page53 = () => import('./pages/lodges/_lodge_.astro.mjs');
+const _page54 = () => import('./pages/officers.astro.mjs');
+const _page55 = () => import('./pages/index.astro.mjs');
 const pageMap = new Map([
     ["node_modules/@astrojs/cloudflare/dist/entrypoints/image-endpoint.js", _page0],
     ["src/pages/404.astro", _page1],
@@ -81,23 +91,33 @@ const pageMap = new Map([
     ["src/pages/lodges/admin/[lodge]/config.astro", _page26],
     ["src/pages/lodges/admin/[lodge]/events/edit.astro", _page27],
     ["src/pages/lodges/admin/[lodge]/events/new.astro", _page28],
-    ["src/pages/lodges/admin/[lodge]/officers/edit.astro", _page29],
-    ["src/pages/lodges/admin/[lodge]/officers/new.astro", _page30],
-    ["src/pages/lodges/admin/[lodge]/pages/edit.astro", _page31],
-    ["src/pages/lodges/admin/[lodge]/pages/new.astro", _page32],
-    ["src/pages/lodges/admin/[lodge]/service/edit.astro", _page33],
-    ["src/pages/lodges/admin/[lodge]/service/new.astro", _page34],
-    ["src/pages/lodges/admin/[lodge]/index.astro", _page35],
-    ["src/pages/lodges/[lodge]/about.astro", _page36],
-    ["src/pages/lodges/[lodge]/blog/[slug].astro", _page37],
-    ["src/pages/lodges/[lodge]/blog/index.astro", _page38],
-    ["src/pages/lodges/[lodge]/community-service.astro", _page39],
-    ["src/pages/lodges/[lodge]/contact.astro", _page40],
-    ["src/pages/lodges/[lodge]/events/index.astro", _page41],
-    ["src/pages/lodges/[lodge]/officers.astro", _page42],
-    ["src/pages/lodges/[lodge]/index.astro", _page43],
-    ["src/pages/officers.astro", _page44],
-    ["src/pages/index.astro", _page45]
+    ["src/pages/lodges/admin/[lodge]/gallery/edit.astro", _page29],
+    ["src/pages/lodges/admin/[lodge]/gallery/new.astro", _page30],
+    ["src/pages/lodges/admin/[lodge]/links/edit.astro", _page31],
+    ["src/pages/lodges/admin/[lodge]/links/new.astro", _page32],
+    ["src/pages/lodges/admin/[lodge]/officers/edit.astro", _page33],
+    ["src/pages/lodges/admin/[lodge]/officers/new.astro", _page34],
+    ["src/pages/lodges/admin/[lodge]/pages/edit.astro", _page35],
+    ["src/pages/lodges/admin/[lodge]/pages/new.astro", _page36],
+    ["src/pages/lodges/admin/[lodge]/service/edit.astro", _page37],
+    ["src/pages/lodges/admin/[lodge]/service/new.astro", _page38],
+    ["src/pages/lodges/admin/[lodge]/index.astro", _page39],
+    ["src/pages/lodges/[lodge]/about.astro", _page40],
+    ["src/pages/lodges/[lodge]/blog/[slug].astro", _page41],
+    ["src/pages/lodges/[lodge]/blog/index.astro", _page42],
+    ["src/pages/lodges/[lodge]/community-service.astro", _page43],
+    ["src/pages/lodges/[lodge]/contact.astro", _page44],
+    ["src/pages/lodges/[lodge]/events/index.astro", _page45],
+    ["src/pages/lodges/[lodge]/gallery.astro", _page46],
+    ["src/pages/lodges/[lodge]/history.astro", _page47],
+    ["src/pages/lodges/[lodge]/links.astro", _page48],
+    ["src/pages/lodges/[lodge]/membership.astro", _page49],
+    ["src/pages/lodges/[lodge]/newsletter.astro", _page50],
+    ["src/pages/lodges/[lodge]/officers.astro", _page51],
+    ["src/pages/lodges/[lodge]/programs.astro", _page52],
+    ["src/pages/lodges/[lodge]/index.astro", _page53],
+    ["src/pages/officers.astro", _page54],
+    ["src/pages/index.astro", _page55]
 ]);
 
 const _manifest = Object.assign(manifest, {

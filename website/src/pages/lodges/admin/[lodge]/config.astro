@@ -17,11 +17,24 @@ if (Astro.request.method === "POST") {
     const fields = [
       "lodge_name","lodge_number","state","grand_domain","city",
       "meeting_schedule","meeting_location","phone","email",
-      "facebook_url","primary_color","accent_color","tagline","founded_year"
+      "facebook_url","instagram_url","twitter_url",
+      "donation_url","grand_lodge_url","mailing_address",
+      "primary_color","accent_color","tagline","founded_year"
+    ];
+    const toggles = [
+      "show_history","show_membership","show_gallery","show_links",
+      "show_newsletter","show_programs",
+      "show_blog","show_events","show_officers","show_service"
     ];
     const now = new Date().toISOString();
     for (const key of fields) {
       const val = form.get(key)?.toString() ?? "";
+      await env.DB.prepare(
+        "INSERT INTO lodge_config (lodge_id,key,value,updated_at) VALUES (?,?,?,?) ON CONFLICT(lodge_id,key) DO UPDATE SET value=excluded.value,updated_at=excluded.updated_at"
+      ).bind(lodge.id, key, val, now).run();
+    }
+    for (const key of toggles) {
+      const val = form.get(key) === "1" ? "1" : "";
       await env.DB.prepare(
         "INSERT INTO lodge_config (lodge_id,key,value,updated_at) VALUES (?,?,?,?) ON CONFLICT(lodge_id,key) DO UPDATE SET value=excluded.value,updated_at=excluded.updated_at"
       ).bind(lodge.id, key, val, now).run();
@@ -91,10 +104,37 @@ const config = await getConfig(env.DB, lodge.id);
         <input type="email" name="email" value={config.email} />
       </div>
     </div>
-    <div class="field">
-      <label>Facebook URL</label>
-      <input type="url" name="facebook_url" value={config.facebook_url} />
+    <h3>Social & Links</h3>
+    <div class="row">
+      <div class="field">
+        <label>Facebook URL</label>
+        <input type="url" name="facebook_url" value={config.facebook_url} />
+      </div>
+      <div class="field">
+        <label>Instagram URL</label>
+        <input type="url" name="instagram_url" value={config.instagram_url} />
+      </div>
     </div>
+    <div class="row">
+      <div class="field">
+        <label>Twitter / X URL</label>
+        <input type="url" name="twitter_url" value={config.twitter_url} />
+      </div>
+      <div class="field">
+        <label>Donation URL</label>
+        <input type="url" name="donation_url" value={config.donation_url} />
+      </div>
+    </div>
+    <div class="field">
+      <label>Grand Lodge URL</label>
+      <input type="url" name="grand_lodge_url" value={config.grand_lodge_url} />
+    </div>
+    <div class="field">
+      <label>Mailing Address</label>
+      <input type="text" name="mailing_address" value={config.mailing_address} />
+    </div>
+
+    <h3>Appearance</h3>
     <div class="row">
       <div class="field">
         <label>Primary Color <span class="hint">(hex)</span></label>
@@ -105,6 +145,66 @@ const config = await getConfig(env.DB, lodge.id);
         <input type="text" name="accent_color" value={config.accent_color} />
       </div>
     </div>
+
+    <h3>Section Visibility</h3>
+    <p class="hint">Check sections to show in your lodge's navigation. Uncheck to hide.</p>
+    <div class="row">
+      <div class="field">
+        <label class="checkbox-row">
+          <input type="checkbox" name="show_events" value="1" checked={config.show_events !== ""} /> Events
+        </label>
+      </div>
+      <div class="field">
+        <label class="checkbox-row">
+          <input type="checkbox" name="show_officers" value="1" checked={config.show_officers !== ""} /> Officers
+        </label>
+      </div>
+      <div class="field">
+        <label class="checkbox-row">
+          <input type="checkbox" name="show_blog" value="1" checked={config.show_blog !== ""} /> Blog / News
+        </label>
+      </div>
+      <div class="field">
+        <label class="checkbox-row">
+          <input type="checkbox" name="show_service" value="1" checked={config.show_service !== ""} /> Community Service
+        </label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label class="checkbox-row">
+          <input type="checkbox" name="show_history" value="1" checked={config.show_history === "1"} /> History
+        </label>
+      </div>
+      <div class="field">
+        <label class="checkbox-row">
+          <input type="checkbox" name="show_membership" value="1" checked={config.show_membership === "1"} /> Membership / Join
+        </label>
+      </div>
+      <div class="field">
+        <label class="checkbox-row">
+          <input type="checkbox" name="show_gallery" value="1" checked={config.show_gallery === "1"} /> Photo Gallery
+        </label>
+      </div>
+      <div class="field">
+        <label class="checkbox-row">
+          <input type="checkbox" name="show_links" value="1" checked={config.show_links === "1"} /> Links
+        </label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label class="checkbox-row">
+          <input type="checkbox" name="show_newsletter" value="1" checked={config.show_newsletter === "1"} /> Newsletter
+        </label>
+      </div>
+      <div class="field">
+        <label class="checkbox-row">
+          <input type="checkbox" name="show_programs" value="1" checked={config.show_programs === "1"} /> Programs
+        </label>
+      </div>
+    </div>
+
     <div class="actions">
       <button type="submit" class="btn primary">Save Settings</button>
       <a href={`/lodges/admin/${lodgeSlug}`} class="btn secondary">Cancel</a>

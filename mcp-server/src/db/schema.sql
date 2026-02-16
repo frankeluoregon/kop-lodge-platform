@@ -97,6 +97,27 @@ CREATE TABLE IF NOT EXISTS media (
   uploaded_at TEXT DEFAULT (datetime('now'))
 );
 
+CREATE TABLE IF NOT EXISTS gallery_photos (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  lodge_id INTEGER NOT NULL REFERENCES lodges(id),
+  image_key TEXT NOT NULL,         -- R2 object key
+  caption TEXT,
+  display_order INTEGER DEFAULT 0,
+  published INTEGER DEFAULT 1,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS links (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  lodge_id INTEGER NOT NULL REFERENCES lodges(id),
+  title TEXT NOT NULL,
+  url TEXT NOT NULL,
+  category TEXT DEFAULT 'general', -- 'general', 'pythian', 'community', etc.
+  description TEXT,
+  display_order INTEGER DEFAULT 0,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
 CREATE TABLE IF NOT EXISTS admin_roles (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   email TEXT NOT NULL,
@@ -111,3 +132,5 @@ CREATE INDEX IF NOT EXISTS idx_blog_lodge     ON blog_posts(lodge_id, published)
 CREATE INDEX IF NOT EXISTS idx_officers_lodge ON officers(lodge_id, active);
 CREATE INDEX IF NOT EXISTS idx_service_lodge  ON community_service(lodge_id, featured);
 CREATE INDEX IF NOT EXISTS idx_admin_roles_email ON admin_roles(email);
+CREATE INDEX IF NOT EXISTS idx_gallery_lodge  ON gallery_photos(lodge_id, display_order);
+CREATE INDEX IF NOT EXISTS idx_links_lodge    ON links(lodge_id, category);

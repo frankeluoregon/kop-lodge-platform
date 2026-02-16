@@ -1,6 +1,6 @@
 ---
 import { getSession, canAccessLodge, isAccessConfigured, DEV_SESSION } from "../../../../lib/auth";
-import { getLodgeBySlug, getConfig, getUpcomingEvents, getAllPosts, getAllOfficers, getCommunityService, getAllPages } from "../../../../lib/db";
+import { getLodgeBySlug, getConfig, getUpcomingEvents, getAllPosts, getAllOfficers, getCommunityService, getAllPages, getAllGalleryPhotos, getAllLinks } from "../../../../lib/db";
 
 const lodgeSlug = Astro.params.lodge!;
 const env = Astro.locals.runtime.env;
@@ -24,6 +24,8 @@ const posts    = await getAllPosts(env.DB, lodge.id, 5);
 const officers = await getAllOfficers(env.DB, lodge.id);
 const service  = await getCommunityService(env.DB, lodge.id, false, 5);
 const pages    = await getAllPages(env.DB, lodge.id);
+const photos   = await getAllGalleryPhotos(env.DB, lodge.id);
+const links    = await getAllLinks(env.DB, lodge.id);
 
 const primary = config.primary_color || "#252e67";
 const accent  = config.accent_color  || "#f5a71c";
@@ -191,6 +193,44 @@ const adminBase = `/lodges/admin/${lodgeSlug}`;
           ))}
         </ul>
         <a class="btn add" href={`${adminBase}/pages/new`}>+ New Page</a>
+      </div>
+
+      <!-- Gallery -->
+      <div class="panel">
+        <h2>Gallery Photos</h2>
+        {photos.length === 0
+          ? <p style="font-size:.85rem;color:#666">No photos yet.</p>
+          : (
+            <ul>
+              {photos.map((ph) => (
+                <li>
+                  <span>{ph.caption || ph.image_key}{!ph.published ? " (draft)" : ""}</span>
+                  <div class="acts"><a class="btn" href={`${adminBase}/gallery/edit?id=${ph.id}`}>Edit</a></div>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+        <a class="btn add" href={`${adminBase}/gallery/new`}>+ Add Photo</a>
+      </div>
+
+      <!-- Links -->
+      <div class="panel">
+        <h2>Links</h2>
+        {links.length === 0
+          ? <p style="font-size:.85rem;color:#666">No links yet.</p>
+          : (
+            <ul>
+              {links.map((lnk) => (
+                <li>
+                  <span>{lnk.title} <span style="font-size:.75rem;color:#999">({lnk.category})</span></span>
+                  <div class="acts"><a class="btn" href={`${adminBase}/links/edit?id=${lnk.id}`}>Edit</a></div>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+        <a class="btn add" href={`${adminBase}/links/new`}>+ Add Link</a>
       </div>
     </div>
   </main>

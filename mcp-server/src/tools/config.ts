@@ -31,7 +31,7 @@ export function registerConfigTools(server: McpServer, db: D1Client) {
       updates: z
         .record(z.string(), z.string())
         .describe(
-          "Key-value pairs to update. Valid keys: lodge_name, lodge_number, state, grand_domain, city, meeting_schedule, meeting_location, phone, email, facebook_url, primary_color, accent_color, tagline, founded_year, logo_key",
+          "Key-value pairs to update. Valid keys: lodge_name, lodge_number, state, grand_domain, city, meeting_schedule, meeting_location, phone, email, mailing_address, facebook_url, instagram_url, twitter_url, donation_url, grand_lodge_url, primary_color, accent_color, tagline, founded_year, logo_key, show_history, show_membership, show_gallery, show_links, show_newsletter, show_programs, show_blog, show_events, show_officers, show_service (toggle values: '1' to show, '' to hide)",
         ),
     },
     async ({ lodge_slug, updates }) => {

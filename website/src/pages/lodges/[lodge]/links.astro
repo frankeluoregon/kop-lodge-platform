@@ -1,0 +1,76 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getLodgeBySlug, getConfig, getLinks } from "../../../lib/db";
+import type { Link } from "../../../lib/db";
+
+const lodgeSlug = Astro.params.lodge!;
+const db = Astro.locals.runtime.env.DB;
+
+const lodge = await getLodgeBySlug(db, lodgeSlug);
+if (!lodge) return Astro.redirect("/", 302);
+
+const config = await getConfig(db, lodge.id);
+if (config.show_links !== "1") return Astro.redirect(`/lodges/${lodgeSlug}`, 302);
+
+const allLinks = await getLinks(db, lodge.id);
+
+// Group links by category
+const grouped = allLinks.reduce<Record<string, Link[]>>((acc, link) => {
+  const cat = link.category || "general";
+  if (!acc[cat]) acc[cat] = [];
+  acc[cat].push(link);
+  return acc;
+}, {});
+const categories = Object.keys(grouped).sort();
+---
+
+<Base config={config} lodgeSlug={lodgeSlug} title="Links">
+  <div class="hero">
+    <h1>Links</h1>
+    <p>Useful Resources &amp; Related Sites</p>
+  </div>
+  <main>
+    {categories.length > 0 ? (
+      categories.map((cat) => (
+        <section>
+          <h2 class="section-heading" style="text-transform:capitalize">{cat}</h2>
+          <div class="links-list">
+            {grouped[cat].map((link) => (
+              <div class="link-item">
+                <a href={link.url} target="_blank" rel="noopener">{link.title}</a>
+                {link.description && <p>{link.description}</p>}
+              </div>
+            ))}
+          </div>
+        </section>
+      ))
+    ) : (
+      <p style="color:#666">Links coming soon.</p>
+    )}
+  </main>
+</Base>
+
+<style>
+  .links-list {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    margin-bottom: 2rem;
+  }
+  .link-item {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: .8rem 1rem;
+    box-shadow: var(--shadow);
+  }
+  .link-item a {
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+  .link-item p {
+    margin-top: .25rem;
+    font-size: .88rem;
+    color: var(--neutral);
+  }
+</style>

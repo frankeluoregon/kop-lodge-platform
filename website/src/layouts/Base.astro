@@ -180,13 +180,19 @@ function isActivePrefix(prefix: string): boolean {
           </div>
         </a>
         <nav>
-          <a href={base}                          aria-current={isActive(`${base}`) || isActive(`${base}/`) ? "page" : undefined}>Home</a>
-          <a href={`${base}/about`}               aria-current={isActive(`${base}/about`) ? "page" : undefined}>About</a>
-          <a href={`${base}/events`}              aria-current={isActivePrefix(`${base}/events`) ? "page" : undefined}>Events</a>
-          <a href={`${base}/officers`}            aria-current={isActive(`${base}/officers`) ? "page" : undefined}>Officers</a>
-          <a href={`${base}/community-service`}   aria-current={isActive(`${base}/community-service`) ? "page" : undefined}>Service</a>
-          <a href={`${base}/blog`}                aria-current={isActivePrefix(`${base}/blog`) ? "page" : undefined}>Blog</a>
-          <a href={`${base}/contact`}             aria-current={isActive(`${base}/contact`) ? "page" : undefined}>Contact</a>
+          <a href={base} aria-current={isActive(`${base}`) || isActive(`${base}/`) ? "page" : undefined}>Home</a>
+          <a href={`${base}/about`} aria-current={isActive(`${base}/about`) ? "page" : undefined}>About</a>
+          {config.show_history === "1" && <a href={`${base}/history`} aria-current={isActive(`${base}/history`) ? "page" : undefined}>History</a>}
+          {config.show_events !== "" && <a href={`${base}/events`} aria-current={isActivePrefix(`${base}/events`) ? "page" : undefined}>Events</a>}
+          {config.show_officers !== "" && <a href={`${base}/officers`} aria-current={isActive(`${base}/officers`) ? "page" : undefined}>Officers</a>}
+          {config.show_service !== "" && <a href={`${base}/community-service`} aria-current={isActive(`${base}/community-service`) ? "page" : undefined}>Service</a>}
+          {config.show_membership === "1" && <a href={`${base}/membership`} aria-current={isActive(`${base}/membership`) ? "page" : undefined}>Join</a>}
+          {config.show_gallery === "1" && <a href={`${base}/gallery`} aria-current={isActive(`${base}/gallery`) ? "page" : undefined}>Gallery</a>}
+          {config.show_blog !== "" && <a href={`${base}/blog`} aria-current={isActivePrefix(`${base}/blog`) ? "page" : undefined}>Blog</a>}
+          {config.show_newsletter === "1" && <a href={`${base}/newsletter`} aria-current={isActive(`${base}/newsletter`) ? "page" : undefined}>Newsletter</a>}
+          {config.show_programs === "1" && <a href={`${base}/programs`} aria-current={isActive(`${base}/programs`) ? "page" : undefined}>Programs</a>}
+          {config.show_links === "1" && <a href={`${base}/links`} aria-current={isActive(`${base}/links`) ? "page" : undefined}>Links</a>}
+          <a href={`${base}/contact`} aria-current={isActive(`${base}/contact`) ? "page" : undefined}>Contact</a>
         </nav>
       </div>
     </header>
@@ -210,12 +216,20 @@ function isActivePrefix(prefix: string): boolean {
           </ul>
         </div>
         <div>
-          <h4>Knights of Pythias</h4>
+          <h4>Connect</h4>
           <ul>
-            <li><a href="https://www.pythias.org" target="_blank" rel="noopener">Supreme Lodge</a></li>
             {config.facebook_url && <li><a href={config.facebook_url} target="_blank" rel="noopener">Facebook</a></li>}
+            {config.instagram_url && <li><a href={config.instagram_url} target="_blank" rel="noopener">Instagram</a></li>}
+            {config.twitter_url && <li><a href={config.twitter_url} target="_blank" rel="noopener">Twitter / X</a></li>}
+            {config.donation_url && <li><a href={config.donation_url} target="_blank" rel="noopener">Donate</a></li>}
+            <li><a href="https://www.pythias.org" target="_blank" rel="noopener">Supreme Lodge</a></li>
+            {config.grand_lodge_url && <li><a href={config.grand_lodge_url} target="_blank" rel="noopener">Grand Lodge</a></li>}
           </ul>
         </div>
+        {config.mailing_address && <div>
+          <h4>Mailing Address</h4>
+          <p>{config.mailing_address}</p>
+        </div>}
       </div>
       <p>
         &copy; {new Date().getFullYear()} {config.lodge_name} &mdash; Knights of Pythias.

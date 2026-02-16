@@ -22,11 +22,46 @@ export interface LodgeConfig {
   phone: string;
   email: string;
   facebook_url: string;
+  instagram_url: string;
+  twitter_url: string;
+  donation_url: string;
+  grand_lodge_url: string;
+  mailing_address: string;
   primary_color: string;
   accent_color: string;
   tagline: string;
   founded_year: string;
   logo_key: string;
+  // Section toggles ("1" = show, "" = hide)
+  show_history: string;
+  show_membership: string;
+  show_gallery: string;
+  show_links: string;
+  show_newsletter: string;
+  show_programs: string;
+  show_blog: string;
+  show_events: string;
+  show_officers: string;
+  show_service: string;
+}
+
+export interface GalleryPhoto {
+  id: number;
+  lodge_id: number;
+  image_key: string;
+  caption: string | null;
+  display_order: number;
+  published: number;
+}
+
+export interface Link {
+  id: number;
+  lodge_id: number;
+  title: string;
+  url: string;
+  category: string;
+  description: string | null;
+  display_order: number;
 }
 
 export interface Event {
@@ -314,5 +349,61 @@ export async function getCommunityService(
     )
     .bind(lodgeId, limit)
     .all<CommunityService>();
+  return res.results;
+}
+
+// ─── Gallery ────────────────────────────────────────────────────────────────
+
+export async function getGalleryPhotos(
+  db: D1Database,
+  lodgeId: number,
+): Promise<GalleryPhoto[]> {
+  const res = await db
+    .prepare(
+      "SELECT * FROM gallery_photos WHERE lodge_id = ? AND published = 1 ORDER BY display_order ASC, id DESC",
+    )
+    .bind(lodgeId)
+    .all<GalleryPhoto>();
+  return res.results;
+}
+
+export async function getAllGalleryPhotos(
+  db: D1Database,
+  lodgeId: number,
+): Promise<GalleryPhoto[]> {
+  const res = await db
+    .prepare(
+      "SELECT * FROM gallery_photos WHERE lodge_id = ? ORDER BY display_order ASC, id DESC",
+    )
+    .bind(lodgeId)
+    .all<GalleryPhoto>();
+  return res.results;
+}
+
+// ─── Links ──────────────────────────────────────────────────────────────────
+
+export async function getLinks(
+  db: D1Database,
+  lodgeId: number,
+): Promise<Link[]> {
+  const res = await db
+    .prepare(
+      "SELECT * FROM links WHERE lodge_id = ? ORDER BY category ASC, display_order ASC, title ASC",
+    )
+    .bind(lodgeId)
+    .all<Link>();
+  return res.results;
+}
+
+export async function getAllLinks(
+  db: D1Database,
+  lodgeId: number,
+): Promise<Link[]> {
+  const res = await db
+    .prepare(
+      "SELECT * FROM links WHERE lodge_id = ? ORDER BY category ASC, display_order ASC, title ASC",
+    )
+    .bind(lodgeId)
+    .all<Link>();
   return res.results;
 }

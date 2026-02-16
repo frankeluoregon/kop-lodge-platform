@@ -20,6 +20,8 @@ import { registerEventTools } from "./tools/events.js";
 import { registerBlogTools } from "./tools/blog.js";
 import { registerOfficerTools } from "./tools/officers.js";
 import { registerCommunityServiceTools } from "./tools/community-service.js";
+import { registerGalleryTools } from "./tools/gallery.js";
+import { registerLinksTools } from "./tools/links.js";
 import { z } from "zod";
 
 async function main() {
@@ -105,6 +107,8 @@ async function main() {
   registerBlogTools(server, db);
   registerOfficerTools(server, db);
   registerCommunityServiceTools(server, db);
+  registerGalleryTools(server, db);
+  registerLinksTools(server, db);
 
   // ——— Resources: per-lodge URI templates ———————————————————————————————————
 

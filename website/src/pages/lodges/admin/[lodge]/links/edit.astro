@@ -1,0 +1,76 @@
+---
+import AdminForm from "../../../../../layouts/AdminForm.astro";
+import { getLodgeBySlug } from "../../../../../lib/db";
+
+const lodgeSlug = Astro.params.lodge!;
+const env = Astro.locals.runtime.env;
+
+const lodge = await getLodgeBySlug(env.DB, lodgeSlug);
+if (!lodge) return Astro.redirect("/", 302);
+
+const id = Number(new URL(Astro.request.url).searchParams.get("id"));
+if (!id) return Astro.redirect(`/lodges/admin/${lodgeSlug}`, 302);
+
+const entry = await env.DB.prepare("SELECT * FROM links WHERE id = ? AND lodge_id = ?").bind(id, lodge.id).first<Record<string, unknown>>();
+if (!entry) return Astro.redirect(`/lodges/admin/${lodgeSlug}`, 302);
+
+let message = "";
+let isError = false;
+
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  if (form.get("_action") === "delete") {
+    await env.DB.prepare("DELETE FROM links WHERE id = ? AND lodge_id = ?").bind(id, lodge.id).run();
+    return Astro.redirect(`/lodges/admin/${lodgeSlug}`, 302);
+  }
+  try {
+    await env.DB.prepare(
+      "UPDATE links SET title=?,url=?,category=?,description=?,display_order=? WHERE id=? AND lodge_id=?"
+    ).bind(
+      form.get("title")?.toString() ?? "",
+      form.get("url")?.toString() ?? "",
+      form.get("category")?.toString() || "general",
+      form.get("description")?.toString() || null,
+      Number(form.get("display_order") ?? 0),
+      id, lodge.id,
+    ).run();
+    message = "Link updated.";
+  } catch (e: unknown) {
+    isError = true;
+    message = `Error: ${e instanceof Error ? e.message : String(e)}`;
+  }
+}
+---
+
+<AdminForm title="Edit Link" lodgeSlug={lodgeSlug}>
+  {message && <div class={isError ? "error-msg" : "success-msg"}>{message}</div>}
+  <form method="POST">
+    <div class="field">
+      <label>Title</label>
+      <input type="text" name="title" value={String(entry.title ?? "")} required />
+    </div>
+    <div class="field">
+      <label>URL</label>
+      <input type="url" name="url" value={String(entry.url ?? "")} required />
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Category</label>
+        <input type="text" name="category" value={String(entry.category ?? "general")} />
+      </div>
+      <div class="field">
+        <label>Display Order</label>
+        <input type="number" name="display_order" value={String(entry.display_order ?? 0)} min="0" />
+      </div>
+    </div>
+    <div class="field">
+      <label>Description <span class="hint">(optional)</span></label>
+      <input type="text" name="description" value={String(entry.description ?? "")} />
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn primary">Save Changes</button>
+      <a href={`/lodges/admin/${lodgeSlug}`} class="btn secondary">Cancel</a>
+      <button type="submit" name="_action" value="delete" class="btn danger" onclick="return confirm('Delete this link?')">Delete</button>
+    </div>
+  </form>
+</AdminForm>

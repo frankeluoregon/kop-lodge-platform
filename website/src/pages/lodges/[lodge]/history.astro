@@ -1,0 +1,29 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getLodgeBySlug, getConfig, getPage } from "../../../lib/db";
+import { renderMarkdown } from "../../../lib/markdown";
+
+const lodgeSlug = Astro.params.lodge!;
+const db = Astro.locals.runtime.env.DB;
+
+const lodge = await getLodgeBySlug(db, lodgeSlug);
+if (!lodge) return Astro.redirect("/", 302);
+
+const config = await getConfig(db, lodge.id);
+if (config.show_history !== "1") return Astro.redirect(`/lodges/${lodgeSlug}`, 302);
+
+const page = await getPage(db, lodge.id, "history");
+---
+
+<Base config={config} lodgeSlug={lodgeSlug} title="History" description={page?.meta_description ?? undefined}>
+  <div class="hero">
+    <h1>Our History</h1>
+    <p>{config.lodge_name}{config.founded_year ? ` · Founded ${config.founded_year}` : ""}</p>
+  </div>
+  <main>
+    {page
+      ? <article class="prose" set:html={renderMarkdown(page.content)} />
+      : <p style="color:#666">History page coming soon.</p>
+    }
+  </main>
+</Base>
