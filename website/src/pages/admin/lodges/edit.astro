@@ -30,11 +30,26 @@ if (Astro.request.method === "POST") {
   const slug = (form.get("slug") as string || "").trim().toLowerCase().replace(/[^a-z0-9-]/g, "");
   const active = form.get("active") === "on" ? 1 : 0;
 
+  const adminEmails = (form.get("admin_emails") as string || "")
+    .split(/[\n,]+/).map(e => e.trim().toLowerCase()).filter(Boolean);
+
   if (!name || !number || !slug) {
     error = "Name, number, and slug are required.";
   } else {
     try {
       await updateLodge(env.DB, id, slug, name, number, active);
+      // Replace lodge admin roles: delete old, insert new
+      await env.DB.prepare("DELETE FROM admin_roles WHERE role = ?").bind(`lodge:${lodge!.slug}`).run();
+      // If slug changed, also delete old slug roles
+      if (slug !== lodge!.slug) {
+        await env.DB.prepare("DELETE FROM admin_roles WHERE role = ?").bind(`lodge:${slug}`).run();
+      }
+      const now = new Date().toISOString();
+      for (const email of adminEmails) {
+        await env.DB.prepare(
+          "INSERT OR IGNORE INTO admin_roles (email, role, created_at) VALUES (?, ?, ?)"
+        ).bind(email, `lodge:${slug}`, now).run();
+      }
       lodge = await getLodgeById(env.DB, id);
       success = "Lodge updated.";
     } catch (e: any) {
@@ -42,6 +57,11 @@ if (Astro.request.method === "POST") {
     }
   }
 }
+
+const adminRoles = await env.DB.prepare(
+  "SELECT email FROM admin_roles WHERE role = ?"
+).bind(`lodge:${lodge!.slug}`).all<{ email: string }>();
+const currentAdminEmails = adminRoles.results.map(r => r.email).join("\n");
 
 const primary   = "#252e67";
 const accent    = "#f5a71c";
@@ -163,6 +183,10 @@ const contentBg = "#ded3c3";
             <label for="active" style="margin-bottom:0">Active</label>
           </div>
         </div>
+        <div class="field">
+          <label>Lodge Admin Emails <span class="hint">one per line or comma-separated — replaces existing admins on save</span></label>
+          <textarea name="admin_emails" rows="4" style="width:100%;padding:.55rem .75rem;border:1.5px solid #ccc;border-radius:5px;font-size:.9rem;font-family:inherit;background:#fff;resize:vertical">{currentAdminEmails}</textarea>
+        </div>
         <div class="actions">
           <button type="submit" class="btn primary">Save Changes</button>
           {lodge!.active ? (
@@ -174,10 +198,6 @@ const contentBg = "#ded3c3";
         </div>
       </form>
 
-      <div class="links">
-        <span>Authentik group for this lodge:</span>
-        <code style="font-size:.82rem">kop-{lodge!.slug}</code>
-      </div>
     </div>
   </main>
 

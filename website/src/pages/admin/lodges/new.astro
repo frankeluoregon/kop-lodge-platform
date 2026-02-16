@@ -23,11 +23,20 @@ if (Astro.request.method === "POST") {
   const number = (form.get("number") as string || "").trim();
   const slug = (form.get("slug") as string || "").trim().toLowerCase().replace(/[^a-z0-9-]/g, "");
 
+  const adminEmails = (form.get("admin_emails") as string || "")
+    .split(/[\n,]+/).map(e => e.trim().toLowerCase()).filter(Boolean);
+
   if (!name || !number || !slug) {
     error = "All fields are required.";
   } else {
     try {
       const id = await createLodge(env.DB, slug, name, number);
+      const now = new Date().toISOString();
+      for (const email of adminEmails) {
+        await env.DB.prepare(
+          "INSERT OR IGNORE INTO admin_roles (email, role, created_at) VALUES (?, ?, ?)"
+        ).bind(email, `lodge:${slug}`, now).run();
+      }
       return Astro.redirect(`/admin/lodges/edit?id=${id}&created=1`, 302);
     } catch (e: any) {
       error = e.message?.includes("UNIQUE") ? "A lodge with that slug already exists." : `Error: ${e.message}`;
@@ -140,6 +149,10 @@ const contentBg = "#ded3c3";
         <div class="field">
           <label>URL Slug <span class="hint">lowercase, letters/numbers/hyphens only</span></label>
           <input type="text" name="slug" placeholder="e.g. damon" required pattern="[a-z0-9-]+" />
+        </div>
+        <div class="field">
+          <label>Lodge Admin Emails <span class="hint">one per line or comma-separated</span></label>
+          <textarea name="admin_emails" rows="3" placeholder="admin@example.com&#10;another@example.com" style="width:100%;padding:.55rem .75rem;border:1.5px solid #ccc;border-radius:5px;font-size:.9rem;font-family:inherit;background:#fff;resize:vertical"></textarea>
         </div>
         <div class="actions">
           <button type="submit" class="btn primary">Create Lodge</button>
