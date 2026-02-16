@@ -139,6 +139,7 @@ CREATE TABLE IF NOT EXISTS lodge_members (
   email TEXT,
   phone TEXT,
   degree INTEGER DEFAULT 1,       -- 1=First, 2=Second, 3=Third (Knight)
+  office TEXT,                    -- lodge office held, if any
   joined_date TEXT,               -- ISO date
   active INTEGER DEFAULT 1,
   notes TEXT,

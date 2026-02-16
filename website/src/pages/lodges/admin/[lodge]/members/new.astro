@@ -16,13 +16,14 @@ if (Astro.request.method === "POST") {
     const form = await Astro.request.formData();
     const now = new Date().toISOString();
     await env.DB.prepare(
-      "INSERT INTO lodge_members (lodge_id,name,email,phone,degree,joined_date,active,notes,created_at) VALUES (?,?,?,?,?,?,1,?,?)"
+      "INSERT INTO lodge_members (lodge_id,name,email,phone,degree,office,joined_date,active,notes,created_at) VALUES (?,?,?,?,?,?,?,1,?,?)"
     ).bind(
       lodge.id,
       (form.get("name") as string || "").trim(),
       (form.get("email") as string || "").trim() || null,
       (form.get("phone") as string || "").trim() || null,
       Number(form.get("degree") ?? 1),
+      (form.get("office") as string || "").trim() || null,
       (form.get("joined_date") as string || "") || null,
       (form.get("notes") as string || "").trim() || null,
       now,
@@ -55,7 +56,7 @@ if (Astro.request.method === "POST") {
     <div class="row">
       <div class="field">
         <label>Degree</label>
-        <select name="degree" style="width:100%;padding:.55rem .75rem;border:1.5px solid #ccc;border-radius:5px;font-size:.9rem;font-family:inherit;background:#fff">
+        <select name="degree">
           <option value="1">1st Degree</option>
           <option value="2">2nd Degree</option>
           <option value="3">3rd Degree (Knight)</option>
@@ -67,8 +68,23 @@ if (Astro.request.method === "POST") {
       </div>
     </div>
     <div class="field">
-      <label>Notes <span class="hint">internal only</span></label>
-      <textarea name="notes" rows="3" style="width:100%;padding:.55rem .75rem;border:1.5px solid #ccc;border-radius:5px;font-size:.9rem;font-family:inherit;background:#fff;resize:vertical"></textarea>
+      <label>Office <span class="hint">optional</span></label>
+      <select name="office">
+        <option value="">— None —</option>
+        <option value="Chancellor Commander">Chancellor Commander</option>
+        <option value="Vice-Chancellor">Vice-Chancellor</option>
+        <option value="Prelate">Prelate</option>
+        <option value="Master of Work">Master of Work</option>
+        <option value="Secretary / Keeper of Records and Seal">Secretary / Keeper of Records and Seal</option>
+        <option value="Treasurer / Master of Exchequer">Treasurer / Master of Exchequer</option>
+        <option value="Master at Arms">Master at Arms</option>
+        <option value="Inner Guard">Inner Guard</option>
+        <option value="Outer Guard">Outer Guard</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Notes <span class="hint">internal</span></label>
+      <textarea name="notes" rows="3"></textarea>
     </div>
     <div class="actions">
       <button type="submit" class="btn primary">Add Member</button>

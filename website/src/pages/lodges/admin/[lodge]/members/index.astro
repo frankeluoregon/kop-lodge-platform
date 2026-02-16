@@ -108,6 +108,7 @@ const adminBase = `/lodges/admin/${lodgeSlug}`;
         <thead>
           <tr>
             <th>Name</th>
+            <th>Office</th>
             <th>Degree</th>
             <th>Email</th>
             <th>Phone</th>
@@ -120,6 +121,7 @@ const adminBase = `/lodges/admin/${lodgeSlug}`;
           {members.map((m) => (
             <tr>
               <td><strong>{m.name}</strong></td>
+              <td>{m.office ?? <span style="color:#bbb">—</span>}</td>
               <td>{DEGREES[m.degree] ?? m.degree}</td>
               <td>{m.email ?? <span style="color:#bbb">—</span>}</td>
               <td>{m.phone ?? <span style="color:#bbb">—</span>}</td>

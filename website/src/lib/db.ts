@@ -52,6 +52,7 @@ export interface LodgeMember {
   email: string | null;
   phone: string | null;
   degree: number;
+  office: string | null;
   joined_date: string | null;
   active: number;
   notes: string | null;

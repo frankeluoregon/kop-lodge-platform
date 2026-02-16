@@ -25,12 +25,13 @@ if (Astro.request.method === "POST") {
   }
   try {
     await env.DB.prepare(
-      "UPDATE lodge_members SET name=?,email=?,phone=?,degree=?,joined_date=?,active=?,notes=? WHERE id=? AND lodge_id=?"
+      "UPDATE lodge_members SET name=?,email=?,phone=?,degree=?,office=?,joined_date=?,active=?,notes=? WHERE id=? AND lodge_id=?"
     ).bind(
       (form.get("name") as string || "").trim(),
       (form.get("email") as string || "").trim() || null,
       (form.get("phone") as string || "").trim() || null,
       Number(form.get("degree") ?? 1),
+      (form.get("office") as string || "").trim() || null,
       (form.get("joined_date") as string || "") || null,
       form.get("active") === "1" ? 1 : 0,
       (form.get("notes") as string || "").trim() || null,
@@ -43,6 +44,18 @@ if (Astro.request.method === "POST") {
     message = `Error: ${e instanceof Error ? e.message : String(e)}`;
   }
 }
+
+const OFFICES = [
+  "Chancellor Commander",
+  "Vice-Chancellor",
+  "Prelate",
+  "Master of Work",
+  "Secretary / Keeper of Records and Seal",
+  "Treasurer / Master of Exchequer",
+  "Master at Arms",
+  "Inner Guard",
+  "Outer Guard",
+];
 ---
 
 <AdminForm title="Edit Member" lodgeSlug={lodgeSlug}>
@@ -65,7 +78,7 @@ if (Astro.request.method === "POST") {
     <div class="row">
       <div class="field">
         <label>Degree</label>
-        <select name="degree" style="width:100%;padding:.55rem .75rem;border:1.5px solid #ccc;border-radius:5px;font-size:.9rem;font-family:inherit;background:#fff">
+        <select name="degree">
           <option value="1" selected={member!.degree === 1}>1st Degree</option>
           <option value="2" selected={member!.degree === 2}>2nd Degree</option>
           <option value="3" selected={member!.degree === 3}>3rd Degree (Knight)</option>
@@ -77,8 +90,17 @@ if (Astro.request.method === "POST") {
       </div>
     </div>
     <div class="field">
-      <label>Notes <span class="hint">internal only</span></label>
-      <textarea name="notes" rows="3" style="width:100%;padding:.55rem .75rem;border:1.5px solid #ccc;border-radius:5px;font-size:.9rem;font-family:inherit;background:#fff;resize:vertical">{member!.notes ?? ""}</textarea>
+      <label>Office <span class="hint">optional</span></label>
+      <select name="office">
+        <option value="" selected={!member!.office}>— None —</option>
+        {OFFICES.map((o) => (
+          <option value={o} selected={member!.office === o}>{o}</option>
+        ))}
+      </select>
+    </div>
+    <div class="field">
+      <label>Notes <span class="hint">internal</span></label>
+      <textarea name="notes" rows="3">{member!.notes ?? ""}</textarea>
     </div>
     <div class="field">
       <label class="checkbox-row">
