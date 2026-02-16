@@ -53,7 +53,14 @@ function isActivePrefix(prefix: string): boolean {
         --font:      'Trebuchet MS', Trebuchet, 'Gill Sans MT', Arial, sans-serif;
       }
 
-      body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.7; }
+      body {
+        font-family: var(--font); color: var(--text); line-height: 1.7;
+        background-image: url('/mainbg.png');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        background-color: var(--primary);
+      }
       a { color: var(--primary); text-decoration: none; }
       a:hover { text-decoration: underline; }
 
@@ -90,17 +97,27 @@ function isActivePrefix(prefix: string): boolean {
       nav a[aria-current="page"] { background: var(--accent); color: var(--primary); }
 
       .hero {
-        background: linear-gradient(160deg, var(--primary) 55%, color-mix(in srgb, var(--primary) 75%, #000));
-        color: #fff; text-align: center; padding: 3.5rem 1.5rem; position: relative;
+        position: relative;
+        color: #fff; text-align: center; padding: 3.5rem 1.5rem;
+      }
+      .hero::before {
+        content: ''; position: absolute; inset: 0;
+        background: linear-gradient(160deg, #252e67 50%, #14193c);
       }
       .hero::after {
         content: ''; display: block; position: absolute; bottom: 0; left: 0; right: 0; height: 4px;
         background: linear-gradient(to right, var(--primary) 33.3%, var(--secondary) 33.3% 66.6%, var(--accent) 66.6%);
       }
+      .hero > * { position: relative; }
       .hero h1 { font-size: 2.3rem; color: var(--accent); margin-bottom: .5rem; text-transform: uppercase; letter-spacing: .06em; }
       .hero p  { font-size: 1.05rem; opacity: .92; }
 
-      main { max-width: var(--max-w); margin: 2rem auto; padding: 0 1.5rem; }
+      main {
+        max-width: var(--max-w); margin: 2rem auto; padding: 1.5rem;
+        background: rgba(247,248,252,0.82);
+        border-radius: var(--radius);
+        box-shadow: 0 4px 24px rgba(0,0,0,.18);
+      }
 
       .section-heading {
         font-size: 1.45rem; color: var(--primary); text-transform: uppercase;
@@ -112,7 +129,7 @@ function isActivePrefix(prefix: string): boolean {
 
       .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 1.25rem; margin-bottom: 2.5rem; }
       .card {
-        background: var(--card-bg); border: 1px solid var(--border); border-top: 3px solid var(--primary);
+        background: rgba(255,255,255,0.88); border: 1px solid var(--border); border-top: 3px solid var(--primary);
         border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.25rem; display: flex; flex-direction: column; gap: .5rem;
       }
       .card .tag { display: inline-block; font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; padding: .2rem .55rem; border-radius: 99px; background: var(--accent); color: var(--primary); }
