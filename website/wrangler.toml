@@ -15,4 +15,4 @@ bucket_name = "kop-lodge-media"
 [vars]
 # Set to your Cloudflare Zero Trust team name
 # (the subdomain of .cloudflareaccess.com)
-CF_ACCESS_TEAM_NAME = "your-team-name"
+CF_ACCESS_TEAM_NAME = "canvasback"
