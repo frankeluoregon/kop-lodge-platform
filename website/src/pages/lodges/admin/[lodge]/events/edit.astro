@@ -28,8 +28,10 @@ if (Astro.request.method === "POST") {
 
   try {
     const now = new Date().toISOString();
+    const recurring = form.get("recurring") === "1" ? 1 : 0;
+    const recurType = recurring ? (form.get("recur_type")?.toString() || null) : null;
     await env.DB.prepare(
-      `UPDATE events SET title=?,event_date=?,level=?,description=?,end_date=?,location=?,url=?,published=?,updated_at=? WHERE id=? AND lodge_id=?`
+      `UPDATE events SET title=?,event_date=?,level=?,description=?,end_date=?,location=?,url=?,published=?,recurring=?,recur_type=?,recur_day=?,recur_nth=?,recur_weekday=?,recur_end_date=?,updated_at=? WHERE id=? AND lodge_id=?`
     ).bind(
       form.get("title")?.toString() ?? "",
       form.get("event_date")?.toString() ?? "",
@@ -39,6 +41,12 @@ if (Astro.request.method === "POST") {
       form.get("location")?.toString() || null,
       form.get("url")?.toString() || null,
       form.get("published") === "1" ? 1 : 0,
+      recurring,
+      recurType,
+      recurring && recurType === "weekly"      ? Number(form.get("recur_day"))     : (recurring && recurType === "monthly-day" ? Number(form.get("recur_day")) : null),
+      recurring && recurType === "monthly-nth" ? Number(form.get("recur_nth"))     : null,
+      recurring && recurType === "monthly-nth" ? Number(form.get("recur_weekday")) : (recurring && recurType === "weekly" ? Number(form.get("recur_weekday")) : null),
+      recurring ? (form.get("recur_end_date")?.toString() || null) : null,
       now, id, lodge.id,
     ).run();
     message = "Event updated.";
@@ -47,6 +55,9 @@ if (Astro.request.method === "POST") {
     message = `Error: ${e instanceof Error ? e.message : String(e)}`;
   }
 }
+
+const isRecurring = Boolean(event.recurring);
+const recurType = String(event.recur_type ?? "weekly");
 ---
 
 <AdminForm title="Edit Event" lodgeSlug={lodgeSlug}>
@@ -62,7 +73,7 @@ if (Astro.request.method === "POST") {
         <input type="date" name="event_date" value={String(event.event_date ?? "")} required />
       </div>
       <div class="field">
-        <label>End Date</label>
+        <label>End Date <span class="hint">optional</span></label>
         <input type="date" name="end_date" value={String(event.end_date ?? "")} />
       </div>
     </div>
@@ -85,9 +96,67 @@ if (Astro.request.method === "POST") {
       <textarea name="description" style="min-height:100px">{String(event.description ?? "")}</textarea>
     </div>
     <div class="field">
-      <label>URL</label>
+      <label>URL <span class="hint">optional</span></label>
       <input type="url" name="url" value={String(event.url ?? "")} />
     </div>
+
+    <div class="field">
+      <label class="checkbox-row">
+        <input type="checkbox" id="recurring-chk" name="recurring" value="1" checked={isRecurring} /> Recurring event
+      </label>
+    </div>
+
+    <div id="recur-options" style={isRecurring ? "" : "display:none"}>
+      <div class="field">
+        <label>Repeat</label>
+        <select name="recur_type" id="recur-type">
+          <option value="weekly"      selected={recurType === "weekly"}>Weekly – same day of week</option>
+          <option value="monthly-day" selected={recurType === "monthly-day"}>Monthly – same day of month</option>
+          <option value="monthly-nth" selected={recurType === "monthly-nth"}>Monthly – Nth weekday</option>
+        </select>
+      </div>
+
+      <div id="recur-weekly" class="field" style={recurType === "weekly" && isRecurring ? "" : "display:none"}>
+        <label>Day of week</label>
+        <select name="recur_weekday">
+          {[["Sunday",0],["Monday",1],["Tuesday",2],["Wednesday",3],["Thursday",4],["Friday",5],["Saturday",6]].map(([name, val]) => (
+            <option value={String(val)} selected={event.recur_weekday === val}>{String(name)}</option>
+          ))}
+        </select>
+      </div>
+
+      <div id="recur-monthly-day" class="field" style={recurType === "monthly-day" && isRecurring ? "" : "display:none"}>
+        <label>Day of month</label>
+        <input type="number" name="recur_day" min="1" max="31" value={event.recur_day != null ? String(event.recur_day) : ""} placeholder="e.g. 15" />
+      </div>
+
+      <div id="recur-monthly-nth" style={recurType === "monthly-nth" && isRecurring ? "" : "display:none"}>
+        <div class="row">
+          <div class="field">
+            <label>Which week</label>
+            <select name="recur_nth">
+              {[[1,"1st"],[2,"2nd"],[3,"3rd"],[4,"4th"],[5,"Last"]].map(([val, label]) => (
+                <option value={String(val)} selected={event.recur_nth === val}>{String(label)}</option>
+              ))}
+            </select>
+          </div>
+          <div class="field">
+            <label>Weekday</label>
+            <select name="recur_weekday">
+              {[["Sunday",0],["Monday",1],["Tuesday",2],["Wednesday",3],["Thursday",4],["Friday",5],["Saturday",6]].map(([name, val]) => (
+                <option value={String(val)} selected={event.recur_weekday === val}>{String(name)}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>End date <span class="hint">optional</span></label>
+        <input type="date" name="recur_end_date" value={String(event.recur_end_date ?? "")} />
+      </div>
+    </div>
+
     <div class="field">
       <label class="checkbox-row">
         <input type="checkbox" name="published" value="1" checked={Boolean(event.published)} /> Published
@@ -100,3 +169,27 @@ if (Astro.request.method === "POST") {
     </div>
   </form>
 </AdminForm>
+
+<script>
+  const chk = document.getElementById("recurring-chk") as HTMLInputElement;
+  const opts = document.getElementById("recur-options")!;
+  const typeSelect = document.getElementById("recur-type") as HTMLSelectElement;
+  const weekly = document.getElementById("recur-weekly")!;
+  const monthlyDay = document.getElementById("recur-monthly-day")!;
+  const monthlyNth = document.getElementById("recur-monthly-nth")!;
+
+  function updateRecurType() {
+    const v = typeSelect.value;
+    weekly.style.display     = v === "weekly"       ? "" : "none";
+    monthlyDay.style.display = v === "monthly-day"  ? "" : "none";
+    monthlyNth.style.display = v === "monthly-nth"  ? "" : "none";
+  }
+
+  chk.addEventListener("change", () => {
+    opts.style.display = chk.checked ? "" : "none";
+    if (chk.checked) updateRecurType();
+  });
+  typeSelect.addEventListener("change", updateRecurType);
+  // Initialize on load
+  if (chk.checked) updateRecurType();
+</script>

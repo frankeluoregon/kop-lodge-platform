@@ -42,6 +42,12 @@ CREATE TABLE IF NOT EXISTS events (
   url TEXT,
   image_key TEXT,
   published INTEGER DEFAULT 1,
+  recurring INTEGER DEFAULT 0,
+  recur_type TEXT,                -- 'weekly' | 'monthly-day' | 'monthly-nth'
+  recur_day INTEGER,              -- weekly: 0-6 (Sun-Sat); monthly-day: 1-31
+  recur_nth INTEGER,              -- monthly-nth: 1-4 or 5 (Last)
+  recur_weekday INTEGER,          -- monthly-nth: 0-6 (Sun-Sat)
+  recur_end_date TEXT,
   created_at TEXT DEFAULT (datetime('now')),
   updated_at TEXT DEFAULT (datetime('now'))
 );

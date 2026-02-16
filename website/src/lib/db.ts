@@ -109,6 +109,12 @@ export interface Event {
   url: string | null;
   image_key: string | null;
   published: number;
+  recurring: number;
+  recur_type: "weekly" | "monthly-day" | "monthly-nth" | null;
+  recur_day: number | null;
+  recur_nth: number | null;
+  recur_weekday: number | null;
+  recur_end_date: string | null;
 }
 
 export interface BlogPost {
