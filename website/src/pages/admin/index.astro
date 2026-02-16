@@ -7,8 +7,12 @@ const env = Astro.locals.runtime.env;
 let session;
 if (isAccessConfigured(env)) {
   session = await getSession(Astro.request, env);
-  if (!session || !isSiteAdmin(session)) {
-    return new Response("Forbidden", { status: 403 });
+  if (!session) {
+    const hasJwt = !!Astro.request.headers.get("Cf-Access-Jwt-Assertion");
+    return new Response(`Debug: session=null, hasJwt=${hasJwt}, team=${env.CF_ACCESS_TEAM_NAME}`, { status: 403 });
+  }
+  if (!isSiteAdmin(session)) {
+    return new Response(`Debug: email=${session.email}, roles=${JSON.stringify(session.roles)}`, { status: 403 });
   }
 } else {
   session = DEV_SESSION;
