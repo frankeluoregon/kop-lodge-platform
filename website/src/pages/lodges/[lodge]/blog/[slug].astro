@@ -1,0 +1,37 @@
+---
+import Base from "../../../../layouts/Base.astro";
+import { getLodgeBySlug, getConfig, getBlogPost } from "../../../../lib/db";
+import { renderMarkdown } from "../../../../lib/markdown";
+
+const lodgeSlug = Astro.params.lodge!;
+const slug      = Astro.params.slug!;
+const db = Astro.locals.runtime.env.DB;
+
+const lodge = await getLodgeBySlug(db, lodgeSlug);
+if (!lodge) return Astro.redirect("/", 302);
+
+const config = await getConfig(db, lodge.id);
+const post   = await getBlogPost(db, lodge.id, slug);
+if (!post) return new Response(null, { status: 404 });
+
+const base = `/lodges/${lodgeSlug}`;
+
+function fmtDate(d: string) {
+  return new Date(d + "T00:00:00").toLocaleDateString("en-US", {
+    month: "long", day: "numeric", year: "numeric",
+  });
+}
+---
+
+<Base config={config} lodgeSlug={lodgeSlug} title={post.title} description={post.excerpt ?? undefined}>
+  <div class="hero">
+    <h1 style="font-size:1.8rem">{post.title}</h1>
+    {post.published_at && (
+      <p>{fmtDate(post.published_at)}{post.author ? ` · ${post.author}` : ""}</p>
+    )}
+  </div>
+  <main>
+    <p style="margin-bottom:1rem"><a href={`${base}/blog`}>&larr; Back to Blog</a></p>
+    <article class="prose" set:html={renderMarkdown(post.content)} />
+  </main>
+</Base>

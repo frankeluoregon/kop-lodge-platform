@@ -97,8 +97,17 @@ CREATE TABLE IF NOT EXISTS media (
   uploaded_at TEXT DEFAULT (datetime('now'))
 );
 
+CREATE TABLE IF NOT EXISTS admin_roles (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  email TEXT NOT NULL,
+  role TEXT NOT NULL,             -- 'site-admin' or 'lodge:{slug}'
+  created_at TEXT DEFAULT (datetime('now')),
+  UNIQUE(email, role)
+);
+
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_events_lodge   ON events(lodge_id, event_date);
 CREATE INDEX IF NOT EXISTS idx_blog_lodge     ON blog_posts(lodge_id, published);
 CREATE INDEX IF NOT EXISTS idx_officers_lodge ON officers(lodge_id, active);
 CREATE INDEX IF NOT EXISTS idx_service_lodge  ON community_service(lodge_id, featured);
+CREATE INDEX IF NOT EXISTS idx_admin_roles_email ON admin_roles(email);

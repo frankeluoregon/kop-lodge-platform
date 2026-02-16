@@ -1,0 +1,62 @@
+---
+import AdminForm from "../../../../../layouts/AdminForm.astro";
+import { getLodgeBySlug } from "../../../../../lib/db";
+
+const lodgeSlug = Astro.params.lodge!;
+const env = Astro.locals.runtime.env;
+
+const lodge = await getLodgeBySlug(env.DB, lodgeSlug);
+if (!lodge) return Astro.redirect("/", 302);
+
+let message = "";
+let isError = false;
+
+if (Astro.request.method === "POST") {
+  try {
+    const form = await Astro.request.formData();
+    const now = new Date().toISOString();
+    await env.DB.prepare(
+      "INSERT INTO officers (lodge_id,title,name,email,display_order,active,updated_at) VALUES (?,?,?,?,?,1,?)"
+    ).bind(
+      lodge.id,
+      form.get("title")?.toString() ?? "",
+      form.get("name")?.toString() ?? "",
+      form.get("email")?.toString() || null,
+      Number(form.get("display_order") ?? 0),
+      now,
+    ).run();
+    return Astro.redirect(`/lodges/admin/${lodgeSlug}`, 302);
+  } catch (e: unknown) {
+    isError = true;
+    message = `Error: ${e instanceof Error ? e.message : String(e)}`;
+  }
+}
+---
+
+<AdminForm title="New Officer" lodgeSlug={lodgeSlug}>
+  {message && <div class={isError ? "error-msg" : "success-msg"}>{message}</div>}
+  <form method="POST">
+    <div class="field">
+      <label>Officer Title <span class="hint">(e.g. Chancellor Commander)</span></label>
+      <input type="text" name="title" required />
+    </div>
+    <div class="field">
+      <label>Full Name</label>
+      <input type="text" name="name" required />
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" name="email" />
+      </div>
+      <div class="field">
+        <label>Display Order <span class="hint">(lower = first)</span></label>
+        <input type="number" name="display_order" value="0" min="0" />
+      </div>
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn primary">Add Officer</button>
+      <a href={`/lodges/admin/${lodgeSlug}`} class="btn secondary">Cancel</a>
+    </div>
+  </form>
+</AdminForm>

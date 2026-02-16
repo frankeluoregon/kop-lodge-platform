@@ -1,0 +1,62 @@
+---
+import AdminForm from "../../../../../layouts/AdminForm.astro";
+import { getLodgeBySlug } from "../../../../../lib/db";
+
+const lodgeSlug = Astro.params.lodge!;
+const env = Astro.locals.runtime.env;
+
+const lodge = await getLodgeBySlug(env.DB, lodgeSlug);
+if (!lodge) return Astro.redirect("/", 302);
+
+let message = "";
+let isError = false;
+
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  const slug = form.get("slug")?.toString().trim().toLowerCase().replace(/[^a-z0-9-]/g, "-") ?? "";
+  const title = form.get("title")?.toString().trim() ?? "";
+  try {
+    const now = new Date().toISOString();
+    await env.DB.prepare(
+      "INSERT INTO pages (lodge_id, slug, title, content, meta_description, created_at, updated_at) VALUES (?,?,?,?,?,?,?)"
+    ).bind(
+      lodge.id,
+      slug,
+      title,
+      form.get("content")?.toString() ?? "",
+      form.get("meta_description")?.toString() || null,
+      now, now,
+    ).run();
+    return Astro.redirect(`/lodges/admin/${lodgeSlug}`, 302);
+  } catch (e: unknown) {
+    isError = true;
+    message = `Error: ${e instanceof Error ? e.message : String(e)}`;
+  }
+}
+---
+
+<AdminForm title="New Page" lodgeSlug={lodgeSlug}>
+  {message && <div class={isError ? "error-msg" : "success-msg"}>{message}</div>}
+  <form method="POST">
+    <div class="field">
+      <label>Title</label>
+      <input type="text" name="title" required />
+    </div>
+    <div class="field">
+      <label>Slug <span class="hint">(URL path: e.g. "history" → /lodges/{lodgeSlug}/history)</span></label>
+      <input type="text" name="slug" pattern="[a-z0-9-]+" required />
+    </div>
+    <div class="field">
+      <label>Content <span class="hint">(Markdown)</span></label>
+      <textarea name="content" rows="20"></textarea>
+    </div>
+    <div class="field">
+      <label>Meta Description <span class="hint">(optional, for SEO)</span></label>
+      <input type="text" name="meta_description" />
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn primary">Create Page</button>
+      <a href={`/lodges/admin/${lodgeSlug}`} class="btn secondary">Cancel</a>
+    </div>
+  </form>
+</AdminForm>

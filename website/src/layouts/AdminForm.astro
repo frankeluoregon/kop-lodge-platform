@@ -1,9 +1,9 @@
 ---
 /**
  * Shared layout for admin edit forms.
- * Checks OIDC session and lodge access; redirects to /auth/login if needed.
+ * Checks Cloudflare Access session and lodge access; returns 403 if unauthorized.
  */
-import { getSession, canAccessLodge, isOidcConfigured, DEV_SESSION } from "../lib/auth";
+import { getSession, canAccessLodge, isAccessConfigured, DEV_SESSION } from "../lib/auth";
 import { getLodgeBySlug, getConfig } from "../lib/db";
 
 interface Props {
@@ -14,16 +14,15 @@ interface Props {
 }
 
 const { title, lodgeSlug, backUrl, backLabel = "← Dashboard" } = Astro.props;
-const backHref = backUrl ?? `/${lodgeSlug}/admin`;
+const backHref = backUrl ?? `/lodges/admin/${lodgeSlug}`;
 
 const env = Astro.locals.runtime.env;
 
 let session;
-if (isOidcConfigured(env)) {
+if (isAccessConfigured(env)) {
   session = await getSession(Astro.request, env);
   if (!session || !canAccessLodge(session, lodgeSlug)) {
-    const redirect = encodeURIComponent(Astro.url.pathname);
-    return Astro.redirect(`/auth/login?redirect=${redirect}`, 302);
+    return new Response("Forbidden", { status: 403 });
   }
 } else {
   session = DEV_SESSION;
@@ -99,10 +98,10 @@ const neutral = "#4a5072";
   <div class="topbar">
     <span class="brand">{config.lodge_name} — Admin</span>
     <nav>
-      <a href={`/${lodgeSlug}`}>View Site</a>
-      <a href={`/${lodgeSlug}/admin`}>Dashboard</a>
+      <a href={`/lodges/${lodgeSlug}`}>View Site</a>
+      <a href={`/lodges/admin/${lodgeSlug}`}>Dashboard</a>
       <span class="user">{session.email}</span>
-      <a href="/auth/logout">Log out</a>
+      {isAccessConfigured(env) && <a href={`https://${env.CF_ACCESS_TEAM_NAME}.cloudflareaccess.com/cdn-cgi/access/logout`}>Log out</a>}
     </nav>
   </div>
   <main>

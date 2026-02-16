@@ -1,0 +1,27 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { getLodgeBySlug, getConfig, getPage } from "../../../lib/db";
+import { renderMarkdown } from "../../../lib/markdown";
+
+const lodgeSlug = Astro.params.lodge!;
+const db = Astro.locals.runtime.env.DB;
+
+const lodge = await getLodgeBySlug(db, lodgeSlug);
+if (!lodge) return Astro.redirect("/", 302);
+
+const config = await getConfig(db, lodge.id);
+const page   = await getPage(db, lodge.id, "about");
+---
+
+<Base config={config} lodgeSlug={lodgeSlug} title="About Us" description={page?.meta_description ?? undefined}>
+  <div class="hero">
+    <h1>About Us</h1>
+    <p>{config.lodge_name} &mdash; Knights of Pythias</p>
+  </div>
+  <main>
+    {page
+      ? <article class="prose" set:html={renderMarkdown(page.content)} />
+      : <p style="color:#666">Page content coming soon.</p>
+    }
+  </main>
+</Base>

@@ -148,7 +148,7 @@ const contentBg = "#ded3c3";
 
       <div class="lodge-grid">
         {lodges.map((lodge) => (
-          <a href={`/${lodge.slug}/`} class="lodge-card">
+          <a href={`/lodges/${lodge.slug}/`} class="lodge-card">
             <div class="lodge-num">Lodge No. {lodge.number}</div>
             <div class="lodge-name">{lodge.name.replace(` Lodge No. ${lodge.number}`, "").replace(` No. ${lodge.number}`, "")}</div>
             <div class="lodge-arrow">Visit site &rarr;</div>

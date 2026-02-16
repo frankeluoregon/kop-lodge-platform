@@ -13,8 +13,6 @@ binding = "MEDIA"
 bucket_name = "kop-lodge-media"
 
 [vars]
-# Public OIDC config (non-secret)
-# Set secrets via: wrangler secret put OIDC_CLIENT_SECRET
-#                  wrangler secret put SESSION_SECRET
-OIDC_ISSUER    = "https://your-authentik.example.com/application/o/kop/"
-OIDC_CLIENT_ID = "kop-lodge-platform"
+# Set to your Cloudflare Zero Trust team name
+# (the subdomain of .cloudflareaccess.com)
+CF_ACCESS_TEAM_NAME = "your-team-name"

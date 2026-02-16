@@ -9,7 +9,7 @@ interface Props {
 }
 
 const { title, description, config, lodgeSlug } = Astro.props;
-const base = `/${lodgeSlug}`;
+const base = `/lodges/${lodgeSlug}`;
 const pageTitle = title
   ? `${title} | ${config.lodge_name}`
   : `${config.lodge_name} – Knights of Pythias`;
@@ -219,7 +219,7 @@ function isActivePrefix(prefix: string): boolean {
       </div>
       <p>
         &copy; {new Date().getFullYear()} {config.lodge_name} &mdash; Knights of Pythias.
-        <span style="margin-left:.5rem"><a href={`${base}/admin`}>Admin</a></span>
+        <span style="margin-left:.5rem"><a href={`/lodges/admin/${lodgeSlug}`}>Admin</a></span>
       </p>
     </footer>
   </body>
