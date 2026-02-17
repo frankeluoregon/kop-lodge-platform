@@ -1,6 +1,6 @@
 ---
 import { getSession, canAccessLodge, isAccessConfigured, DEV_SESSION } from "../../../../lib/auth";
-import { getLodgeBySlug, getConfig, getUpcomingEvents, getAllPosts, getAllOfficers, getCommunityService, getAllPages, getAllGalleryPhotos, getAllLinks, getAllMembers, getAllMinutes, getAllAnnouncements } from "../../../../lib/db";
+import { getLodgeBySlug, getConfig, getUpcomingEvents, getAllPosts, getCommunityService, getAllPages, getAllGalleryPhotos, getAllLinks, getAllMembers, getAllMinutes, getAllAnnouncements } from "../../../../lib/db";
 
 const lodgeSlug = Astro.params.lodge!;
 const env = Astro.locals.runtime.env;
@@ -21,7 +21,6 @@ if (!lodge) return Astro.redirect("/", 302);
 const config   = await getConfig(env.DB, lodge.id);
 const events   = await getUpcomingEvents(env.DB, lodge.id, undefined, 5);
 const posts    = await getAllPosts(env.DB, lodge.id, 5);
-const officers = await getAllOfficers(env.DB, lodge.id);
 const service  = await getCommunityService(env.DB, lodge.id, false, 5);
 const pages    = await getAllPages(env.DB, lodge.id);
 const photos   = await getAllGalleryPhotos(env.DB, lodge.id);
@@ -43,6 +42,7 @@ const adminBase = `/lodges/admin/${lodgeSlug}`;
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <title>Admin – {config.lodge_name}</title>
   <style define:vars={{ primary, accent, neutral }}>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -124,25 +124,6 @@ const adminBase = `/lodges/admin/${lodgeSlug}`;
           )
         }
         <a class="btn add" href={`${adminBase}/events/new`}>+ Add Event</a>
-      </div>
-
-      <!-- Officers -->
-      <div class="panel">
-        <h2>Officers</h2>
-        {officers.length === 0
-          ? <p style="font-size:.85rem;color:#666">No officers listed.</p>
-          : (
-            <ul>
-              {officers.map((o) => (
-                <li>
-                  <span>{o.title} &mdash; {o.name}</span>
-                  <div class="acts"><a class="btn" href={`${adminBase}/officers/edit?id=${o.id}`}>Edit</a></div>
-                </li>
-              ))}
-            </ul>
-          )
-        }
-        <a class="btn add" href={`${adminBase}/officers/new`}>+ Add Officer</a>
       </div>
 
       <!-- Blog -->
@@ -249,7 +230,7 @@ const adminBase = `/lodges/admin/${lodgeSlug}`;
             <ul>
               {members.slice(0, 5).map((m) => (
                 <li>
-                  <span>{m.name} <span style="font-size:.75rem;color:#999">(Deg. {m.degree})</span></span>
+                  <span>{m.name}{m.office ? <span style="font-size:.75rem;color:#999"> ({m.office})</span> : ""}</span>
                   <div class="acts"><a class="btn" href={`${adminBase}/members/edit?id=${m.id}`}>Edit</a></div>
                 </li>
               ))}

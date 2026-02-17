@@ -19,8 +19,6 @@ if (!lodge) return Astro.redirect("/", 302);
 const config  = await getConfig(env.DB, lodge.id);
 const members = await getAllMembers(env.DB, lodge.id);
 
-const DEGREES: Record<number, string> = { 1: "1st", 2: "2nd", 3: "3rd (Knight)" };
-
 const primary = config.primary_color || "#252e67";
 const accent  = config.accent_color  || "#f5a71c";
 const neutral = "#4a5072";
@@ -32,6 +30,7 @@ const adminBase = `/lodges/admin/${lodgeSlug}`;
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <title>Members – {config.lodge_name} Admin</title>
   <style define:vars={{ primary, accent, neutral }}>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -96,7 +95,6 @@ const adminBase = `/lodges/admin/${lodgeSlug}`;
     <div class="stats">
       <div class="stat"><strong>{members.filter(m => m.active).length}</strong>Active Members</div>
       <div class="stat"><strong>{members.filter(m => !m.active).length}</strong>Inactive</div>
-      <div class="stat"><strong>{members.filter(m => m.degree === 3).length}</strong>Knights (3rd Degree)</div>
     </div>
 
     <a class="btn add" href={`${adminBase}/members/new`}>+ Add Member</a>
@@ -109,7 +107,6 @@ const adminBase = `/lodges/admin/${lodgeSlug}`;
           <tr>
             <th>Name</th>
             <th>Office</th>
-            <th>Degree</th>
             <th>Email</th>
             <th>Phone</th>
             <th>Joined</th>
@@ -122,7 +119,6 @@ const adminBase = `/lodges/admin/${lodgeSlug}`;
             <tr>
               <td><strong>{m.name}</strong></td>
               <td>{m.office ?? <span style="color:#bbb">—</span>}</td>
-              <td>{DEGREES[m.degree] ?? m.degree}</td>
               <td>{m.email ?? <span style="color:#bbb">—</span>}</td>
               <td>{m.phone ?? <span style="color:#bbb">—</span>}</td>
               <td>{m.joined_date ?? <span style="color:#bbb">—</span>}</td>

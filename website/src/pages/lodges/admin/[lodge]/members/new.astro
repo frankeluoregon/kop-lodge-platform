@@ -15,13 +15,12 @@ if (Astro.request.method === "POST") {
     const form = await Astro.request.formData();
     const now = new Date().toISOString();
     await env.DB.prepare(
-      "INSERT INTO lodge_members (lodge_id,name,email,phone,degree,office,joined_date,active,notes,created_at) VALUES (?,?,?,?,?,?,?,1,?,?)"
+      "INSERT INTO lodge_members (lodge_id,name,email,phone,office,joined_date,active,notes,created_at) VALUES (?,?,?,?,?,?,1,?,?)"
     ).bind(
       lodge.id,
       (form.get("name") as string || "").trim(),
       (form.get("email") as string || "").trim() || null,
       (form.get("phone") as string || "").trim() || null,
-      Number(form.get("degree") ?? 1),
       (form.get("office") as string || "").trim() || null,
       (form.get("joined_date") as string || "") || null,
       (form.get("notes") as string || "").trim() || null,

@@ -7,12 +7,6 @@ import DateField from "../fields/DateField";
 import TextareaField from "../fields/TextareaField";
 import CheckboxField from "../fields/CheckboxField";
 
-const DEGREE_OPTIONS = [
-  { value: "1", label: "1st Degree" },
-  { value: "2", label: "2nd Degree" },
-  { value: "3", label: "3rd Degree (Knight)" },
-];
-
 const OFFICE_OPTIONS = [
   { value: "", label: "— None —" },
   { value: "Chancellor Commander", label: "Chancellor Commander" },
@@ -24,6 +18,7 @@ const OFFICE_OPTIONS = [
   { value: "Master at Arms", label: "Master at Arms" },
   { value: "Inner Guard", label: "Inner Guard" },
   { value: "Outer Guard", label: "Outer Guard" },
+  { value: "Trustee", label: "Trustee" },
 ];
 
 interface Props {
@@ -32,7 +27,6 @@ interface Props {
     name?: string;
     email?: string;
     phone?: string;
-    degree?: number;
     office?: string;
     joined_date?: string;
     notes?: string;
@@ -45,7 +39,6 @@ interface FormValues {
   name: string;
   email: string;
   phone: string;
-  degree: string;
   office: string;
   joined_date: string;
   notes: string;
@@ -59,7 +52,6 @@ export default function MemberForm({ cancelUrl, initialData, isEdit }: Props) {
         name: initialData?.name ?? "",
         email: initialData?.email ?? "",
         phone: initialData?.phone ?? "",
-        degree: String(initialData?.degree ?? 1),
         office: initialData?.office ?? "",
         joined_date: initialData?.joined_date ?? "",
         notes: initialData?.notes ?? "",
@@ -94,21 +86,16 @@ export default function MemberForm({ cancelUrl, initialData, isEdit }: Props) {
         </div>
         <div className="row">
           <SelectField
-            label="Degree"
-            options={DEGREE_OPTIONS}
-            registration={register("degree")}
+            label="Office"
+            hint="optional"
+            options={OFFICE_OPTIONS}
+            registration={register("office")}
           />
           <DateField
             label="Joined Date"
             registration={register("joined_date")}
           />
         </div>
-        <SelectField
-          label="Office"
-          hint="optional"
-          options={OFFICE_OPTIONS}
-          registration={register("office")}
-        />
         <TextareaField
           label="Notes"
           hint="internal"

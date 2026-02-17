@@ -26,12 +26,11 @@ if (Astro.request.method === "POST") {
   }
   try {
     await env.DB.prepare(
-      "UPDATE lodge_members SET name=?,email=?,phone=?,degree=?,office=?,joined_date=?,active=?,notes=? WHERE id=? AND lodge_id=?"
+      "UPDATE lodge_members SET name=?,email=?,phone=?,office=?,joined_date=?,active=?,notes=? WHERE id=? AND lodge_id=?"
     ).bind(
       (form.get("name") as string || "").trim(),
       (form.get("email") as string || "").trim() || null,
       (form.get("phone") as string || "").trim() || null,
-      Number(form.get("degree") ?? 1),
       (form.get("office") as string || "").trim() || null,
       (form.get("joined_date") as string || "") || null,
       form.get("active") === "1" ? 1 : 0,
@@ -55,7 +54,6 @@ if (Astro.request.method === "POST") {
       name: member!.name,
       email: member!.email ?? "",
       phone: member!.phone ?? "",
-      degree: member!.degree ?? 1,
       office: member!.office ?? "",
       joined_date: member!.joined_date ?? "",
       notes: member!.notes ?? "",
