@@ -1,6 +1,6 @@
 globalThis.process ??= {}; globalThis.process.env ??= {};
-import { e as createComponent, h as createAstro } from '../chunks/astro/server_BIT25mF3.mjs';
-export { renderers } from '../renderers.mjs';
+import { e as createComponent, h as createAstro } from '../chunks/astro/server_Db7M_Z8T.mjs';
+export { r as renderers } from '../chunks/_@astro-renderers_CczlSdAe.mjs';
 
 const $$Astro = createAstro();
 const $$About = createComponent(($$result, $$props, $$slots) => {

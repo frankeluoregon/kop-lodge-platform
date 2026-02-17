@@ -1,6 +1,7 @@
 ---
 import AdminForm from "../../../../../layouts/AdminForm.astro";
 import { getLodgeBySlug } from "../../../../../lib/db";
+import OfficerForm from "../../../../../components/admin/forms/OfficerForm";
 
 const lodgeSlug = Astro.params.lodge!;
 const env = Astro.locals.runtime.env;
@@ -8,10 +9,8 @@ const env = Astro.locals.runtime.env;
 const lodge = await getLodgeBySlug(env.DB, lodgeSlug);
 if (!lodge) return Astro.redirect("/", 302);
 
-let message = "";
-let isError = false;
-
 if (Astro.request.method === "POST") {
+  const wantsJson = Astro.request.headers.get("Accept")?.includes("application/json");
   try {
     const form = await Astro.request.formData();
     const now = new Date().toISOString();
@@ -25,38 +24,19 @@ if (Astro.request.method === "POST") {
       Number(form.get("display_order") ?? 0),
       now,
     ).run();
-    return Astro.redirect(`/lodges/admin/${lodgeSlug}`, 302);
+    return wantsJson
+      ? Response.redirect(new URL(`/lodges/admin/${lodgeSlug}`, Astro.url), 302)
+      : Astro.redirect(`/lodges/admin/${lodgeSlug}`, 302);
   } catch (e: unknown) {
-    isError = true;
-    message = `Error: ${e instanceof Error ? e.message : String(e)}`;
+    const msg = `Error: ${e instanceof Error ? e.message : String(e)}`;
+    if (wantsJson) return new Response(JSON.stringify({ error: msg }), { status: 400, headers: { "Content-Type": "application/json" } });
   }
 }
 ---
 
 <AdminForm title="New Officer" lodgeSlug={lodgeSlug}>
-  {message && <div class={isError ? "error-msg" : "success-msg"}>{message}</div>}
-  <form method="POST">
-    <div class="field">
-      <label>Officer Title <span class="hint">(e.g. Chancellor Commander)</span></label>
-      <input type="text" name="title" required />
-    </div>
-    <div class="field">
-      <label>Full Name</label>
-      <input type="text" name="name" required />
-    </div>
-    <div class="row">
-      <div class="field">
-        <label>Email</label>
-        <input type="email" name="email" />
-      </div>
-      <div class="field">
-        <label>Display Order <span class="hint">(lower = first)</span></label>
-        <input type="number" name="display_order" value="0" min="0" />
-      </div>
-    </div>
-    <div class="actions">
-      <button type="submit" class="btn primary">Add Officer</button>
-      <a href={`/lodges/admin/${lodgeSlug}`} class="btn secondary">Cancel</a>
-    </div>
-  </form>
+  <OfficerForm
+    client:load
+    cancelUrl={`/lodges/admin/${lodgeSlug}`}
+  />
 </AdminForm>

@@ -1,6 +1,7 @@
 ---
 import { getSession, isSiteAdmin, isAccessConfigured, DEV_SESSION } from "../../../lib/auth";
 import { createLodge } from "../../../lib/db";
+import LodgeForm from "../../../components/admin/forms/LodgeForm";
 
 const env = Astro.locals.runtime.env;
 
@@ -14,10 +15,8 @@ if (isAccessConfigured(env)) {
   session = DEV_SESSION;
 }
 
-let error = "";
-let success = "";
-
 if (Astro.request.method === "POST") {
+  const wantsJson = Astro.request.headers.get("Accept")?.includes("application/json");
   const form = await Astro.request.formData();
   const name = (form.get("name") as string || "").trim();
   const number = (form.get("number") as string || "").trim();
@@ -30,7 +29,7 @@ if (Astro.request.method === "POST") {
     .split(/\n+/).map(e => e.trim()).filter(Boolean);
 
   if (!name || !number || !slug) {
-    error = "All fields are required.";
+    if (wantsJson) return new Response(JSON.stringify({ error: "All fields are required." }), { status: 400, headers: { "Content-Type": "application/json" } });
   } else {
     try {
       const id = await createLodge(env.DB, slug, name, number);
@@ -45,9 +44,12 @@ if (Astro.request.method === "POST") {
           "INSERT INTO lodge_members (lodge_id, name, created_at) VALUES (?, ?, ?)"
         ).bind(id, mname, now).run();
       }
-      return Astro.redirect(`/admin/lodges/edit?id=${id}&created=1`, 302);
+      return wantsJson
+        ? Response.redirect(new URL(`/admin/lodges/edit?id=${id}&created=1`, Astro.url), 302)
+        : Astro.redirect(`/admin/lodges/edit?id=${id}&created=1`, 302);
     } catch (e: any) {
-      error = e.message?.includes("UNIQUE") ? "A lodge with that slug already exists." : `Error: ${e.message}`;
+      const msg = e.message?.includes("UNIQUE") ? "A lodge with that slug already exists." : `Error: ${e.message}`;
+      if (wantsJson) return new Response(JSON.stringify({ error: msg }), { status: 400, headers: { "Content-Type": "application/json" } });
     }
   }
 }
@@ -107,8 +109,10 @@ const contentBg = "#ded3c3";
     .btn { padding: .55rem 1.2rem; border-radius: 5px; border: 1.5px solid var(--primary); font-size: .9rem; font-family: inherit; cursor: pointer; transition: background .15s, color .15s; }
     .btn.primary { background: var(--secondary); color: #fff; border-color: var(--secondary); }
     .btn.primary:hover { opacity: .88; }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
 
     .error-msg { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; border-radius: 5px; padding: .6rem 1rem; margin-bottom: 1rem; font-size: .88rem; }
+    .success-msg { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; border-radius: 5px; padding: .6rem 1rem; margin-bottom: 1rem; font-size: .88rem; }
 
     footer {
       background: var(--secondary); color: var(--accent); text-align: center;
@@ -145,48 +149,7 @@ const contentBg = "#ded3c3";
       <a class="back-link" href="/admin">&larr; Back to Dashboard</a>
       <h1>Create Lodge</h1>
 
-      {error && <div class="error-msg">{error}</div>}
-
-      <form method="POST">
-        <div class="field">
-          <label>Lodge Name</label>
-          <input type="text" id="inp-name" name="name" placeholder="e.g. Damon" required />
-        </div>
-        <div class="field">
-          <label>Lodge Number</label>
-          <input type="number" id="inp-number" name="number" placeholder="e.g. 4" min="1" required />
-        </div>
-        <div class="field">
-          <label>URL Slug <span class="hint">auto-generated — edit if needed</span></label>
-          <input type="text" id="inp-slug" name="slug" required pattern="[a-z0-9-]+" />
-        </div>
-        <div class="field">
-          <label>Lodge Admin Emails <span class="hint">one per line or comma-separated</span></label>
-          <textarea name="admin_emails" rows="3" placeholder="admin@example.com&#10;another@example.com" style="width:100%;padding:.55rem .75rem;border:1.5px solid #ccc;border-radius:5px;font-size:.9rem;font-family:inherit;background:#fff;resize:vertical"></textarea>
-        </div>
-        <div class="field">
-          <label>Initial Member Names <span class="hint">optional — one per line, adds to member roster</span></label>
-          <textarea name="member_names" rows="4" placeholder="John Smith&#10;Jane Doe" style="width:100%;padding:.55rem .75rem;border:1.5px solid #ccc;border-radius:5px;font-size:.9rem;font-family:inherit;background:#fff;resize:vertical"></textarea>
-        </div>
-        <div class="actions">
-          <button type="submit" class="btn primary">Create Lodge</button>
-        </div>
-      </form>
-      <script>
-        const nameEl   = document.getElementById('inp-name');
-        const numberEl = document.getElementById('inp-number');
-        const slugEl   = document.getElementById('inp-slug');
-        let slugEdited = false;
-        slugEl.addEventListener('input', () => { slugEdited = true; });
-        function updateSlug() {
-          if (slugEdited) return;
-          const n = nameEl.value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '');
-          const num = numberEl.value.trim();
-          slugEl.value = n && num ? n + num : n || num;
-        }
-        nameEl.addEventListener('input', updateSlug);
-        numberEl.addEventListener('input', updateSlug);
-      </script>
+      <LodgeForm client:load />
     </div>
   </main>
 

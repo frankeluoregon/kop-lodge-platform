@@ -1,6 +1,7 @@
 ---
 import AdminForm from "../../../../../layouts/AdminForm.astro";
 import { getLodgeBySlug } from "../../../../../lib/db";
+import ServiceForm from "../../../../../components/admin/forms/ServiceForm";
 
 const lodgeSlug = Astro.params.lodge!;
 const env = Astro.locals.runtime.env;
@@ -8,10 +9,8 @@ const env = Astro.locals.runtime.env;
 const lodge = await getLodgeBySlug(env.DB, lodgeSlug);
 if (!lodge) return Astro.redirect("/", 302);
 
-let message = "";
-let isError = false;
-
 if (Astro.request.method === "POST") {
+  const wantsJson = Astro.request.headers.get("Accept")?.includes("application/json");
   try {
     const form = await Astro.request.formData();
     const now = new Date().toISOString();
@@ -26,44 +25,19 @@ if (Astro.request.method === "POST") {
       form.get("published") === "1" ? 1 : 0,
       now, now,
     ).run();
-    return Astro.redirect(`/lodges/admin/${lodgeSlug}`, 302);
+    return wantsJson
+      ? Response.redirect(new URL(`/lodges/admin/${lodgeSlug}`, Astro.url), 302)
+      : Astro.redirect(`/lodges/admin/${lodgeSlug}`, 302);
   } catch (e: unknown) {
-    isError = true;
-    message = `Error: ${e instanceof Error ? e.message : String(e)}`;
+    const msg = `Error: ${e instanceof Error ? e.message : String(e)}`;
+    if (wantsJson) return new Response(JSON.stringify({ error: msg }), { status: 400, headers: { "Content-Type": "application/json" } });
   }
 }
 ---
 
 <AdminForm title="New Service Entry" lodgeSlug={lodgeSlug}>
-  {message && <div class={isError ? "error-msg" : "success-msg"}>{message}</div>}
-  <form method="POST">
-    <div class="field">
-      <label>Title</label>
-      <input type="text" name="title" required />
-    </div>
-    <div class="field">
-      <label>Service Date</label>
-      <input type="date" name="service_date" />
-    </div>
-    <div class="field">
-      <label>Description <span class="hint">(Markdown)</span></label>
-      <textarea name="description" required></textarea>
-    </div>
-    <div class="row">
-      <div class="field">
-        <label class="checkbox-row">
-          <input type="checkbox" name="featured" value="1" /> Featured on home page
-        </label>
-      </div>
-      <div class="field">
-        <label class="checkbox-row">
-          <input type="checkbox" name="published" value="1" checked /> Published
-        </label>
-      </div>
-    </div>
-    <div class="actions">
-      <button type="submit" class="btn primary">Save Entry</button>
-      <a href={`/lodges/admin/${lodgeSlug}`} class="btn secondary">Cancel</a>
-    </div>
-  </form>
+  <ServiceForm
+    client:load
+    cancelUrl={`/lodges/admin/${lodgeSlug}`}
+  />
 </AdminForm>

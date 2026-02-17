@@ -1,5 +1,6 @@
 import { defineConfig } from "astro/config";
 import cloudflare from "@astrojs/cloudflare";
+import react from "@astrojs/react";
 import { fileURLToPath } from "url";
 
 export default defineConfig({
@@ -7,6 +8,7 @@ export default defineConfig({
   adapter: cloudflare({
     platformProxy: { enabled: true },
   }),
+  integrations: [react()],
   markdown: {
     shikiConfig: { theme: "github-light" },
   },

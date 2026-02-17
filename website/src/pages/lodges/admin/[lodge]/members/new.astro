@@ -1,6 +1,7 @@
 ---
 import AdminForm from "../../../../../layouts/AdminForm.astro";
 import { getLodgeBySlug } from "../../../../../lib/db";
+import MemberForm from "../../../../../components/admin/forms/MemberForm";
 
 const lodgeSlug = Astro.params.lodge!;
 const env = Astro.locals.runtime.env;
@@ -8,10 +9,8 @@ const env = Astro.locals.runtime.env;
 const lodge = await getLodgeBySlug(env.DB, lodgeSlug);
 if (!lodge) return Astro.redirect("/", 302);
 
-let message = "";
-let isError = false;
-
 if (Astro.request.method === "POST") {
+  const wantsJson = Astro.request.headers.get("Accept")?.includes("application/json");
   try {
     const form = await Astro.request.formData();
     const now = new Date().toISOString();
@@ -28,67 +27,19 @@ if (Astro.request.method === "POST") {
       (form.get("notes") as string || "").trim() || null,
       now,
     ).run();
-    return Astro.redirect(`/lodges/admin/${lodgeSlug}/members`, 302);
+    return wantsJson
+      ? Response.redirect(new URL(`/lodges/admin/${lodgeSlug}/members`, Astro.url), 302)
+      : Astro.redirect(`/lodges/admin/${lodgeSlug}/members`, 302);
   } catch (e: unknown) {
-    isError = true;
-    message = `Error: ${e instanceof Error ? e.message : String(e)}`;
+    const msg = `Error: ${e instanceof Error ? e.message : String(e)}`;
+    if (wantsJson) return new Response(JSON.stringify({ error: msg }), { status: 400, headers: { "Content-Type": "application/json" } });
   }
 }
 ---
 
 <AdminForm title="Add Member" lodgeSlug={lodgeSlug}>
-  {message && <div class={isError ? "error-msg" : "success-msg"}>{message}</div>}
-  <form method="POST">
-    <div class="field">
-      <label>Full Name</label>
-      <input type="text" name="name" required />
-    </div>
-    <div class="row">
-      <div class="field">
-        <label>Email</label>
-        <input type="email" name="email" />
-      </div>
-      <div class="field">
-        <label>Phone</label>
-        <input type="tel" name="phone" />
-      </div>
-    </div>
-    <div class="row">
-      <div class="field">
-        <label>Degree</label>
-        <select name="degree">
-          <option value="1">1st Degree</option>
-          <option value="2">2nd Degree</option>
-          <option value="3">3rd Degree (Knight)</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Joined Date</label>
-        <input type="date" name="joined_date" />
-      </div>
-    </div>
-    <div class="field">
-      <label>Office <span class="hint">optional</span></label>
-      <select name="office">
-        <option value="">— None —</option>
-        <option value="Chancellor Commander">Chancellor Commander</option>
-        <option value="Vice-Chancellor">Vice-Chancellor</option>
-        <option value="Prelate">Prelate</option>
-        <option value="Master of Work">Master of Work</option>
-        <option value="Secretary / Keeper of Records and Seal">Secretary / Keeper of Records and Seal</option>
-        <option value="Treasurer / Master of Exchequer">Treasurer / Master of Exchequer</option>
-        <option value="Master at Arms">Master at Arms</option>
-        <option value="Inner Guard">Inner Guard</option>
-        <option value="Outer Guard">Outer Guard</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>Notes <span class="hint">internal</span></label>
-      <textarea name="notes" rows="3"></textarea>
-    </div>
-    <div class="actions">
-      <button type="submit" class="btn primary">Add Member</button>
-      <a href={`/lodges/admin/${lodgeSlug}/members`} class="btn secondary">Cancel</a>
-    </div>
-  </form>
+  <MemberForm
+    client:load
+    cancelUrl={`/lodges/admin/${lodgeSlug}/members`}
+  />
 </AdminForm>

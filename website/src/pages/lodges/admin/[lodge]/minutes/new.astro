@@ -1,6 +1,7 @@
 ---
 import AdminForm from "../../../../../layouts/AdminForm.astro";
 import { getLodgeBySlug } from "../../../../../lib/db";
+import MinutesForm from "../../../../../components/admin/forms/MinutesForm";
 
 const lodgeSlug = Astro.params.lodge!;
 const env = Astro.locals.runtime.env;
@@ -8,11 +9,8 @@ const env = Astro.locals.runtime.env;
 const lodge = await getLodgeBySlug(env.DB, lodgeSlug);
 if (!lodge) return Astro.redirect("/", 302);
 
-let message = "";
-let isError = false;
-const today = new Date().toISOString().slice(0, 10);
-
 if (Astro.request.method === "POST") {
+  const wantsJson = Astro.request.headers.get("Accept")?.includes("application/json");
   try {
     const form = await Astro.request.formData();
     const now = new Date().toISOString();
@@ -29,39 +27,19 @@ if (Astro.request.method === "POST") {
       form.get("published") === "1" ? 1 : 0,
       now,
     ).run();
-    return Astro.redirect(`/lodges/admin/${lodgeSlug}/minutes`, 302);
+    return wantsJson
+      ? Response.redirect(new URL(`/lodges/admin/${lodgeSlug}/minutes`, Astro.url), 302)
+      : Astro.redirect(`/lodges/admin/${lodgeSlug}/minutes`, 302);
   } catch (e: unknown) {
-    isError = true;
-    message = `Error: ${e instanceof Error ? e.message : String(e)}`;
+    const msg = `Error: ${e instanceof Error ? e.message : String(e)}`;
+    if (wantsJson) return new Response(JSON.stringify({ error: msg }), { status: 400, headers: { "Content-Type": "application/json" } });
   }
 }
 ---
 
 <AdminForm title="Add Meeting Minutes" lodgeSlug={lodgeSlug}>
-  {message && <div class={isError ? "error-msg" : "success-msg"}>{message}</div>}
-  <form method="POST">
-    <div class="row">
-      <div class="field">
-        <label>Meeting Date</label>
-        <input type="date" name="meeting_date" value={today} required />
-      </div>
-      <div class="field">
-        <label>Title <span class="hint">optional</span></label>
-        <input type="text" name="title" placeholder="e.g. Regular Meeting" />
-      </div>
-    </div>
-    <div class="field">
-      <label>Minutes Content <span class="hint">Markdown supported</span></label>
-      <textarea name="content" rows="14" required></textarea>
-    </div>
-    <div class="field">
-      <label class="checkbox-row">
-        <input type="checkbox" name="published" value="1" checked /> Visible to lodge admins
-      </label>
-    </div>
-    <div class="actions">
-      <button type="submit" class="btn primary">Save Minutes</button>
-      <a href={`/lodges/admin/${lodgeSlug}/minutes`} class="btn secondary">Cancel</a>
-    </div>
-  </form>
+  <MinutesForm
+    client:load
+    cancelUrl={`/lodges/admin/${lodgeSlug}/minutes`}
+  />
 </AdminForm>

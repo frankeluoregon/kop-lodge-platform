@@ -104,6 +104,9 @@ const neutral = "#4a5072";
 
     .af-main .success-msg { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; border-radius: 5px; padding: .6rem 1rem; margin-bottom: 1rem; font-size: .88rem; }
     .af-main .error-msg   { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; border-radius: 5px; padding: .6rem 1rem; margin-bottom: 1rem; font-size: .88rem; }
+    .af-main .field-error { display: block; font-size: .72rem; color: #c00; margin-top: .25rem; font-weight: 500; }
+    .af-main .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .af-main .required { color: #c00; }
   </style>
 </head>
 <body>
@@ -126,7 +129,7 @@ const neutral = "#4a5072";
     <span style="background:#a91e23"></span>
     <span style="background:#f5a71c"></span>
   </div>
-  <main>
+  <main class="af-main">
     <a class="back-link" href={backHref}>{backLabel}</a>
     <h1>{title}</h1>
     <slot />

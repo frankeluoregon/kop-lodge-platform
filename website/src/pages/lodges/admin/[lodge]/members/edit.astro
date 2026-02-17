@@ -1,6 +1,7 @@
 ---
 import AdminForm from "../../../../../layouts/AdminForm.astro";
 import { getLodgeBySlug, getMemberById } from "../../../../../lib/db";
+import MemberForm from "../../../../../components/admin/forms/MemberForm";
 
 const lodgeSlug = Astro.params.lodge!;
 const env = Astro.locals.runtime.env;
@@ -11,17 +12,17 @@ if (!lodge) return Astro.redirect("/", 302);
 const id = Number(new URL(Astro.request.url).searchParams.get("id"));
 if (!id) return Astro.redirect(`/lodges/admin/${lodgeSlug}/members`, 302);
 
-let member = await getMemberById(env.DB, id);
+const member = await getMemberById(env.DB, id);
 if (!member || member.lodge_id !== lodge.id) return Astro.redirect(`/lodges/admin/${lodgeSlug}/members`, 302);
 
-let message = "";
-let isError = false;
-
 if (Astro.request.method === "POST") {
+  const wantsJson = Astro.request.headers.get("Accept")?.includes("application/json");
   const form = await Astro.request.formData();
   if (form.get("_action") === "delete") {
     await env.DB.prepare("DELETE FROM lodge_members WHERE id = ? AND lodge_id = ?").bind(id, lodge.id).run();
-    return Astro.redirect(`/lodges/admin/${lodgeSlug}/members`, 302);
+    return wantsJson
+      ? Response.redirect(new URL(`/lodges/admin/${lodgeSlug}/members`, Astro.url), 302)
+      : Astro.redirect(`/lodges/admin/${lodgeSlug}/members`, 302);
   }
   try {
     await env.DB.prepare(
@@ -37,80 +38,28 @@ if (Astro.request.method === "POST") {
       (form.get("notes") as string || "").trim() || null,
       id, lodge.id,
     ).run();
-    member = await getMemberById(env.DB, id);
-    message = "Member updated.";
+    if (wantsJson) return new Response(JSON.stringify({ message: "Member updated." }), { headers: { "Content-Type": "application/json" } });
   } catch (e: unknown) {
-    isError = true;
-    message = `Error: ${e instanceof Error ? e.message : String(e)}`;
+    const msg = `Error: ${e instanceof Error ? e.message : String(e)}`;
+    if (wantsJson) return new Response(JSON.stringify({ error: msg }), { status: 400, headers: { "Content-Type": "application/json" } });
   }
 }
-
-const OFFICES = [
-  "Chancellor Commander",
-  "Vice-Chancellor",
-  "Prelate",
-  "Master of Work",
-  "Secretary / Keeper of Records and Seal",
-  "Treasurer / Master of Exchequer",
-  "Master at Arms",
-  "Inner Guard",
-  "Outer Guard",
-];
 ---
 
 <AdminForm title="Edit Member" lodgeSlug={lodgeSlug}>
-  {message && <div class={isError ? "error-msg" : "success-msg"}>{message}</div>}
-  <form method="POST">
-    <div class="field">
-      <label>Full Name</label>
-      <input type="text" name="name" value={member!.name} required />
-    </div>
-    <div class="row">
-      <div class="field">
-        <label>Email</label>
-        <input type="email" name="email" value={member!.email ?? ""} />
-      </div>
-      <div class="field">
-        <label>Phone</label>
-        <input type="tel" name="phone" value={member!.phone ?? ""} />
-      </div>
-    </div>
-    <div class="row">
-      <div class="field">
-        <label>Degree</label>
-        <select name="degree">
-          <option value="1" selected={member!.degree === 1}>1st Degree</option>
-          <option value="2" selected={member!.degree === 2}>2nd Degree</option>
-          <option value="3" selected={member!.degree === 3}>3rd Degree (Knight)</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Joined Date</label>
-        <input type="date" name="joined_date" value={member!.joined_date ?? ""} />
-      </div>
-    </div>
-    <div class="field">
-      <label>Office <span class="hint">optional</span></label>
-      <select name="office">
-        <option value="" selected={!member!.office}>— None —</option>
-        {OFFICES.map((o) => (
-          <option value={o} selected={member!.office === o}>{o}</option>
-        ))}
-      </select>
-    </div>
-    <div class="field">
-      <label>Notes <span class="hint">internal</span></label>
-      <textarea name="notes" rows="3">{member!.notes ?? ""}</textarea>
-    </div>
-    <div class="field">
-      <label class="checkbox-row">
-        <input type="checkbox" name="active" value="1" checked={!!member!.active} /> Active member
-      </label>
-    </div>
-    <div class="actions">
-      <button type="submit" class="btn primary">Save Changes</button>
-      <a href={`/lodges/admin/${lodgeSlug}/members`} class="btn secondary">Cancel</a>
-      <button type="submit" name="_action" value="delete" class="btn danger" onclick="return confirm('Remove this member?')">Delete</button>
-    </div>
-  </form>
+  <MemberForm
+    client:load
+    cancelUrl={`/lodges/admin/${lodgeSlug}/members`}
+    isEdit
+    initialData={{
+      name: member!.name,
+      email: member!.email ?? "",
+      phone: member!.phone ?? "",
+      degree: member!.degree ?? 1,
+      office: member!.office ?? "",
+      joined_date: member!.joined_date ?? "",
+      notes: member!.notes ?? "",
+      active: !!member!.active,
+    }}
+  />
 </AdminForm>

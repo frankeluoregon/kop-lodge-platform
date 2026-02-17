@@ -1,6 +1,7 @@
 ---
 import AdminForm from "../../../../../layouts/AdminForm.astro";
 import { getLodgeBySlug, getAnnouncementById } from "../../../../../lib/db";
+import AnnouncementForm from "../../../../../components/admin/forms/AnnouncementForm";
 
 const lodgeSlug = Astro.params.lodge!;
 const env = Astro.locals.runtime.env;
@@ -11,17 +12,17 @@ if (!lodge) return Astro.redirect("/", 302);
 const id = Number(new URL(Astro.request.url).searchParams.get("id"));
 if (!id) return Astro.redirect(`/lodges/admin/${lodgeSlug}/announcements`, 302);
 
-let ann = await getAnnouncementById(env.DB, id);
+const ann = await getAnnouncementById(env.DB, id);
 if (!ann || ann.lodge_id !== lodge.id) return Astro.redirect(`/lodges/admin/${lodgeSlug}/announcements`, 302);
 
-let message = "";
-let isError = false;
-
 if (Astro.request.method === "POST") {
+  const wantsJson = Astro.request.headers.get("Accept")?.includes("application/json");
   const form = await Astro.request.formData();
   if (form.get("_action") === "delete") {
     await env.DB.prepare("DELETE FROM lodge_announcements WHERE id = ? AND lodge_id = ?").bind(id, lodge.id).run();
-    return Astro.redirect(`/lodges/admin/${lodgeSlug}/announcements`, 302);
+    return wantsJson
+      ? Response.redirect(new URL(`/lodges/admin/${lodgeSlug}/announcements`, Astro.url), 302)
+      : Astro.redirect(`/lodges/admin/${lodgeSlug}/announcements`, 302);
   }
   try {
     const title = (form.get("title") as string || "").trim();
@@ -36,41 +37,24 @@ if (Astro.request.method === "POST") {
       form.get("published") === "1" ? 1 : 0,
       id, lodge.id,
     ).run();
-    ann = await getAnnouncementById(env.DB, id);
-    message = "Announcement updated.";
+    if (wantsJson) return new Response(JSON.stringify({ message: "Announcement updated." }), { headers: { "Content-Type": "application/json" } });
   } catch (e: unknown) {
-    isError = true;
-    message = `Error: ${e instanceof Error ? e.message : String(e)}`;
+    const msg = `Error: ${e instanceof Error ? e.message : String(e)}`;
+    if (wantsJson) return new Response(JSON.stringify({ error: msg }), { status: 400, headers: { "Content-Type": "application/json" } });
   }
 }
 ---
 
 <AdminForm title="Edit Announcement" lodgeSlug={lodgeSlug}>
-  {message && <div class={isError ? "error-msg" : "success-msg"}>{message}</div>}
-  <form method="POST">
-    <div class="field">
-      <label>Title</label>
-      <input type="text" name="title" value={ann!.title} required />
-    </div>
-    <div class="field">
-      <label>Content <span class="hint">Markdown supported — internal only</span></label>
-      <textarea name="content" rows="8" required>{ann!.content}</textarea>
-    </div>
-    <div class="row">
-      <div class="field">
-        <label>Expires <span class="hint">optional</span></label>
-        <input type="date" name="expires_at" value={ann!.expires_at ?? ""} />
-      </div>
-      <div class="field" style="padding-top:1.5rem">
-        <label class="checkbox-row">
-          <input type="checkbox" name="published" value="1" checked={!!ann!.published} /> Active
-        </label>
-      </div>
-    </div>
-    <div class="actions">
-      <button type="submit" class="btn primary">Save Changes</button>
-      <a href={`/lodges/admin/${lodgeSlug}/announcements`} class="btn secondary">Cancel</a>
-      <button type="submit" name="_action" value="delete" class="btn danger" onclick="return confirm('Delete this announcement?')">Delete</button>
-    </div>
-  </form>
+  <AnnouncementForm
+    client:load
+    cancelUrl={`/lodges/admin/${lodgeSlug}/announcements`}
+    isEdit
+    initialData={{
+      title: ann!.title,
+      content: ann!.content,
+      expires_at: ann!.expires_at ?? "",
+      published: !!ann!.published,
+    }}
+  />
 </AdminForm>

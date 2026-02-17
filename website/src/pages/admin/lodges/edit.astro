@@ -1,6 +1,7 @@
 ---
 import { getSession, isSiteAdmin, isAccessConfigured, DEV_SESSION } from "../../../lib/auth";
 import { getLodgeById, updateLodge } from "../../../lib/db";
+import LodgeForm from "../../../components/admin/forms/LodgeForm";
 
 const env = Astro.locals.runtime.env;
 
@@ -20,10 +21,10 @@ if (!id) return Astro.redirect("/admin", 302);
 let lodge = await getLodgeById(env.DB, id);
 if (!lodge) return Astro.redirect("/admin", 302);
 
-let error = "";
-let success = Astro.url.searchParams.get("created") ? "Lodge created successfully!" : "";
+const created = Astro.url.searchParams.get("created") === "1";
 
 if (Astro.request.method === "POST") {
+  const wantsJson = Astro.request.headers.get("Accept")?.includes("application/json");
   const form = await Astro.request.formData();
   const name = (form.get("name") as string || "").trim();
   const number = (form.get("number") as string || "").trim();
@@ -34,7 +35,7 @@ if (Astro.request.method === "POST") {
     .split(/[\n,]+/).map(e => e.trim().toLowerCase()).filter(Boolean);
 
   if (!name || !number || !slug) {
-    error = "Name, number, and slug are required.";
+    if (wantsJson) return new Response(JSON.stringify({ error: "Name, number, and slug are required." }), { status: 400, headers: { "Content-Type": "application/json" } });
   } else {
     try {
       await updateLodge(env.DB, id, slug, name, number, active);
@@ -51,9 +52,10 @@ if (Astro.request.method === "POST") {
         ).bind(email, `lodge:${slug}`, now).run();
       }
       lodge = await getLodgeById(env.DB, id);
-      success = "Lodge updated.";
+      if (wantsJson) return new Response(JSON.stringify({ message: "Lodge updated." }), { headers: { "Content-Type": "application/json" } });
     } catch (e: any) {
-      error = e.message?.includes("UNIQUE") ? "A lodge with that slug already exists." : `Error: ${e.message}`;
+      const msg = e.message?.includes("UNIQUE") ? "A lodge with that slug already exists." : `Error: ${e.message}`;
+      if (wantsJson) return new Response(JSON.stringify({ error: msg }), { status: 400, headers: { "Content-Type": "application/json" } });
     }
   }
 }
@@ -117,13 +119,12 @@ const contentBg = "#ded3c3";
     .checkbox-row input { width: auto; }
 
     .actions { display: flex; gap: .75rem; margin-top: 1.5rem; align-items: center; }
-    .btn { padding: .55rem 1.2rem; border-radius: 5px; border: 1.5px solid var(--primary); font-size: .9rem; font-family: inherit; cursor: pointer; transition: background .15s, color .15s; }
+    .btn { padding: .55rem 1.2rem; border-radius: 5px; border: 1.5px solid var(--primary); font-size: .9rem; font-family: inherit; cursor: pointer; transition: background .15s, color .15s; text-decoration: none; }
     .btn.primary { background: var(--secondary); color: #fff; border-color: var(--secondary); }
     .btn.primary:hover { opacity: .88; }
     .btn.secondary { background: transparent; color: var(--primary); }
     .btn.secondary:hover { background: var(--primary); color: #fff; text-decoration: none; }
-
-    .links { margin-top: 1rem; font-size: .85rem; display: flex; gap: 1rem; color: var(--neutral); }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
 
     .success-msg { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; border-radius: 5px; padding: .6rem 1rem; margin-bottom: 1rem; font-size: .88rem; }
     .error-msg { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; border-radius: 5px; padding: .6rem 1rem; margin-bottom: 1rem; font-size: .88rem; }
@@ -163,43 +164,21 @@ const contentBg = "#ded3c3";
       <a class="back-link" href="/admin">&larr; Back to Dashboard</a>
       <h1>Edit Lodge</h1>
 
-      {success && <div class="success-msg">{success}</div>}
-      {error && <div class="error-msg">{error}</div>}
+      {created && <div class="success-msg">Lodge created successfully!</div>}
 
-      <form method="POST">
-        <div class="field">
-          <label>Lodge Name</label>
-          <input type="text" name="name" value={lodge!.name} required />
-        </div>
-        <div class="field">
-          <label>Lodge Number</label>
-          <input type="number" name="number" value={lodge!.number} min="1" required />
-        </div>
-        <div class="field">
-          <label>URL Slug <span class="hint">lowercase, letters/numbers/hyphens only</span></label>
-          <input type="text" name="slug" value={lodge!.slug} required pattern="[a-z0-9-]+" />
-        </div>
-        <div class="field">
-          <div class="checkbox-row">
-            <input type="checkbox" name="active" id="active" checked={!!lodge!.active} />
-            <label for="active" style="margin-bottom:0">Active</label>
-          </div>
-        </div>
-        <div class="field">
-          <label>Lodge Admin Emails <span class="hint">one per line or comma-separated — replaces existing admins on save</span></label>
-          <textarea name="admin_emails" rows="4" style="width:100%;padding:.55rem .75rem;border:1.5px solid #ccc;border-radius:5px;font-size:.9rem;font-family:inherit;background:#fff;resize:vertical">{currentAdminEmails}</textarea>
-        </div>
-        <div class="actions">
-          <button type="submit" class="btn primary">Save Changes</button>
-          {lodge!.active ? (
-            <>
-              <a class="btn secondary" href={`/lodges/${lodge!.slug}/`}>View Site</a>
-              <a class="btn secondary" href={`/lodges/admin/${lodge!.slug}`}>Lodge Admin</a>
-            </>
-          ) : null}
-        </div>
-      </form>
-
+      <LodgeForm
+        client:load
+        isEdit
+        initialData={{
+          name: lodge!.name,
+          number: String(lodge!.number),
+          slug: lodge!.slug,
+          active: !!lodge!.active,
+          admin_emails: currentAdminEmails,
+        }}
+        viewSiteUrl={lodge!.active ? `/lodges/${lodge!.slug}/` : undefined}
+        lodgeAdminUrl={lodge!.active ? `/lodges/admin/${lodge!.slug}` : undefined}
+      />
     </div>
   </main>
 

@@ -1,6 +1,7 @@
 ---
 import AdminForm from "../../../../../layouts/AdminForm.astro";
 import { getLodgeBySlug } from "../../../../../lib/db";
+import AnnouncementForm from "../../../../../components/admin/forms/AnnouncementForm";
 
 const lodgeSlug = Astro.params.lodge!;
 const env = Astro.locals.runtime.env;
@@ -8,10 +9,8 @@ const env = Astro.locals.runtime.env;
 const lodge = await getLodgeBySlug(env.DB, lodgeSlug);
 if (!lodge) return Astro.redirect("/", 302);
 
-let message = "";
-let isError = false;
-
 if (Astro.request.method === "POST") {
+  const wantsJson = Astro.request.headers.get("Accept")?.includes("application/json");
   try {
     const form = await Astro.request.formData();
     const now = new Date().toISOString();
@@ -28,39 +27,19 @@ if (Astro.request.method === "POST") {
       form.get("published") === "1" ? 1 : 0,
       now,
     ).run();
-    return Astro.redirect(`/lodges/admin/${lodgeSlug}/announcements`, 302);
+    return wantsJson
+      ? Response.redirect(new URL(`/lodges/admin/${lodgeSlug}/announcements`, Astro.url), 302)
+      : Astro.redirect(`/lodges/admin/${lodgeSlug}/announcements`, 302);
   } catch (e: unknown) {
-    isError = true;
-    message = `Error: ${e instanceof Error ? e.message : String(e)}`;
+    const msg = `Error: ${e instanceof Error ? e.message : String(e)}`;
+    if (wantsJson) return new Response(JSON.stringify({ error: msg }), { status: 400, headers: { "Content-Type": "application/json" } });
   }
 }
 ---
 
 <AdminForm title="New Announcement" lodgeSlug={lodgeSlug}>
-  {message && <div class={isError ? "error-msg" : "success-msg"}>{message}</div>}
-  <form method="POST">
-    <div class="field">
-      <label>Title</label>
-      <input type="text" name="title" required />
-    </div>
-    <div class="field">
-      <label>Content <span class="hint">Markdown supported — internal only</span></label>
-      <textarea name="content" rows="8" required></textarea>
-    </div>
-    <div class="row">
-      <div class="field">
-        <label>Expires <span class="hint">optional — leave blank to keep indefinitely</span></label>
-        <input type="date" name="expires_at" />
-      </div>
-      <div class="field" style="padding-top:1.5rem">
-        <label class="checkbox-row">
-          <input type="checkbox" name="published" value="1" checked /> Active
-        </label>
-      </div>
-    </div>
-    <div class="actions">
-      <button type="submit" class="btn primary">Post Announcement</button>
-      <a href={`/lodges/admin/${lodgeSlug}/announcements`} class="btn secondary">Cancel</a>
-    </div>
-  </form>
+  <AnnouncementForm
+    client:load
+    cancelUrl={`/lodges/admin/${lodgeSlug}/announcements`}
+  />
 </AdminForm>
