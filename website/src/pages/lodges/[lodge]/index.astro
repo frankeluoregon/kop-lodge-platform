@@ -29,6 +29,7 @@ const levelLabel: Record<string, string> = {
 
 <Base config={config} lodgeSlug={lodgeSlug}>
   <div class="hero">
+    <img src="/seal.png" alt="KoP Seal" class="hero-seal" />
     <h1>{config.lodge_name}</h1>
     {config.tagline && <p>{config.tagline}</p>}
     {config.founded_year && <p style="margin-top:.5rem;font-size:.9rem;opacity:.7">Founded {config.founded_year}</p>}

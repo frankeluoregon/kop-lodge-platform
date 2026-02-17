@@ -122,6 +122,7 @@ function isActivePrefix(prefix: string): boolean {
         letter-spacing: .05em;
         text-shadow: 2px 2px 4px rgba(0,0,0,.5);
       }
+      .hero-seal { height: 80px; width: auto; margin-bottom: 1rem; opacity: .85; }
       .hero p  { font-size: 1.05rem; opacity: .92; }
 
       /* --- Main content: constrained to max-w, ded3c3 bg --- */
@@ -203,7 +204,7 @@ function isActivePrefix(prefix: string): boolean {
     <header>
       <div class="header-inner">
         <a href={base} class="lodge-brand" style="text-decoration:none">
-          <img src="/seal.svg" alt="KoP Seal" class="header-logo" />
+          <img src="/seal.png" alt="KoP Seal" class="header-logo" />
           <div class="brand-text">
             <span class="name">{config.lodge_name}</span>
             <span class="sub">Knights of Pythias{config.lodge_number && config.lodge_number !== "0" ? ` · Lodge No. ${config.lodge_number}` : ""}{config.city ? ` · ${config.city}` : ""}</span>
