@@ -167,7 +167,7 @@ const contentBg = "#ded3c3";
       {created && <div class="success-msg">Lodge created successfully!</div>}
 
       <LodgeForm
-        client:load
+        client:only="react"
         isEdit
         initialData={{
           name: lodge!.name,

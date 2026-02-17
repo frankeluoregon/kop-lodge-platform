@@ -1,5 +1,5 @@
 globalThis.process ??= {}; globalThis.process.env ??= {};
-export { r as renderers } from '../../chunks/_@astro-renderers_CczlSdAe.mjs';
+export { renderers } from '../../renderers.mjs';
 
 const GET = () => new Response(null, { status: 302, headers: { Location: "/" } });
 

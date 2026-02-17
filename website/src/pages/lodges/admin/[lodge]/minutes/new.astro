@@ -39,7 +39,7 @@ if (Astro.request.method === "POST") {
 
 <AdminForm title="Add Meeting Minutes" lodgeSlug={lodgeSlug}>
   <MinutesForm
-    client:load
+    client:only="react"
     cancelUrl={`/lodges/admin/${lodgeSlug}/minutes`}
   />
 </AdminForm>

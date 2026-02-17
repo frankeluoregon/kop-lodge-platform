@@ -2,7 +2,7 @@ globalThis.process ??= {}; globalThis.process.env ??= {};
 import { e as createComponent, l as defineStyleVars, g as addAttribute, n as renderHead, r as renderTemplate, h as createAstro } from '../chunks/astro/server_Db7M_Z8T.mjs';
 import { A as getAllLodges } from '../chunks/db_GWKWtEgt.mjs';
 /* empty css                                 */
-export { r as renderers } from '../chunks/_@astro-renderers_CczlSdAe.mjs';
+export { renderers } from '../renderers.mjs';
 
 const $$Astro = createAstro();
 const $$Index = createComponent(async ($$result, $$props, $$slots) => {

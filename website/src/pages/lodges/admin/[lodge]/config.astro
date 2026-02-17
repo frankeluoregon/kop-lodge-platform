@@ -85,7 +85,7 @@ const config = await getConfig(env.DB, lodge.id);
 
 <AdminForm title="Lodge Settings" lodgeSlug={lodgeSlug}>
   <ConfigForm
-    client:load
+    client:only="react"
     cancelUrl={`/lodges/admin/${lodgeSlug}`}
     initialData={{
       lodge_name: config.lodge_name,
@@ -126,7 +126,7 @@ const config = await getConfig(env.DB, lodge.id);
   <p style="font-size:.83rem;color:#666;margin-bottom:.75rem">Emails listed here can access this lodge's admin panel. One per line or comma-separated. Changes replace all current lodge admins.</p>
 
   <AdminEmailsForm
-    client:load
+    client:only="react"
     initialEmails={currentAdminEmails}
   />
 </AdminForm>

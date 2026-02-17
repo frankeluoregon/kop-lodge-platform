@@ -33,7 +33,7 @@ if (Astro.request.method === "POST") {
 
 <AdminForm title="New Gallery Photo" lodgeSlug={lodgeSlug}>
   <GalleryForm
-    client:load
+    client:only="react"
     cancelUrl={`/lodges/admin/${lodgeSlug}`}
   />
 </AdminForm>

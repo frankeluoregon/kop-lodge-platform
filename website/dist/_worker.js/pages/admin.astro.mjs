@@ -3,7 +3,7 @@ import { e as createComponent, l as defineStyleVars, g as addAttribute, n as ren
 import { i as isAccessConfigured, g as getSession, a as isSiteAdmin, D as DEV_SESSION } from '../chunks/auth_AGqrcshc.mjs';
 import { b as getAllLodgesAdmin } from '../chunks/db_GWKWtEgt.mjs';
 /* empty css                                 */
-export { r as renderers } from '../chunks/_@astro-renderers_CczlSdAe.mjs';
+export { renderers } from '../renderers.mjs';
 
 const $$Astro = createAstro();
 const $$Index = createComponent(async ($$result, $$props, $$slots) => {

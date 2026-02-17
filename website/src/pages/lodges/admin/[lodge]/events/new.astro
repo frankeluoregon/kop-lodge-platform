@@ -49,7 +49,7 @@ if (Astro.request.method === "POST") {
 
 <AdminForm title="New Event" lodgeSlug={lodgeSlug}>
   <EventForm
-    client:load
+    client:only="react"
     cancelUrl={`/lodges/admin/${lodgeSlug}`}
   />
 </AdminForm>

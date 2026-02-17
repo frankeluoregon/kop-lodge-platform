@@ -48,7 +48,7 @@ if (Astro.request.method === "POST") {
 
 <AdminForm title="Edit Member" lodgeSlug={lodgeSlug}>
   <MemberForm
-    client:load
+    client:only="react"
     cancelUrl={`/lodges/admin/${lodgeSlug}/members`}
     isEdit
     initialData={{
