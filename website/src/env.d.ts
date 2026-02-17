@@ -11,6 +11,7 @@ declare namespace App {
         DB: D1Database;
         MEDIA: R2Bucket;
         CF_ACCESS_TEAM_NAME: string;
+        MEDIA_PUBLIC_URL: string;
       };
     };
   }

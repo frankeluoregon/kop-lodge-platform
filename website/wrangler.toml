@@ -16,3 +16,5 @@ bucket_name = "kop-lodge-media"
 # Set to your Cloudflare Zero Trust team name
 # (the subdomain of .cloudflareaccess.com)
 CF_ACCESS_TEAM_NAME = "canvasback"
+# Public URL for the R2 media bucket (e.g. https://media.yourdomain.com)
+MEDIA_PUBLIC_URL = ""

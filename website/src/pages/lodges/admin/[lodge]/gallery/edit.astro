@@ -25,16 +25,31 @@ if (Astro.request.method === "POST") {
       : Astro.redirect(`/lodges/admin/${lodgeSlug}`, 302);
   }
   try {
+    let imageKey = form.get("image_key")?.toString() ?? "";
+
+    const photo = form.get("photo");
+    if (photo instanceof File && photo.size > 0) {
+      const safeName = photo.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const r2Key = `gallery/${lodgeSlug}/${Date.now()}-${safeName}`;
+      await env.MEDIA.put(r2Key, photo.stream(), {
+        httpMetadata: { contentType: photo.type },
+      });
+      imageKey = env.MEDIA_PUBLIC_URL
+        ? `${env.MEDIA_PUBLIC_URL.replace(/\/$/, "")}/${r2Key}`
+        : r2Key;
+    }
+
     await env.DB.prepare(
       "UPDATE gallery_photos SET image_key=?,caption=?,display_order=?,published=? WHERE id=? AND lodge_id=?"
     ).bind(
-      form.get("image_key")?.toString() ?? "",
+      imageKey,
       form.get("caption")?.toString() || null,
       Number(form.get("display_order") ?? 0),
       form.get("published") === "1" ? 1 : 0,
       id, lodge.id,
     ).run();
-    if (wantsJson) return new Response(JSON.stringify({ message: "Photo updated." }), { headers: { "Content-Type": "application/json" } });
+    const redirectUrl = `/lodges/admin/${lodgeSlug}`;
+    if (wantsJson) return new Response(JSON.stringify({ message: "Photo updated.", redirect: redirectUrl }), { headers: { "Content-Type": "application/json" } });
   } catch (e: unknown) {
     const msg = `Error: ${e instanceof Error ? e.message : String(e)}`;
     if (wantsJson) return new Response(JSON.stringify({ error: msg }), { status: 400, headers: { "Content-Type": "application/json" } });
