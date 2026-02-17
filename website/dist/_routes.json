@@ -5,6 +5,7 @@
   ],
   "exclude": [
     "/_astro/*",
+    "/Asset 4.png",
     "/bluetri.svg",
     "/favicon.svg",
     "/hero.png",
