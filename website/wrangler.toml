@@ -1,6 +1,6 @@
 name = "kop-lodge-website"
 compatibility_date = "2025-01-01"
-compatibility_flags = ["nodejs_compat"]
+compatibility_flags = ["nodejs_compat", "expose_global_message_channel"]
 pages_build_output_dir = "dist"
 
 [[d1_databases]]
