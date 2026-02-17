@@ -30,8 +30,13 @@ const levelLabel: Record<string, string> = {
 <Base config={config} lodgeSlug={lodgeSlug}>
   <div class="hero">
     <h1>{config.lodge_name}</h1>
-    <p>{config.tagline || "Friendship · Charity · Benevolence"}</p>
+    {config.tagline && <p>{config.tagline}</p>}
     {config.founded_year && <p style="margin-top:.5rem;font-size:.9rem;opacity:.7">Founded {config.founded_year}</p>}
+  </div>
+  <div class="tricolor-stripe">
+    <span style="background:var(--primary)"></span>
+    <span style="background:var(--secondary)"></span>
+    <span style="background:var(--accent)"></span>
   </div>
 
   <main>

@@ -76,6 +76,8 @@ function isActivePrefix(prefix: string): boolean {
       }
       .site-banner a { color: var(--accent); font-weight: 600; }
 
+      .motto { font-size: .72rem; color: var(--secondary); font-style: italic; font-weight: 600; letter-spacing: .03em; }
+
       header { background: rgba(74,80,114,.92); color: #fff; padding: 0 1.5rem; }
       .header-inner {
         max-width: var(--max-w); margin: 0 auto;
@@ -90,7 +92,7 @@ function isActivePrefix(prefix: string): boolean {
 
       nav { display: flex; gap: .1rem; flex-wrap: wrap; align-items: center; }
       nav a {
-        color: #fff; padding: .25rem .5rem; border-radius: var(--radius);
+        color: var(--secondary); padding: .25rem .5rem; border-radius: var(--radius);
         font-size: .8rem; font-weight: 600; letter-spacing: .02em; transition: background .15s;
       }
       nav a:hover { background: rgba(255,255,255,.18); text-decoration: none; }
@@ -104,17 +106,13 @@ function isActivePrefix(prefix: string): boolean {
         content: ''; position: absolute; inset: 0;
         background: linear-gradient(160deg, #252e67 50%, #14193c);
       }
-      .hero::after {
-        content: ''; display: block; position: absolute; bottom: 0; left: 0; right: 0; height: 4px;
-        background: linear-gradient(to right, var(--primary) 33.3%, var(--secondary) 33.3% 66.6%, var(--accent) 66.6%);
-      }
       .hero > * { position: relative; }
       .hero h1 { font-size: 2.3rem; color: var(--accent); margin-bottom: .5rem; text-transform: uppercase; letter-spacing: .06em; }
       .hero p  { font-size: 1.05rem; opacity: .92; }
 
       main {
         max-width: var(--max-w); margin: 2rem auto; padding: 1.5rem;
-        background: rgba(247,248,252,0.90);
+        background: rgba(252,249,243,0.92);
         border-radius: var(--radius);
         box-shadow: 0 4px 24px rgba(0,0,0,.18);
       }
@@ -156,7 +154,7 @@ function isActivePrefix(prefix: string): boolean {
       .prose a  { color: var(--primary); text-decoration: underline; }
       .prose hr { border: none; border-top: 2px solid var(--accent); margin: 2rem 0; }
 
-      footer { background: var(--primary); color: rgba(255,255,255,.82); text-align: center; padding: 1.5rem; margin-top: 3rem; font-size: .85rem; }
+      footer { background: var(--secondary); color: rgba(255,255,255,.88); text-align: center; padding: 1.5rem; margin-top: 3rem; font-size: .85rem; }
       footer a { color: var(--accent); }
       footer .footer-grid {
         max-width: var(--max-w); margin: 0 auto 1rem;
@@ -194,6 +192,7 @@ function isActivePrefix(prefix: string): boolean {
           <div class="brand-text">
             <span class="name">{config.lodge_name}</span>
             <span class="sub">Knights of Pythias{config.lodge_number && config.lodge_number !== "0" ? ` · Lodge No. ${config.lodge_number}` : ""}{config.city ? ` · ${config.city}` : ""}</span>
+            <span class="motto">Friendship · Charity · Benevolence</span>
           </div>
         </a>
         <nav>
@@ -213,8 +212,14 @@ function isActivePrefix(prefix: string): boolean {
         </nav>
       </div>
     </header>
+    <div class="tricolor-stripe">
+      <span style="background:var(--primary)"></span>
+      <span style="background:var(--secondary)"></span>
+      <span style="background:var(--accent)"></span>
+    </div>
 
     <slot />
+
 
     <footer>
       <div class="footer-grid">
