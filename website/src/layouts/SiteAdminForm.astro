@@ -1,40 +1,34 @@
 ---
 /**
- * Shared layout for admin edit forms.
- * Checks Cloudflare Access session and lodge access; returns 403 if unauthorized.
+ * Shared layout for site-level admin pages (no lodge context).
+ * Checks Cloudflare Access session and site-admin role; returns 403 if unauthorized.
  */
-import { getSession, canAccessLodge, isAccessConfigured, DEV_SESSION } from "../lib/auth";
-import { getLodgeBySlug, getConfig } from "../lib/db";
+import { getSession, isSiteAdmin, isAccessConfigured, DEV_SESSION } from "../lib/auth";
 
 interface Props {
   title: string;
-  lodgeSlug: string;
   backUrl?: string;
   backLabel?: string;
 }
 
-const { title, lodgeSlug, backUrl, backLabel = "← Dashboard" } = Astro.props;
-const backHref = backUrl ?? `/lodges/admin/${lodgeSlug}`;
+const { title, backUrl = "/admin", backLabel = "\u2190 Back to Dashboard" } = Astro.props;
 
 const env = Astro.locals.runtime.env;
 
 let session;
 if (isAccessConfigured(env)) {
   session = await getSession(Astro.request, env);
-  if (!session || !canAccessLodge(session, lodgeSlug)) {
+  if (!session || !isSiteAdmin(session)) {
     return new Response("Forbidden", { status: 403 });
   }
 } else {
   session = DEV_SESSION;
 }
 
-const lodge = await getLodgeBySlug(env.DB, lodgeSlug);
-if (!lodge) return Astro.redirect("/", 302);
-
-const config = await getConfig(env.DB, lodge.id);
-const primary = config.primary_color || "#252e67";
-const accent  = config.accent_color  || "#f5a71c";
-const neutral = "#4a5072";
+const primary   = "#252e67";
+const accent    = "#f5a71c";
+const secondary = "#a91e23";
+const neutral   = "#4a5072";
 ---
 
 <!doctype html>
@@ -42,7 +36,8 @@ const neutral = "#4a5072";
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>{title} – Admin</title>
+  <title>{title} – Site Admin</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <style is:global define:vars={{ primary, accent, neutral }}>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif; color: #1a1a2e;
@@ -58,13 +53,15 @@ const neutral = "#4a5072";
       background: rgba(74,80,114,.92); color: #fff; padding: .4rem 1.5rem;
       display: flex; align-items: center; justify-content: space-between;
     }
-    .topbar .brand { color: var(--accent); font-weight: bold; font-size: .95rem; }
+    .topbar .brand { display: flex; align-items: center; gap: .5rem; }
+    .topbar .brand img { height: 22px; width: auto; }
+    .topbar .brand span { color: var(--accent); font-weight: bold; font-size: .95rem; }
     .topbar nav { display: flex; gap: .5rem; align-items: center; }
     .topbar nav a { color: rgba(255,255,255,.8); font-size: .8rem; padding: .25rem .5rem; border-radius: 4px; }
     .topbar nav a:hover { background: rgba(255,255,255,.15); text-decoration: none; }
     .topbar .user { font-size: .75rem; color: rgba(255,255,255,.6); }
 
-    .af-main { max-width: 820px; margin: 1.5rem auto; padding: 1.25rem 1rem 2rem;
+    .af-main { max-width: 660px; margin: 1.5rem auto; padding: 1.25rem 1rem 2rem;
       background: rgba(222,211,195,0.90); border-radius: 8px;
       box-shadow: 0 2px 16px rgba(0,0,0,.14); }
     .af-main .back-link { font-size: .85rem; margin-bottom: 1rem; display: inline-block; color: var(--primary); text-transform: uppercase; font-weight: 600; opacity: .75; transition: opacity .15s; }
@@ -124,10 +121,13 @@ const neutral = "#4a5072";
     <span style="background:#f5a71c"></span>
   </div>
   <div class="topbar">
-    <span class="brand">{config.lodge_name} — Admin</span>
+    <div class="brand">
+      <img src="/seal.svg" alt="KoP Seal" />
+      <span>Site Admin</span>
+    </div>
     <nav>
-      <a href={`/lodges/${lodgeSlug}`}>View Site</a>
-      <a href={`/lodges/admin/${lodgeSlug}`}>Dashboard</a>
+      <a href="/admin">Dashboard</a>
+      <a href="/">View Site</a>
       <span class="user">{session.email}</span>
       {isAccessConfigured(env) && <a href={`https://${env.CF_ACCESS_TEAM_NAME}.cloudflareaccess.com/cdn-cgi/access/logout`}>Log out</a>}
     </nav>
@@ -137,10 +137,15 @@ const neutral = "#4a5072";
     <span style="background:#a91e23"></span>
     <span style="background:#f5a71c"></span>
   </div>
+
   <main class="af-main">
-    <a class="back-link" href={backHref}>{backLabel}</a>
+    <a class="back-link" href={backUrl}>{backLabel}</a>
     <h1>{title}</h1>
     <slot />
   </main>
+
+  <footer style="background:#a91e23;color:#f5a71c;text-align:center;padding:1rem;margin-top:2rem;font-size:.82rem;">
+    <p>&copy; {new Date().getFullYear()} Oregon Knights of Pythias &middot; <a href="/admin" style="color:#f5a71c;opacity:.85;">Admin</a></p>
+  </footer>
 </body>
 </html>

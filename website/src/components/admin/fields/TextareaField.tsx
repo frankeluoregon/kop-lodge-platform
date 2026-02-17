@@ -8,7 +8,6 @@ interface Props {
   registration: UseFormRegisterReturn;
   error?: FieldError;
   required?: boolean;
-  style?: React.CSSProperties;
 }
 
 export default function TextareaField({
@@ -19,7 +18,6 @@ export default function TextareaField({
   registration,
   error,
   required,
-  style,
 }: Props) {
   return (
     <div className="field">
@@ -28,7 +26,7 @@ export default function TextareaField({
         {required && <span className="required"> *</span>}
         {hint && <span className="hint">{hint}</span>}
       </label>
-      <textarea rows={rows} placeholder={placeholder} style={style} {...registration} />
+      <textarea rows={rows} placeholder={placeholder} {...registration} />
       {error && <span className="field-error">{error.message}</span>}
     </div>
   );

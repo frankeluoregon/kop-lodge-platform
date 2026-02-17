@@ -1,2 +1,2 @@
 globalThis.process ??= {}; globalThis.process.env ??= {};
-export { c as createExports } from './chunks/_@astrojs-ssr-adapter_CAFTrD68.mjs';
+export { c as createExports } from './chunks/_@astrojs-ssr-adapter_D5e-qO8O.mjs';

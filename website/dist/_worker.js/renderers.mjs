@@ -1,6 +1,6 @@
 if(typeof MessageChannel==="undefined"){globalThis.MessageChannel=class MessageChannel{constructor(){this.port1={onmessage:null,postMessage(){},close(){}};this.port2={onmessage:null,postMessage(m){if(this.port1?.onmessage)this.port1.onmessage({data:m})},close(){}};this.port2.port1=this.port1;this.port1.port2=this.port2}}}
 globalThis.process ??= {}; globalThis.process.env ??= {};
-import { p as getDefaultExportFromCjs } from './chunks/astro/server_Db7M_Z8T.mjs';
+import { q as getDefaultExportFromCjs } from './chunks/astro/server_CngiM2x4.mjs';
 
 var react = {exports: {}};
 

@@ -113,7 +113,7 @@ export default function LodgeForm({ initialData, isEdit, viewSiteUrl, lodgeAdmin
             {...register("name", { required: "Name is required" })}
             placeholder={isEdit ? undefined : "e.g. Damon"}
           />
-          {errors.name && <span style={{ display: "block", fontSize: ".72rem", color: "#c00", marginTop: ".25rem", fontWeight: 500 }}>{errors.name.message}</span>}
+          {errors.name && <span className="field-error">{errors.name.message}</span>}
         </div>
         <div className="field">
           <label>Lodge Number</label>
@@ -123,7 +123,7 @@ export default function LodgeForm({ initialData, isEdit, viewSiteUrl, lodgeAdmin
             placeholder={isEdit ? undefined : "e.g. 4"}
             min={1}
           />
-          {errors.number && <span style={{ display: "block", fontSize: ".72rem", color: "#c00", marginTop: ".25rem", fontWeight: 500 }}>{errors.number.message}</span>}
+          {errors.number && <span className="field-error">{errors.number.message}</span>}
         </div>
         <div className="field">
           <label>URL Slug <span className="hint">{isEdit ? "lowercase, letters/numbers/hyphens only" : "auto-generated — edit if needed"}</span></label>
@@ -135,13 +135,13 @@ export default function LodgeForm({ initialData, isEdit, viewSiteUrl, lodgeAdmin
               onChange: () => setSlugEdited(true),
             })}
           />
-          {errors.slug && <span style={{ display: "block", fontSize: ".72rem", color: "#c00", marginTop: ".25rem", fontWeight: 500 }}>{errors.slug.message}</span>}
+          {errors.slug && <span className="field-error">{errors.slug.message}</span>}
         </div>
         {isEdit && (
           <div className="field">
             <div className="checkbox-row">
               <input type="checkbox" id="active" {...register("active")} />
-              <label htmlFor="active" style={{ marginBottom: 0 }}>Active</label>
+              <label htmlFor="active">Active</label>
             </div>
           </div>
         )}
@@ -151,7 +151,6 @@ export default function LodgeForm({ initialData, isEdit, viewSiteUrl, lodgeAdmin
             {...register("admin_emails")}
             rows={isEdit ? 4 : 3}
             placeholder={"admin@example.com\nanother@example.com"}
-            style={{ width: "100%", padding: ".55rem .75rem", border: "1.5px solid #ccc", borderRadius: "5px", fontSize: ".9rem", fontFamily: "inherit", background: "#fff", resize: "vertical" }}
           />
         </div>
         {!isEdit && (
@@ -161,7 +160,6 @@ export default function LodgeForm({ initialData, isEdit, viewSiteUrl, lodgeAdmin
               {...register("member_names")}
               rows={4}
               placeholder={"John Smith\nJane Doe"}
-              style={{ width: "100%", padding: ".55rem .75rem", border: "1.5px solid #ccc", borderRadius: "5px", fontSize: ".9rem", fontFamily: "inherit", background: "#fff", resize: "vertical" }}
             />
           </div>
         )}

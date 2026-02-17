@@ -1,5 +1,5 @@
 globalThis.process ??= {}; globalThis.process.env ??= {};
-import { e as createComponent, l as defineStyleVars, g as addAttribute, n as renderHead, r as renderTemplate, k as renderComponent, o as Fragment, h as createAstro } from '../chunks/astro/server_Db7M_Z8T.mjs';
+import { e as createComponent, l as defineStyleVars, g as addAttribute, n as renderHead, r as renderTemplate, k as renderComponent, p as Fragment, h as createAstro } from '../chunks/astro/server_CngiM2x4.mjs';
 import { i as isAccessConfigured, g as getSession, a as isSiteAdmin, D as DEV_SESSION } from '../chunks/auth_AGqrcshc.mjs';
 import { b as getAllLodgesAdmin } from '../chunks/db_GWKWtEgt.mjs';
 /* empty css                                 */
