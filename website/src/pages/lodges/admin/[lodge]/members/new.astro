@@ -26,9 +26,10 @@ if (Astro.request.method === "POST") {
       (form.get("notes") as string || "").trim() || null,
       now,
     ).run();
-    return wantsJson
-      ? Response.redirect(new URL(`/lodges/admin/${lodgeSlug}/members`, Astro.url), 302)
-      : Astro.redirect(`/lodges/admin/${lodgeSlug}/members`, 302);
+    if (wantsJson) {
+      return new Response(JSON.stringify({ message: "Member added." }), { headers: { "Content-Type": "application/json" } });
+    }
+    return Astro.redirect(`/lodges/admin/${lodgeSlug}/members`, 302);
   } catch (e: unknown) {
     const msg = `Error: ${e instanceof Error ? e.message : String(e)}`;
     if (wantsJson) return new Response(JSON.stringify({ error: msg }), { status: 400, headers: { "Content-Type": "application/json" } });
