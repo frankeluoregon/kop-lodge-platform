@@ -25,7 +25,7 @@ const contentBg = "#ded3c3";
       --primary: var(--primary); --accent: var(--accent); --neutral: var(--neutral);
       --text: #1a1a2e; --bg: #f7f8fc; --card-bg: #fff;
       --border: #dde0eb; --radius: 6px; --shadow: 0 2px 8px rgba(0,0,0,.08);
-      --max-w: 1100px; --font: 'Trebuchet MS', Trebuchet, 'Gill Sans MT', Arial, sans-serif;
+      --max-w: 67vw; --font: 'Trebuchet MS', Trebuchet, 'Gill Sans MT', Arial, sans-serif;
     }
     body {
       font-family: var(--font); color: var(--text); line-height: 1.7;
@@ -51,7 +51,7 @@ const contentBg = "#ded3c3";
       -webkit-text-stroke: .3px var(--primary); paint-order: stroke fill;
     }
     .brand-sub  { font-size: .65rem; color: #fff; opacity: .92; }
-    .header-logo { height: 22px; width: auto; flex-shrink: 0; }
+    .header-logo { height: 44px; width: auto; flex-shrink: 0; }
     .brand-group { display: flex; align-items: center; gap: .5rem; }
     .motto { font-size: .72rem; color: var(--accent); font-style: italic; font-weight: 600; letter-spacing: .03em; }
     .ext-link {
@@ -59,6 +59,7 @@ const contentBg = "#ded3c3";
       border-radius: 4px; border: 1px solid rgba(255,255,255,.3); font-weight: 600;
     }
     .ext-link:hover { background: rgba(255,255,255,.15); text-decoration: none; }
+    .ext-link.active { background: var(--primary); color: #fff; border-color: var(--primary); pointer-events: none; }
 
     .hero { text-align: center; }
     .hero img { display: block; max-width: var(--max-w); width: 100%; height: auto; margin: 0 auto; margin-bottom: -30px; clip-path: inset(0 0 30px 0); }
@@ -101,6 +102,7 @@ const contentBg = "#ded3c3";
     footer {
       background: var(--secondary); color: var(--accent); text-align: center;
       padding: 1.5rem; margin-top: 3rem; font-size: .85rem;
+      position: sticky; bottom: 0; z-index: 100;
     }
     footer a { color: var(--accent); opacity: .85; }
     footer a:hover { opacity: 1; }
@@ -129,7 +131,7 @@ const contentBg = "#ded3c3";
         </div>
       </a>
       <nav style="display:flex;gap:.4rem;align-items:center;flex-wrap:wrap">
-        <a href="/" class="ext-link">Grand Lodge Home</a>
+        <a href="/" class="ext-link active">Home</a>
         <a href="/grand-lodge/officers" class="ext-link">Grand Officers</a>
         <a href="/grand-lodge/history" class="ext-link">History</a>
         <a href="https://www.pythias.org" target="_blank" rel="noopener" class="ext-link">Supreme Lodge ↗</a>
@@ -157,26 +159,6 @@ const contentBg = "#ded3c3";
     <div class="content-box">
       <h2 class="section-heading">
         <span class="tri-accent"><img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" /></span>
-        Oregon Lodges
-      </h2>
-      <p style="margin-bottom:1.25rem;font-size:.95rem;color:#555">
-        Select a lodge below to visit their website, view events, meet their officers, and learn about their community service.
-      </p>
-
-      <div class="lodge-grid">
-        {lodges.map((lodge) => (
-          <a href={`/lodges/${lodge.slug}/`} class="lodge-card">
-            <div class="lodge-num">Lodge No. {lodge.number}</div>
-            <div class="lodge-name">{lodge.name.replace(` Lodge No. ${lodge.number}`, "").replace(` No. ${lodge.number}`, "")}</div>
-            <div class="lodge-arrow">Visit site &rarr;</div>
-          </a>
-        ))}
-      </div>
-    </div>
-
-    <div class="content-box">
-      <h2 class="section-heading">
-        <span class="tri-accent"><img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" /></span>
         About the Knights of Pythias
       </h2>
       <p>
@@ -197,6 +179,26 @@ const contentBg = "#ded3c3";
         arriving at our own Order, the highest thoughts of the greatest minds and hearts find safe repose and bright
         revival within the portals of our Castle Halls.
       </p>
+    </div>
+
+    <div class="content-box">
+      <h2 class="section-heading">
+        <span class="tri-accent"><img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" /></span>
+        Oregon Lodges
+      </h2>
+      <p style="margin-bottom:1.25rem;font-size:.95rem;color:#555">
+        Select a lodge below to visit their website, view events, meet their officers, and learn about their community service.
+      </p>
+
+      <div class="lodge-grid">
+        {lodges.map((lodge) => (
+          <a href={`/lodges/${lodge.slug}/`} class="lodge-card">
+            <div class="lodge-num">Lodge No. {lodge.number}</div>
+            <div class="lodge-name">{lodge.name.replace(` Lodge No. ${lodge.number}`, "").replace(` No. ${lodge.number}`, "")}</div>
+            <div class="lodge-arrow">Visit site &rarr;</div>
+          </a>
+        ))}
+      </div>
     </div>
   </main>
 

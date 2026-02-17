@@ -49,7 +49,7 @@ function isActivePrefix(prefix: string): boolean {
         --border:    #dde0eb;
         --radius:    6px;
         --shadow:    0 2px 8px rgba(0,0,0,.08);
-        --max-w:     1100px;
+        --max-w:     67vw;
         --font:      'Trebuchet MS', Trebuchet, 'Gill Sans MT', Arial, sans-serif;
       }
 
@@ -84,7 +84,7 @@ function isActivePrefix(prefix: string): boolean {
         gap: 1rem; padding: .4rem 0;
       }
       .lodge-brand { display: flex; align-items: center; gap: .5rem; }
-      .lodge-brand .header-logo { height: 22px; width: auto; flex-shrink: 0; }
+      .lodge-brand .header-logo { height: 44px; width: auto; flex-shrink: 0; }
       .lodge-brand .brand-text { display: flex; flex-direction: column; gap: .1rem; }
       .lodge-brand .name {
         font-size: .95rem; font-weight: 700; color: var(--accent);
@@ -101,7 +101,7 @@ function isActivePrefix(prefix: string): boolean {
         font-size: .8rem; font-weight: 600; letter-spacing: .02em; transition: background .15s;
       }
       nav a:hover { background: rgba(255,255,255,.18); text-decoration: none; }
-      nav a[aria-current="page"] { background: var(--accent); color: var(--primary); }
+      nav a[aria-current="page"] { background: var(--primary); color: #fff; pointer-events: none; }
 
       /* --- Hero --- */
       .hero {
@@ -169,7 +169,7 @@ function isActivePrefix(prefix: string): boolean {
       .prose hr { border: none; border-top: 2px solid var(--accent); margin: 2rem 0; }
 
       /* --- Footer: red bg, yellow headings/links, white text --- */
-      footer { background: var(--secondary); color: rgba(255,255,255,.88); text-align: center; padding: 1.5rem; font-size: .85rem; }
+      footer { background: var(--secondary); color: rgba(255,255,255,.88); text-align: center; padding: 1.5rem; font-size: .85rem; position: sticky; bottom: 0; z-index: 100; }
       footer a { color: var(--accent); }
       .footer-grid {
         max-width: var(--max-w); margin: 0 auto 1rem;
@@ -224,7 +224,7 @@ function isActivePrefix(prefix: string): boolean {
           {config.show_programs === "1" && <a href={`${base}/programs`} aria-current={isActive(`${base}/programs`) ? "page" : undefined}>Programs</a>}
           {config.show_links === "1" && <a href={`${base}/links`} aria-current={isActive(`${base}/links`) ? "page" : undefined}>Links</a>}
           <a href={`${base}/contact`} aria-current={isActive(`${base}/contact`) ? "page" : undefined}>Contact</a>
-          <a href="/" style="margin-left:.25rem;border-left:1px solid rgba(255,255,255,.3);padding-left:.5rem">Grand Lodge Home</a>
+          <a href="/" style="margin-left:.25rem;border-left:1px solid rgba(255,255,255,.3);padding-left:.5rem">Home</a>
         </nav>
       </div>
     </header>
