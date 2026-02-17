@@ -42,7 +42,7 @@ const levelLabel: Record<string, string> = {
   <main>
     {events.length > 0 && (
       <section>
-        <h2 class="section-heading">Upcoming Events</h2>
+        <h2 class="section-heading"><span class="tri-accent"><img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" /></span> Upcoming Events</h2>
         <div class="card-grid">
           {events.map((ev) => (
             <div class="card">
@@ -62,7 +62,7 @@ const levelLabel: Record<string, string> = {
 
     {featured.length > 0 && (
       <section style="margin-top:2.5rem">
-        <h2 class="section-heading">Community Service</h2>
+        <h2 class="section-heading"><span class="tri-accent"><img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" /></span> Community Service</h2>
         <div class="card-grid">
           {featured.map((cs) => (
             <div class="card">
@@ -78,7 +78,7 @@ const levelLabel: Record<string, string> = {
 
     {posts.length > 0 && (
       <section style="margin-top:2.5rem">
-        <h2 class="section-heading">From the Blog</h2>
+        <h2 class="section-heading"><span class="tri-accent"><img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" /></span> From the Blog</h2>
         <div class="card-grid">
           {posts.map((post) => (
             <div class="card">
@@ -93,8 +93,8 @@ const levelLabel: Record<string, string> = {
       </section>
     )}
 
-    <section style="margin-top:2.5rem;background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow)">
-      <h2 class="section-heading">About the Knights of Pythias</h2>
+    <section style="margin-top:2.5rem;background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);border-top:3px solid var(--primary)">
+      <h2 class="section-heading"><span class="tri-accent"><img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" /></span> About the Knights of Pythias</h2>
       <p>
         The Knights of Pythias is a non-sectarian fraternal organization founded in 1864 in Washington, D.C.
         by Justus H. Rathbone. It was the first fraternal organization to receive a charter from an Act of Congress.

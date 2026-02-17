@@ -44,8 +44,8 @@ function isActivePrefix(prefix: string): boolean {
         --secondary: var(--secondary);
         --neutral:   var(--neutral);
         --text:      #1a1a2e;
-        --bg:        #f7f8fc;
-        --card-bg:   #ffffff;
+        --content-bg: #ded3c3;
+        --card-bg:   #f7f0e7;
         --border:    #dde0eb;
         --radius:    6px;
         --shadow:    0 2px 8px rgba(0,0,0,.08);
@@ -76,9 +76,8 @@ function isActivePrefix(prefix: string): boolean {
       }
       .site-banner a { color: var(--accent); font-weight: 600; }
 
-      .motto { font-size: .72rem; color: var(--secondary); font-style: italic; font-weight: 600; letter-spacing: .03em; }
-
-      header { background: rgba(74,80,114,.92); color: #fff; padding: 0 1.5rem; }
+      /* --- Header: red bg, yellow title/links/motto, white other text --- */
+      header { background: var(--secondary); color: #fff; padding: 0 1.5rem; }
       .header-inner {
         max-width: var(--max-w); margin: 0 auto;
         display: flex; align-items: center; justify-content: space-between;
@@ -87,17 +86,24 @@ function isActivePrefix(prefix: string): boolean {
       .lodge-brand { display: flex; align-items: center; gap: .5rem; }
       .lodge-brand .header-logo { height: 22px; width: auto; flex-shrink: 0; }
       .lodge-brand .brand-text { display: flex; flex-direction: column; gap: .1rem; }
-      .lodge-brand .name { font-size: .95rem; font-weight: 700; color: var(--accent); letter-spacing: .04em; text-transform: uppercase; }
-      .lodge-brand .sub  { font-size: .65rem; opacity: .88; letter-spacing: .02em; }
+      .lodge-brand .name {
+        font-size: .95rem; font-weight: 700; color: var(--accent);
+        letter-spacing: .04em; text-transform: uppercase;
+        -webkit-text-stroke: .3px var(--primary);
+        paint-order: stroke fill;
+      }
+      .lodge-brand .sub  { font-size: .65rem; color: #fff; opacity: .92; letter-spacing: .02em; }
+      .motto { font-size: .72rem; color: var(--accent); font-style: italic; font-weight: 600; letter-spacing: .03em; }
 
       nav { display: flex; gap: .1rem; flex-wrap: wrap; align-items: center; }
       nav a {
-        color: var(--secondary); padding: .25rem .5rem; border-radius: var(--radius);
+        color: var(--accent); padding: .25rem .5rem; border-radius: var(--radius);
         font-size: .8rem; font-weight: 600; letter-spacing: .02em; transition: background .15s;
       }
       nav a:hover { background: rgba(255,255,255,.18); text-decoration: none; }
       nav a[aria-current="page"] { background: var(--accent); color: var(--primary); }
 
+      /* --- Hero --- */
       .hero {
         position: relative;
         color: #fff; text-align: center; padding: 3.5rem 1.5rem;
@@ -110,10 +116,10 @@ function isActivePrefix(prefix: string): boolean {
       .hero h1 { font-size: 2.3rem; color: var(--accent); margin-bottom: .5rem; text-transform: uppercase; letter-spacing: .06em; }
       .hero p  { font-size: 1.05rem; opacity: .92; }
 
+      /* --- Main content: constrained to max-w, ded3c3 bg --- */
       main {
-        max-width: var(--max-w); margin: 2rem auto; padding: 1.5rem;
-        background: rgba(252,249,243,0.92);
-        border-radius: var(--radius);
+        max-width: var(--max-w); margin: 0 auto; padding: 1.75rem;
+        background: rgba(222,211,195,0.90);
         box-shadow: 0 4px 24px rgba(0,0,0,.18);
       }
 
@@ -127,7 +133,7 @@ function isActivePrefix(prefix: string): boolean {
 
       .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 1.25rem; margin-bottom: 2.5rem; }
       .card {
-        background: rgba(255,255,255,0.88); border: 1px solid var(--border); border-top: 3px solid var(--primary);
+        background: var(--card-bg); border: 1px solid var(--border); border-top: 3px solid var(--primary);
         border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.25rem; display: flex; flex-direction: column; gap: .5rem;
       }
       .card .tag { display: inline-block; font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; padding: .2rem .55rem; border-radius: 99px; background: var(--accent); color: var(--primary); }
@@ -154,9 +160,10 @@ function isActivePrefix(prefix: string): boolean {
       .prose a  { color: var(--primary); text-decoration: underline; }
       .prose hr { border: none; border-top: 2px solid var(--accent); margin: 2rem 0; }
 
-      footer { background: var(--secondary); color: rgba(255,255,255,.88); text-align: center; padding: 1.5rem; margin-top: 3rem; font-size: .85rem; }
+      /* --- Footer: red bg, yellow headings/links, white text --- */
+      footer { background: var(--secondary); color: rgba(255,255,255,.88); text-align: center; padding: 1.5rem; font-size: .85rem; }
       footer a { color: var(--accent); }
-      footer .footer-grid {
+      .footer-grid {
         max-width: var(--max-w); margin: 0 auto 1rem;
         display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 1rem; text-align: left;
       }
@@ -209,6 +216,7 @@ function isActivePrefix(prefix: string): boolean {
           {config.show_programs === "1" && <a href={`${base}/programs`} aria-current={isActive(`${base}/programs`) ? "page" : undefined}>Programs</a>}
           {config.show_links === "1" && <a href={`${base}/links`} aria-current={isActive(`${base}/links`) ? "page" : undefined}>Links</a>}
           <a href={`${base}/contact`} aria-current={isActive(`${base}/contact`) ? "page" : undefined}>Contact</a>
+          <a href="/" style="margin-left:.25rem;border-left:1px solid rgba(255,255,255,.3);padding-left:.5rem">Grand Lodge Home</a>
         </nav>
       </div>
     </header>
@@ -219,7 +227,6 @@ function isActivePrefix(prefix: string): boolean {
     </div>
 
     <slot />
-
 
     <footer>
       <div class="footer-grid">
