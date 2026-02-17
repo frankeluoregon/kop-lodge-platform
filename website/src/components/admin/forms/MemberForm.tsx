@@ -76,7 +76,9 @@ export default function MemberForm({ cancelUrl, initialData, isEdit }: Props) {
           <TextField
             label="Email"
             type="email"
-            registration={register("email")}
+            registration={register("email", { required: "Email is required" })}
+            error={errors.email}
+            required
           />
           <TextField
             label="Phone"
