@@ -27,8 +27,10 @@ const contentBg = "#ded3c3";
       --border: #dde0eb; --radius: 6px; --shadow: 0 2px 8px rgba(0,0,0,.08);
       --max-w: 67vw; --font: 'Trebuchet MS', Trebuchet, 'Gill Sans MT', Arial, sans-serif;
     }
+    html { background-color: #252e67; }
     body {
       font-family: var(--font); color: var(--text); line-height: 1.7;
+      margin: 0;
       background-image: url('/mainbg.png');
       background-size: cover;
       background-position: center;
@@ -187,6 +189,7 @@ const contentBg = "#ded3c3";
     </div>
   </main>
 
+  <div class="rope-border"></div>
   <footer>
     <p>
       &copy; {new Date().getFullYear()} Grand Domain of Oregon &mdash; Knights of Pythias &middot;

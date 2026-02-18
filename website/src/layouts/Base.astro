@@ -53,8 +53,10 @@ function isActivePrefix(prefix: string): boolean {
         --font:      'Trebuchet MS', Trebuchet, 'Gill Sans MT', Arial, sans-serif;
       }
 
+      html { background-color: #252e67; }
       body {
         font-family: var(--font); color: var(--text); line-height: 1.7;
+        margin: 0;
         background-image: url('/mainbg.png');
         background-size: cover;
         background-position: center;
@@ -228,6 +230,7 @@ function isActivePrefix(prefix: string): boolean {
 
     <slot />
 
+    <div class="rope-border"></div>
     <footer>
       <div class="footer-grid">
         <div>

@@ -16,7 +16,9 @@ const neutral   = "#4a5072";
   <style define:vars={{ primary, accent, secondary, neutral }}>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root { --max-w: 67vw; --font: 'Trebuchet MS', Trebuchet, 'Gill Sans MT', Arial, sans-serif; }
+    html { background-color: #252e67; }
     body { font-family: var(--font); color: #1a1a2e; line-height: 1.7;
+      margin: 0;
       background-image: url('/mainbg.png'); background-size: cover;
       background-position: center; background-attachment: fixed;
       background-color: var(--primary); }
@@ -125,6 +127,7 @@ const neutral   = "#4a5072";
     </div>
   </main>
 
+  <div class="rope-border"></div>
   <footer>
     <p>&copy; {new Date().getFullYear()} Grand Domain of Oregon &mdash; Knights of Pythias &middot;
       <a href="https://www.pythias.org" target="_blank" rel="noopener">pythias.org</a>
