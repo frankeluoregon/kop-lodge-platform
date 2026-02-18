@@ -34,11 +34,7 @@ const levelLabel: Record<string, string> = {
     {config.tagline && <p>{config.tagline}</p>}
     {config.founded_year && <p style="margin-top:.5rem;font-size:.9rem;opacity:.7">Founded {config.founded_year}</p>}
   </div>
-  <div class="tricolor-stripe">
-    <span style="background:var(--primary)"></span>
-    <span style="background:var(--secondary)"></span>
-    <span style="background:var(--accent)"></span>
-  </div>
+  <div class="rope-border"></div>
 
   <main>
     {events.length > 0 && (

@@ -64,8 +64,7 @@ function isActivePrefix(prefix: string): boolean {
       a { color: var(--primary); text-decoration: none; }
       a:hover { text-decoration: underline; }
 
-      .tricolor-stripe { display: flex; height: 5px; border-top: 2px solid #000; border-bottom: 2px solid #000; }
-      .tricolor-stripe span { flex: 1; }
+      .rope-border { width: 100%; height: 10px; background: url('/ropeborder.svg') repeat-x center/auto 10px; }
 
       .site-banner {
         background: rgba(37,46,103,.88);
@@ -97,11 +96,11 @@ function isActivePrefix(prefix: string): boolean {
 
       nav { display: flex; gap: .1rem; flex-wrap: wrap; align-items: center; }
       nav a {
-        color: var(--accent); padding: .25rem .5rem; border-radius: var(--radius);
-        font-size: .8rem; font-weight: 600; letter-spacing: .02em; transition: background .15s;
+        color: var(--accent); background: var(--primary); padding: .25rem .5rem; border-radius: var(--radius);
+        font-size: .8rem; font-weight: 600; letter-spacing: .02em; transition: background .15s, color .15s;
       }
-      nav a:hover { background: rgba(255,255,255,.18); text-decoration: none; }
-      nav a[aria-current="page"] { background: var(--primary); color: #fff; pointer-events: none; }
+      nav a:hover { background: #1b2250; text-decoration: none; }
+      nav a[aria-current="page"] { background: var(--accent); color: var(--primary); pointer-events: none; }
 
       /* --- Hero --- */
       .hero {
@@ -193,11 +192,7 @@ function isActivePrefix(prefix: string): boolean {
     </style>
   </head>
   <body>
-    <div class="tricolor-stripe">
-      <span style="background:var(--primary)"></span>
-      <span style="background:var(--secondary)"></span>
-      <span style="background:var(--accent)"></span>
-    </div>
+    <div class="rope-border"></div>
     <div class="site-banner">
       <a href="/">← Oregon Knights of Pythias</a>
     </div>
@@ -229,11 +224,7 @@ function isActivePrefix(prefix: string): boolean {
         </nav>
       </div>
     </header>
-    <div class="tricolor-stripe">
-      <span style="background:var(--primary)"></span>
-      <span style="background:var(--secondary)"></span>
-      <span style="background:var(--accent)"></span>
-    </div>
+    <div class="rope-border"></div>
 
     <slot />
 

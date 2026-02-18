@@ -1,0 +1,54 @@
+---
+import SiteAdminForm from "../../layouts/SiteAdminForm.astro";
+import { getSiteConfig } from "../../lib/db";
+import GrandLodgeConfigForm from "../../components/admin/forms/GrandLodgeConfigForm";
+
+const env = Astro.locals.runtime.env;
+
+if (Astro.request.method === "POST") {
+  const wantsJson = Astro.request.headers.get("Accept")?.includes("application/json");
+  const form = await Astro.request.formData();
+  try {
+    const fields = [
+      "grand_lodge_name", "grand_domain_name", "tagline",
+      "about_text", "history_text",
+      "contact_email", "contact_phone",
+      "website_url", "supreme_lodge_url", "facebook_url",
+      "mailing_address",
+    ];
+    const now = new Date().toISOString();
+    for (const key of fields) {
+      const val = form.get(key)?.toString() ?? "";
+      await env.DB.prepare(
+        "INSERT INTO site_config (key, value, updated_at) VALUES (?, ?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at"
+      ).bind(key, val, now).run();
+    }
+    if (wantsJson) return new Response(JSON.stringify({ message: "Grand Lodge settings saved." }), { headers: { "Content-Type": "application/json" } });
+  } catch (e: unknown) {
+    const msg = `Error: ${e instanceof Error ? e.message : String(e)}`;
+    if (wantsJson) return new Response(JSON.stringify({ error: msg }), { status: 400, headers: { "Content-Type": "application/json" } });
+  }
+}
+
+const config = await getSiteConfig(env.DB);
+---
+
+<SiteAdminForm title="Grand Lodge Settings">
+  <GrandLodgeConfigForm
+    client:only="react"
+    cancelUrl="/admin"
+    initialData={{
+      grand_lodge_name: config.grand_lodge_name,
+      grand_domain_name: config.grand_domain_name,
+      tagline: config.tagline,
+      about_text: config.about_text,
+      history_text: config.history_text,
+      contact_email: config.contact_email,
+      contact_phone: config.contact_phone,
+      website_url: config.website_url,
+      supreme_lodge_url: config.supreme_lodge_url,
+      facebook_url: config.facebook_url,
+      mailing_address: config.mailing_address,
+    }}
+  />
+</SiteAdminForm>

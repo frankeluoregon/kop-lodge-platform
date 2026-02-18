@@ -160,6 +160,43 @@ export interface Page {
   meta_description: string | null;
 }
 
+// ─── Site Config ────────────────────────────────────────────────────────────
+
+export interface SiteConfig {
+  grand_lodge_name: string;
+  grand_domain_name: string;
+  tagline: string;
+  about_text: string;
+  history_text: string;
+  contact_email: string;
+  contact_phone: string;
+  website_url: string;
+  supreme_lodge_url: string;
+  facebook_url: string;
+  mailing_address: string;
+}
+
+export async function getSiteConfig(db: D1Database): Promise<SiteConfig> {
+  const rows = await db
+    .prepare("SELECT key, value FROM site_config")
+    .all<{ key: string; value: string }>();
+  const map: Record<string, string> = {};
+  for (const row of rows.results) map[row.key] = row.value;
+  // Defaults
+  if (!map.grand_lodge_name) map.grand_lodge_name = "Grand Lodge";
+  if (!map.grand_domain_name) map.grand_domain_name = "";
+  if (!map.tagline) map.tagline = "";
+  if (!map.about_text) map.about_text = "";
+  if (!map.history_text) map.history_text = "";
+  if (!map.contact_email) map.contact_email = "";
+  if (!map.contact_phone) map.contact_phone = "";
+  if (!map.website_url) map.website_url = "";
+  if (!map.supreme_lodge_url) map.supreme_lodge_url = "";
+  if (!map.facebook_url) map.facebook_url = "";
+  if (!map.mailing_address) map.mailing_address = "";
+  return map as unknown as SiteConfig;
+}
+
 // ─── Lodge helpers ──────────────────────────────────────────────────────────
 
 export async function getAllLodges(db: D1Database): Promise<Lodge[]> {

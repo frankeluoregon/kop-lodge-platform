@@ -39,8 +39,7 @@ const adminBase = `/lodges/admin/${lodgeSlug}`;
       background-attachment: fixed; background-color: #252e67; }
     a { color: var(--primary); text-decoration: none; }
     a:hover { text-decoration: underline; }
-    .tricolor { display: flex; height: 5px; border-top: 2px solid #000; border-bottom: 2px solid #000; }
-    .tricolor span { flex: 1; }
+    .rope-border { width: 100%; height: 10px; background: url('/ropeborder.svg') repeat-x center/auto 10px; }
     .topbar { background: rgba(74,80,114,.92); color: #fff; padding: .4rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
     .topbar .brand { color: var(--accent); font-weight: bold; font-size: .95rem; }
     .topbar nav { display: flex; gap: .5rem; align-items: center; }
@@ -68,11 +67,7 @@ const adminBase = `/lodges/admin/${lodgeSlug}`;
   </style>
 </head>
 <body>
-  <div class="tricolor">
-    <span style={`background:${primary}`}></span>
-    <span style="background:#a91e23"></span>
-    <span style={`background:${accent}`}></span>
-  </div>
+  <div class="rope-border"></div>
   <div class="topbar">
     <span class="brand">{config.lodge_name} &mdash; Announcements</span>
     <nav>
@@ -81,11 +76,7 @@ const adminBase = `/lodges/admin/${lodgeSlug}`;
       <span class="user">{session.email}</span>
     </nav>
   </div>
-  <div class="tricolor">
-    <span style={`background:${primary}`}></span>
-    <span style="background:#a91e23"></span>
-    <span style={`background:${accent}`}></span>
-  </div>
+  <div class="rope-border"></div>
 
   <main>
     <h1>Lodge Announcements <span style="font-size:.8rem;font-weight:400;color:#888">(internal)</span></h1>

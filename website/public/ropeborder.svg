@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 12" preserveAspectRatio="none">
+  <defs>
+    <linearGradient id="ropeGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8B7355"/>
+      <stop offset="30%" stop-color="#C4A265"/>
+      <stop offset="50%" stop-color="#D4B87A"/>
+      <stop offset="70%" stop-color="#C4A265"/>
+      <stop offset="100%" stop-color="#8B7355"/>
+    </linearGradient>
+  </defs>
+  <!-- Rope body -->
+  <rect y="1" width="200" height="10" fill="url(#ropeGrad)" rx="5"/>
+  <!-- Twist pattern -->
+  <path d="M0,6 Q5,2 10,6 Q15,10 20,6 Q25,2 30,6 Q35,10 40,6 Q45,2 50,6 Q55,10 60,6 Q65,2 70,6 Q75,10 80,6 Q85,2 90,6 Q95,10 100,6 Q105,2 110,6 Q115,10 120,6 Q125,2 130,6 Q135,10 140,6 Q145,2 150,6 Q155,10 160,6 Q165,2 170,6 Q175,10 180,6 Q185,2 190,6 Q195,10 200,6" fill="none" stroke="#A08050" stroke-width="1.5" opacity="0.6"/>
+  <path d="M0,6 Q5,10 10,6 Q15,2 20,6 Q25,10 30,6 Q35,2 40,6 Q45,10 50,6 Q55,2 60,6 Q65,10 70,6 Q75,2 80,6 Q85,10 90,6 Q95,2 100,6 Q105,10 110,6 Q115,2 120,6 Q125,10 130,6 Q135,2 140,6 Q145,10 150,6 Q155,2 160,6 Q165,10 170,6 Q175,2 180,6 Q185,10 190,6 Q195,2 200,6" fill="none" stroke="#6B5535" stroke-width="1" opacity="0.4"/>
+  <!-- Edge highlights -->
+  <line x1="0" y1="1.5" x2="200" y2="1.5" stroke="#D4B87A" stroke-width="0.5" opacity="0.5"/>
+  <line x1="0" y1="10.5" x2="200" y2="10.5" stroke="#6B5535" stroke-width="0.5" opacity="0.4"/>
+</svg>
