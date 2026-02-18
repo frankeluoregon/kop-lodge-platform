@@ -46,9 +46,25 @@ const adminBase = `/lodges/admin/${lodgeSlug}`;
   <title>Admin – {config.lodge_name}</title>
   <style define:vars={{ primary, accent, neutral }}>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif; background: #f0f0f5; color: #1a1a2e; }
+    body { font-family: 'Trebuchet MS', Trebuchet, Arial, sans-serif; color: #1a1a2e;
+      background-image: url('/mainbg.png'); background-size: cover; background-position: center;
+      background-attachment: fixed; background-color: #252e67; }
     a { color: var(--primary); text-decoration: none; }
     a:hover { text-decoration: underline; }
+
+    .rope-border { width: 100%; height: 8px; background: url('/ropeborder.svg') repeat-x left/auto 8px; }
+    .rope-border-sm { width: 100%; height: 5px; background: url('/ropeborder.svg') repeat-x left/auto 5px; }
+
+    .site-header { background: #a91e23; color: #fff; padding: 0 1.5rem; }
+    .site-header .header-inner { max-width: 67vw; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .5rem 0; }
+    .site-header .brand-group { display: flex; align-items: center; gap: .5rem; text-decoration: none; }
+    .site-header .header-logo { height: 44px; width: auto; flex-shrink: 0; }
+    .site-header .brand-name { font-size: .95rem; font-weight: 700; color: #f5a71c; text-transform: uppercase; letter-spacing: .04em; }
+    .site-header .brand-sub { font-size: .65rem; color: #fff; opacity: .92; }
+    .site-header .motto { font-size: .72rem; color: #f5a71c; font-style: italic; font-weight: 600; letter-spacing: .03em; }
+    .site-header .nav-links { display: flex; gap: .4rem; align-items: center; flex-wrap: wrap; }
+    .site-header .ext-link { color: #f5a71c; background: #252e67; font-size: .75rem; padding: .2rem .4rem; border-radius: 4px; border: 1px solid #252e67; font-weight: 600; transition: background .15s, color .15s; text-decoration: none; }
+    .site-header .ext-link:hover { background: #1b2250; text-decoration: none; }
 
     .topbar { background: var(--neutral); color: #fff; padding: .6rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
     .topbar .brand { color: var(--accent); font-weight: bold; font-size: 1.1rem; }
@@ -80,6 +96,26 @@ const adminBase = `/lodges/admin/${lodgeSlug}`;
   </style>
 </head>
 <body>
+  <div class="rope-border"></div>
+  <div class="site-header">
+    <div class="header-inner">
+      <a href="/" class="brand-group">
+        <img src="/seal.png" alt="KoP Seal" class="header-logo" />
+        <div>
+          <div class="brand-name">Oregon Knights of Pythias</div>
+          <div class="brand-sub">Grand Domain of Oregon</div>
+          <div class="motto">Friendship &middot; Charity &middot; Benevolence</div>
+        </div>
+      </a>
+      <nav class="nav-links">
+        <a href="/" class="ext-link">Home</a>
+        <a href="/grand-lodge/officers" class="ext-link">Grand Officers</a>
+        <a href="/grand-lodge/history" class="ext-link">History</a>
+        <a href="https://www.pythias.org" target="_blank" rel="noopener" class="ext-link">Supreme Lodge &#8599;</a>
+      </nav>
+    </div>
+  </div>
+  <div class="rope-border-sm"></div>
   <div class="topbar">
     <span class="brand">{config.lodge_name} &mdash; Admin</span>
     <nav>
@@ -89,6 +125,7 @@ const adminBase = `/lodges/admin/${lodgeSlug}`;
       {isAccessConfigured(env) && <a href={`https://${env.CF_ACCESS_TEAM_NAME}.cloudflareaccess.com/cdn-cgi/access/logout`}>Log out</a>}
     </nav>
   </div>
+  <div class="rope-border"></div>
 
   <main>
     <h1>Dashboard</h1>
