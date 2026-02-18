@@ -3,7 +3,8 @@
  * Knights of Pythias Lodge Platform - MCP Server
  *
  * Exposes tools for managing lodge website content stored in Cloudflare D1.
- * All content tools require a lodge_slug parameter to scope operations.
+ * Lodge content tools require a lodge_slug parameter to scope operations.
+ * Site-level tools (site_config) operate without lodge scoping.
  *
  * Required environment variables:
  *   CLOUDFLARE_ACCOUNT_ID      - Your Cloudflare account ID
@@ -14,6 +15,7 @@
 import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { createD1Client, getLodgeId } from "./db/client.js";
+import { registerSiteConfigTools } from "./tools/site-config.js";
 import { registerConfigTools } from "./tools/config.js";
 import { registerPageTools } from "./tools/pages.js";
 import { registerEventTools } from "./tools/events.js";
@@ -22,6 +24,9 @@ import { registerOfficerTools } from "./tools/officers.js";
 import { registerCommunityServiceTools } from "./tools/community-service.js";
 import { registerGalleryTools } from "./tools/gallery.js";
 import { registerLinksTools } from "./tools/links.js";
+import { registerMemberTools } from "./tools/members.js";
+import { registerMinutesTools } from "./tools/minutes.js";
+import { registerAnnouncementTools } from "./tools/announcements.js";
 import { z } from "zod";
 
 async function main() {
@@ -29,7 +34,7 @@ async function main() {
 
   const server = new McpServer({
     name: "kop-lodge-platform",
-    version: "0.2.0",
+    version: "0.3.0",
   });
 
   // ——— Lodge management tools ————————————————————————————————————————————————
@@ -99,6 +104,10 @@ async function main() {
     },
   );
 
+  // ——— Site-level tools (grand lodge config) —————————————————————————————————
+
+  registerSiteConfigTools(server, db);
+
   // ——— Content tools (all scoped by lodge_slug) ——————————————————————————————
 
   registerConfigTools(server, db);
@@ -109,8 +118,31 @@ async function main() {
   registerCommunityServiceTools(server, db);
   registerGalleryTools(server, db);
   registerLinksTools(server, db);
+  registerMemberTools(server, db);
+  registerMinutesTools(server, db);
+  registerAnnouncementTools(server, db);
 
-  // ——— Resources: per-lodge URI templates ———————————————————————————————————
+  // ——— Resources ————————————————————————————————————————————————————————————
+
+  server.resource(
+    "site-config",
+    "site://config",
+    async (uri) => {
+      const rows = await db.all<{ key: string; value: string }>(
+        "SELECT key, value FROM site_config ORDER BY key",
+      );
+      const config = Object.fromEntries(rows.map((r) => [r.key, r.value]));
+      return {
+        contents: [
+          {
+            uri: uri.href,
+            mimeType: "application/json",
+            text: JSON.stringify(config, null, 2),
+          },
+        ],
+      };
+    },
+  );
 
   server.resource(
     "lodges",

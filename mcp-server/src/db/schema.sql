@@ -1,6 +1,13 @@
 -- Knights of Pythias Lodge Platform - D1 Schema (multi-lodge)
 -- Database ID: 7be87ef0-979a-4363-8bed-f04a4a6dd991
 
+-- Site-level config (grand lodge settings, not scoped to a lodge)
+CREATE TABLE IF NOT EXISTS site_config (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL DEFAULT '',
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+
 CREATE TABLE IF NOT EXISTS lodges (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   slug TEXT UNIQUE NOT NULL,      -- URL slug, e.g. 'ivanhoe-1'
