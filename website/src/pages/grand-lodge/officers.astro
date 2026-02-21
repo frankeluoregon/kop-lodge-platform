@@ -18,7 +18,7 @@ const neutral   = "#4a5072";
     :root { --max-w: 67vw; --font: 'Trebuchet MS', Trebuchet, 'Gill Sans MT', Arial, sans-serif; }
     html { background-color: #252e67; }
     body { font-family: var(--font); color: #1a1a2e; line-height: 1.7;
-      margin: 0;
+      margin: 0; display: flex; flex-direction: column; min-height: 100vh;
       background-image: url('/mainbg.png'); background-size: cover;
       background-position: center; background-attachment: fixed;
       background-color: var(--primary); }
@@ -41,7 +41,7 @@ const neutral   = "#4a5072";
 
     main { max-width: 860px; margin: 2rem auto; padding: 1.5rem;
       background: rgba(222,211,195,0.90); border-radius: 6px;
-      box-shadow: 0 4px 24px rgba(0,0,0,.18); }
+      box-shadow: 0 4px 24px rgba(0,0,0,.18); flex: 1; }
     .breadcrumb { font-size: .8rem; color: #888; margin-bottom: 1rem; }
     .breadcrumb a { color: var(--primary); }
     h1 { font-size: 1.6rem; color: var(--primary); text-transform: uppercase; letter-spacing: .04em;
@@ -56,14 +56,12 @@ const neutral   = "#4a5072";
     .officer-card .lodge { font-size: .82rem; color: #888; margin-top: .2rem; }
 
     footer { background: var(--secondary); color: var(--accent); text-align: center;
-      padding: 1rem; margin-top: 2rem; font-size: .82rem;
-      position: sticky; bottom: 0; z-index: 100; }
+      padding: 1rem; font-size: .82rem; }
     footer a { color: var(--accent); opacity: .85; }
     footer a:hover { opacity: 1; }
   </style>
 </head>
 <body>
-  <div class="rope-border"></div>
   <header>
     <div class="header-inner">
       <a href="/" style="text-decoration:none" class="brand-group">
@@ -131,8 +129,8 @@ const neutral   = "#4a5072";
     </div>
   </main>
 
-  <div class="rope-border"></div>
   <footer>
+    <div class="rope-border"></div>
     <p>&copy; {new Date().getFullYear()} Grand Domain of Oregon &mdash; Knights of Pythias &middot;
       <a href="https://www.pythias.org" target="_blank" rel="noopener">pythias.org</a>
       <span style="margin-left:.5rem"><a href="/admin">Admin</a></span>

@@ -57,6 +57,7 @@ function isActivePrefix(prefix: string): boolean {
       body {
         font-family: var(--font); color: var(--text); line-height: 1.7;
         margin: 0;
+        display: flex; flex-direction: column; min-height: 100vh;
         background-image: url('/mainbg.png');
         background-size: cover;
         background-position: center;
@@ -131,6 +132,7 @@ function isActivePrefix(prefix: string): boolean {
         max-width: var(--max-w); margin: 0 auto; padding: 1.75rem;
         background: rgba(222,211,195,0.90);
         box-shadow: 0 4px 24px rgba(0,0,0,.18);
+        flex: 1;
       }
 
       .section-heading {
@@ -171,7 +173,7 @@ function isActivePrefix(prefix: string): boolean {
       .prose hr { border: none; border-top: 2px solid var(--accent); margin: 2rem 0; }
 
       /* --- Footer: red bg, yellow headings/links, white text --- */
-      footer { background: var(--secondary); color: rgba(255,255,255,.88); text-align: center; padding: 1.5rem; font-size: .85rem; position: sticky; bottom: 0; z-index: 100; }
+      footer { background: var(--secondary); color: rgba(255,255,255,.88); text-align: center; padding: 1.5rem; font-size: .85rem; }
       footer a { color: var(--accent); }
       .footer-grid {
         max-width: var(--max-w); margin: 0 auto 1rem;
@@ -194,7 +196,6 @@ function isActivePrefix(prefix: string): boolean {
     </style>
   </head>
   <body>
-    <div class="rope-border"></div>
     <div class="site-banner">
       <a href="/">← Oregon Knights of Pythias</a>
     </div>
@@ -230,8 +231,8 @@ function isActivePrefix(prefix: string): boolean {
 
     <slot />
 
-    <div class="rope-border"></div>
     <footer>
+      <div class="rope-border"></div>
       <div class="footer-grid">
         <div>
           <h4>{config.lodge_name}</h4>

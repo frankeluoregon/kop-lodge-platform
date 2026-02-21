@@ -31,6 +31,7 @@ const contentBg = "#ded3c3";
     body {
       font-family: var(--font); color: var(--text); line-height: 1.7;
       margin: 0;
+      display: flex; flex-direction: column; min-height: 100vh;
       background-image: url('/mainbg.png');
       background-size: cover;
       background-position: center;
@@ -65,7 +66,7 @@ const contentBg = "#ded3c3";
     .hero { text-align: center; }
     .hero img { display: block; max-width: var(--max-w); width: 100%; height: auto; margin: 0 auto; margin-bottom: -30px; clip-path: inset(0 0 30px 0); }
 
-    main { max-width: 100%; margin: 0; padding: 0; color: #fff; }
+    main { max-width: 100%; margin: 0; padding: 0; color: #fff; flex: 1; }
     main .content-box { max-width: var(--max-w); margin: 0 auto; border-radius: 0; border-left: none; border-right: none; }
 
     .section-heading {
@@ -102,8 +103,7 @@ const contentBg = "#ded3c3";
 
     footer {
       background: var(--secondary); color: var(--accent); text-align: center;
-      padding: 1.5rem; margin-top: 3rem; font-size: .85rem;
-      position: sticky; bottom: 0; z-index: 100;
+      padding: 1.5rem; font-size: .85rem;
     }
     footer a { color: var(--accent); opacity: .85; }
     footer a:hover { opacity: 1; }
@@ -115,8 +115,6 @@ const contentBg = "#ded3c3";
   </style>
 </head>
 <body>
-  <div class="rope-border"></div>
-
   <header>
     <div class="header-inner">
       <a href="/" style="text-decoration:none" class="brand-group">
@@ -189,8 +187,8 @@ const contentBg = "#ded3c3";
     </div>
   </main>
 
-  <div class="rope-border"></div>
   <footer>
+    <div class="rope-border"></div>
     <p>
       &copy; {new Date().getFullYear()} Grand Domain of Oregon &mdash; Knights of Pythias &middot;
       <a href="https://www.pythias.org" target="_blank" rel="noopener">pythias.org</a>

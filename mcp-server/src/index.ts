@@ -27,6 +27,7 @@ import { registerLinksTools } from "./tools/links.js";
 import { registerMemberTools } from "./tools/members.js";
 import { registerMinutesTools } from "./tools/minutes.js";
 import { registerAnnouncementTools } from "./tools/announcements.js";
+import { registerAgendaToPdfTool } from "./tools/agenda-to-pdf.js";
 import { z } from "zod";
 
 async function main() {
@@ -121,6 +122,10 @@ async function main() {
   registerMemberTools(server, db);
   registerMinutesTools(server, db);
   registerAnnouncementTools(server, db);
+
+  // ——— Document utilities ————————————————————————————————————————————————
+
+  registerAgendaToPdfTool(server);
 
   // ——— Resources ————————————————————————————————————————————————————————————
 

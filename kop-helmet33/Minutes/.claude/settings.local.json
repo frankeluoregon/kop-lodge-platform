@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pandoc:*)",
+      "Bash(wkhtmltopdf:*)",
+      "Bash(node --version:*)",
+      "Bash(cmd.exe /c \"python --version 2>&1 & pandoc --version 2>&1 & where pandoc 2>&1 & where python 2>&1\")",
+      "Bash(cmd.exe /c \"where node 2>&1 & node --version 2>&1 & npm --version 2>&1\")",
+      "Bash(cmd.exe /c \"npm list -g --depth=0 2>&1\")",
+      "Bash(cmd.exe /c \"npm install -g md-to-pdf 2>&1\")",
+      "Bash(cmd.exe /c:*)",
+      "Bash(md-to-pdf:*)",
+      "Bash(dir:*)"
+    ]
+  }
+}
