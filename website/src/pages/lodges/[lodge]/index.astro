@@ -25,7 +25,50 @@ function fmtDate(d: string) {
 const levelLabel: Record<string, string> = {
   lodge: "Lodge Event", grand: "Grand Lodge", supreme: "Supreme Lodge",
 };
+
+const hasMeeting = !!(config.meeting_schedule || config.meeting_location);
+const hasContact = !!(config.phone || config.email);
+const hasSocial  = !!(config.facebook_url || config.instagram_url || config.twitter_url || config.donation_url);
+const hasInfo    = hasMeeting || hasContact || !!config.mailing_address || hasSocial;
 ---
+
+<style>
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.1rem;
+  }
+  .info-tile {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--accent);
+    border-radius: var(--radius);
+    padding: .9rem 1.1rem;
+  }
+  .info-tile h3 {
+    font-size: .7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--primary);
+    margin-bottom: .4rem;
+  }
+  .info-tile p { font-size: .88rem; color: #444; line-height: 1.5; }
+  .info-tile p + p { margin-top: .2rem; }
+  .info-tile a { color: var(--primary); }
+  .info-tile ul { list-style: none; }
+  .info-tile li { font-size: .88rem; color: #444; line-height: 1.6; }
+  .info-tile li a { color: var(--primary); }
+
+  .quick-links { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: 1.1rem; }
+  .quick-links a {
+    font-size: .78rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase;
+    color: var(--primary); border: 1.5px solid var(--primary);
+    border-radius: var(--radius); padding: .2rem .6rem;
+    transition: background .15s, color .15s;
+  }
+  .quick-links a:hover { background: var(--primary); color: #fff; text-decoration: none; }
+</style>
 
 <Base config={config} lodgeSlug={lodgeSlug}>
   <div class="hero">
@@ -35,9 +78,71 @@ const levelLabel: Record<string, string> = {
     {config.founded_year && <p style="margin-top:.5rem;font-size:.9rem;opacity:.7">Founded {config.founded_year}</p>}
   </div>
   <main>
-    {events.length > 0 && (
+    {hasInfo && (
       <section>
-        <h2 class="section-heading"><span class="tri-accent"><img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" /></span> Upcoming Events</h2>
+        <h2 class="section-heading">
+          <span class="tri-accent">
+            <img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" />
+          </span>
+          Lodge at a Glance
+        </h2>
+        <div class="info-grid">
+          {hasMeeting && (
+            <div class="info-tile">
+              <h3>Meetings</h3>
+              {config.meeting_schedule && <p>{config.meeting_schedule}</p>}
+              {config.meeting_location && <p>{config.meeting_location}</p>}
+            </div>
+          )}
+          {hasContact && (
+            <div class="info-tile">
+              <h3>Contact</h3>
+              {config.phone && <p><a href={`tel:${config.phone}`}>{config.phone}</a></p>}
+              {config.email && <p><a href={`mailto:${config.email}`}>{config.email}</a></p>}
+            </div>
+          )}
+          {config.mailing_address && (
+            <div class="info-tile">
+              <h3>Mailing Address</h3>
+              <p>{config.mailing_address}</p>
+            </div>
+          )}
+          {hasSocial && (
+            <div class="info-tile">
+              <h3>Connect</h3>
+              <ul>
+                {config.facebook_url && <li><a href={config.facebook_url} target="_blank" rel="noopener">Facebook</a></li>}
+                {config.instagram_url && <li><a href={config.instagram_url} target="_blank" rel="noopener">Instagram</a></li>}
+                {config.twitter_url && <li><a href={config.twitter_url} target="_blank" rel="noopener">Twitter / X</a></li>}
+                {config.donation_url && <li><a href={config.donation_url} target="_blank" rel="noopener">Donate</a></li>}
+                {config.grand_lodge_url && <li><a href={config.grand_lodge_url} target="_blank" rel="noopener">Grand Lodge</a></li>}
+              </ul>
+            </div>
+          )}
+        </div>
+        <div class="quick-links">
+          <a href={`${base}/about`}>About</a>
+          {config.show_history === "1" && <a href={`${base}/history`}>History</a>}
+          {config.show_events !== "" && <a href={`${base}/events`}>Events</a>}
+          {config.show_officers !== "" && <a href={`${base}/officers`}>Officers</a>}
+          {config.show_service !== "" && <a href={`${base}/community-service`}>Service</a>}
+          {config.show_membership === "1" && <a href={`${base}/membership`}>Join</a>}
+          {config.show_gallery === "1" && <a href={`${base}/gallery`}>Gallery</a>}
+          {config.show_blog !== "" && <a href={`${base}/blog`}>Blog</a>}
+          {config.show_newsletter === "1" && <a href={`${base}/newsletter`}>Newsletter</a>}
+          {config.show_programs === "1" && <a href={`${base}/programs`}>Programs</a>}
+          {config.show_links === "1" && <a href={`${base}/links`}>Links</a>}
+          <a href={`${base}/contact`}>Contact</a>
+        </div>
+      </section>
+    )}
+
+    {events.length > 0 && (
+      <section style="margin-top:2.5rem">
+        <h2 class="section-heading">
+          <span class="tri-accent"><img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" /></span>
+          Upcoming Events
+        </h2>
         <div class="card-grid">
           {events.map((ev) => (
             <div class="card">
@@ -51,13 +156,16 @@ const levelLabel: Record<string, string> = {
             </div>
           ))}
         </div>
-        <p><a href={`${base}/events`}>View full calendar &rarr;</a></p>
+        <p style="margin-top:1rem"><a href={`${base}/events`}>View full calendar &rarr;</a></p>
       </section>
     )}
 
     {featured.length > 0 && (
       <section style="margin-top:2.5rem">
-        <h2 class="section-heading"><span class="tri-accent"><img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" /></span> Community Service</h2>
+        <h2 class="section-heading">
+          <span class="tri-accent"><img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" /></span>
+          Community Service
+        </h2>
         <div class="card-grid">
           {featured.map((cs) => (
             <div class="card">
@@ -67,13 +175,16 @@ const levelLabel: Record<string, string> = {
             </div>
           ))}
         </div>
-        <p><a href={`${base}/community-service`}>See all service projects &rarr;</a></p>
+        <p style="margin-top:1rem"><a href={`${base}/community-service`}>See all service projects &rarr;</a></p>
       </section>
     )}
 
     {posts.length > 0 && (
       <section style="margin-top:2.5rem">
-        <h2 class="section-heading"><span class="tri-accent"><img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" /></span> From the Blog</h2>
+        <h2 class="section-heading">
+          <span class="tri-accent"><img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" /></span>
+          From the Blog
+        </h2>
         <div class="card-grid">
           {posts.map((post) => (
             <div class="card">
@@ -84,12 +195,15 @@ const levelLabel: Record<string, string> = {
             </div>
           ))}
         </div>
-        <p><a href={`${base}/blog`}>All posts &rarr;</a></p>
+        <p style="margin-top:1rem"><a href={`${base}/blog`}>All posts &rarr;</a></p>
       </section>
     )}
 
-    <section style="margin-top:2.5rem;background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);border-top:3px solid var(--primary)">
-      <h2 class="section-heading"><span class="tri-accent"><img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" /></span> About the Knights of Pythias</h2>
+    <section style="margin-top:2.5rem;background:var(--card-bg);border:1px solid var(--border);border-top:3px solid var(--primary);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow)">
+      <h2 class="section-heading">
+        <span class="tri-accent"><img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" /></span>
+        About the Knights of Pythias
+      </h2>
       <p>
         The Knights of Pythias is a non-sectarian fraternal organization founded in 1864 in Washington, D.C.
         by Justus H. Rathbone. It was the first fraternal organization to receive a charter from an Act of Congress.
