@@ -80,6 +80,7 @@ function isActivePrefix(prefix: string): boolean {
 
       /* --- Header: red bg, yellow title/links/motto, white other text --- */
       header { background: #a91e23; color: #fff; padding: 0 1.5rem; position: sticky; top: 0; z-index: 100; }
+      header::after { content: ''; display: block; height: 5px; background: url('/ropeborder.svg') repeat-x left/auto 5px; margin: 0 -1.5rem; }
       .header-inner {
         max-width: var(--max-w); margin: 0 auto;
         display: flex; align-items: center; justify-content: space-between;
@@ -227,12 +228,11 @@ function isActivePrefix(prefix: string): boolean {
         </nav>
       </div>
     </header>
-    <div class="rope-border"></div>
 
     <slot />
 
+    <div class="rope-border"></div>
     <footer>
-      <div class="rope-border"></div>
       <div class="footer-grid">
         <div>
           <h4>{config.lodge_name}</h4>
