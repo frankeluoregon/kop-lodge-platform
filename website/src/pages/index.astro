@@ -67,8 +67,7 @@ const contentBg = "#ded3c3";
     .hero { text-align: center; }
     .hero img { display: block; max-width: var(--max-w); width: 100%; height: auto; margin: 0 auto; margin-bottom: -30px; clip-path: inset(0 0 30px 0); }
 
-    main { max-width: 100%; margin: 0; padding: 0; color: #fff; flex: 1; }
-    main .content-box { max-width: var(--max-w); margin: 0 auto; border-radius: 0; border-left: none; border-right: none; }
+    main { max-width: var(--max-w); margin: 0 auto; padding: 1.75rem; background: #ded3c3; box-shadow: 0 4px 24px rgba(0,0,0,.18); flex: 1; }
 
     .section-heading {
       font-size: 1.4rem; color: var(--accent); text-transform: uppercase;
@@ -94,13 +93,10 @@ const contentBg = "#ded3c3";
     .lodge-name { font-size: 1.05rem; font-weight: 700; color: var(--primary); }
     .lodge-arrow { margin-top: .5rem; font-size: .82rem; color: var(--secondary); font-weight: 600; }
 
-    .content-box {
-      background: #ded3c3; border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 1.75rem; box-shadow: var(--shadow); color: var(--text);
-    }
+    .content-box { color: var(--text); }
     .content-box p { margin-bottom: .75rem; font-size: .95rem; }
     .content-box .section-heading { color: var(--primary); }
-    .content-box + .content-box { border-top: 3px solid var(--primary); }
+    .content-box + .content-box { border-top: 3px solid var(--primary); padding-top: 1.5rem; margin-top: 1.5rem; }
 
     footer {
       background: var(--secondary); color: var(--accent); text-align: center;
