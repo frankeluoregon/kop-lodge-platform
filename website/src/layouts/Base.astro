@@ -128,12 +128,14 @@ function isActivePrefix(prefix: string): boolean {
       .hero-seal { height: 80px; width: auto; margin-bottom: 1rem; opacity: .85; }
       .hero p  { font-size: 1.05rem; opacity: .92; }
 
-      /* --- Main content: constrained to max-w, ded3c3 bg --- */
+      /* --- Main content: full-width tan bg, content constrained --- */
       main {
-        max-width: var(--max-w); margin: 0 auto; padding: 1.75rem;
+        max-width: 100%; margin: 0; padding: 1.75rem;
         background: var(--content-bg);
-        box-shadow: 0 4px 24px rgba(0,0,0,.18);
         flex: 1;
+      }
+      main > * {
+        max-width: var(--max-w); margin-left: auto; margin-right: auto;
       }
 
       .section-heading {
