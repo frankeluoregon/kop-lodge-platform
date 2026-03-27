@@ -12,7 +12,8 @@
       "Bash(cp:*)",
       "Bash(mv \"kop-helmet33/Blueprints/KoP Helmet Lodge No. 33 Event Floor Plans.pdf\" \"kop-helmet33/Blueprints/KoP Helmet Lodge No. 33 Event Floor Plans_old.pdf\")",
       "Bash(mv \"kop-helmet33/Blueprints/KoP Helmet Lodge No. 33 Event Floor Plans_new.pdf\" \"kop-helmet33/Blueprints/KoP Helmet Lodge No. 33 Event Floor Plans.pdf\")",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Bash(npx wrangler:*)"
     ]
   }
 }
