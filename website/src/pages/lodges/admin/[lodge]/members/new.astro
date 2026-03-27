@@ -27,7 +27,7 @@ if (Astro.request.method === "POST") {
       now,
     ).run();
     if (wantsJson) {
-      return new Response(JSON.stringify({ message: "Member added." }), { headers: { "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ redirect: `/lodges/admin/${lodgeSlug}/members` }), { headers: { "Content-Type": "application/json" } });
     }
     return Astro.redirect(`/lodges/admin/${lodgeSlug}/members`, 302);
   } catch (e: unknown) {

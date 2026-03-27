@@ -37,7 +37,7 @@ if (Astro.request.method === "POST") {
       (form.get("notes") as string || "").trim() || null,
       id, lodge.id,
     ).run();
-    if (wantsJson) return new Response(JSON.stringify({ message: "Member updated." }), { headers: { "Content-Type": "application/json" } });
+    if (wantsJson) return new Response(JSON.stringify({ redirect: `/lodges/admin/${lodgeSlug}/members` }), { headers: { "Content-Type": "application/json" } });
   } catch (e: unknown) {
     const msg = `Error: ${e instanceof Error ? e.message : String(e)}`;
     if (wantsJson) return new Response(JSON.stringify({ error: msg }), { status: 400, headers: { "Content-Type": "application/json" } });

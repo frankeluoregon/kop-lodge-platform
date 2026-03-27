@@ -27,9 +27,9 @@ if (Astro.request.method === "POST") {
       form.get("published") === "1" ? 1 : 0,
       now,
     ).run();
-    return wantsJson
-      ? Response.redirect(new URL(`/lodges/admin/${lodgeSlug}/minutes`, Astro.url), 302)
-      : Astro.redirect(`/lodges/admin/${lodgeSlug}/minutes`, 302);
+    const redirectUrl = `/lodges/admin/${lodgeSlug}/minutes`;
+    if (wantsJson) return new Response(JSON.stringify({ redirect: redirectUrl }), { headers: { "Content-Type": "application/json" } });
+    return Astro.redirect(redirectUrl, 302);
   } catch (e: unknown) {
     const msg = `Error: ${e instanceof Error ? e.message : String(e)}`;
     if (wantsJson) return new Response(JSON.stringify({ error: msg }), { status: 400, headers: { "Content-Type": "application/json" } });

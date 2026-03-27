@@ -22,9 +22,9 @@ if (Astro.request.method === "POST") {
 
   if (action === "delete") {
     await env.DB.prepare("DELETE FROM events WHERE id = ? AND lodge_id = ?").bind(id, lodge.id).run();
-    return wantsJson
-      ? Response.redirect(new URL(`/lodges/admin/${lodgeSlug}`, Astro.url), 302)
-      : Astro.redirect(`/lodges/admin/${lodgeSlug}`, 302);
+    const deleteUrl = `/lodges/admin/${lodgeSlug}`;
+    if (wantsJson) return new Response(JSON.stringify({ redirect: deleteUrl }), { headers: { "Content-Type": "application/json" } });
+    return Astro.redirect(deleteUrl, 302);
   }
 
   try {
@@ -50,7 +50,7 @@ if (Astro.request.method === "POST") {
       recurring ? (form.get("recur_end_date")?.toString() || null) : null,
       now, id, lodge.id,
     ).run();
-    if (wantsJson) return new Response(JSON.stringify({ message: "Event updated." }), { headers: { "Content-Type": "application/json" } });
+    if (wantsJson) return new Response(JSON.stringify({ redirect: `/lodges/admin/${lodgeSlug}` }), { headers: { "Content-Type": "application/json" } });
   } catch (e: unknown) {
     const msg = `Error: ${e instanceof Error ? e.message : String(e)}`;
     if (wantsJson) return new Response(JSON.stringify({ error: msg }), { status: 400, headers: { "Content-Type": "application/json" } });

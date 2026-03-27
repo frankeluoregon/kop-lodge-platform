@@ -52,6 +52,10 @@ export function useAdminForm<T extends FieldValues>(
           }
           if (res.ok) {
             const data = await res.json();
+            if (data.redirect) {
+              window.location.href = data.redirect;
+              return;
+            }
             if (data.error) {
               setServerError(data.error);
             } else {
