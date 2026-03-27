@@ -20,9 +20,9 @@ if (Astro.request.method === "POST") {
   const form = await Astro.request.formData();
   if (form.get("_action") === "delete") {
     await env.DB.prepare("DELETE FROM lodge_members WHERE id = ? AND lodge_id = ?").bind(id, lodge.id).run();
-    return wantsJson
-      ? Response.redirect(new URL(`/lodges/admin/${lodgeSlug}/members`, Astro.url), 302)
-      : Astro.redirect(`/lodges/admin/${lodgeSlug}/members`, 302);
+    const membersUrl = `/lodges/admin/${lodgeSlug}/members`;
+    if (wantsJson) return new Response(JSON.stringify({ redirect: membersUrl }), { headers: { "Content-Type": "application/json" } });
+    return Astro.redirect(membersUrl, 302);
   }
   try {
     await env.DB.prepare(

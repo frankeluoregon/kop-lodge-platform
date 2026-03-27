@@ -89,6 +89,10 @@ export function useAdminForm<T extends FieldValues>(
             return;
           }
           return res.json().then((data) => {
+            if (data?.redirect) {
+              window.location.href = data.redirect;
+              return;
+            }
             setServerError(data?.error || "Delete failed.");
           });
         })
