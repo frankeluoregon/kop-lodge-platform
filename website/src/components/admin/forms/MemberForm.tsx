@@ -15,6 +15,7 @@ const OFFICE_OPTIONS = [
   { value: "Master of Work", label: "Master of Work" },
   { value: "Secretary / Keeper of Records and Seal", label: "Secretary / Keeper of Records and Seal" },
   { value: "Treasurer / Master of Exchequer", label: "Treasurer / Master of Exchequer" },
+  { value: "Financial Secretary", label: "Financial Secretary" },
   { value: "Master at Arms", label: "Master at Arms" },
   { value: "Inner Guard", label: "Inner Guard" },
   { value: "Outer Guard", label: "Outer Guard" },
