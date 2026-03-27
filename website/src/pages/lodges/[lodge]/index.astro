@@ -29,12 +29,10 @@ const levelColor: Record<string, string> = {
 const hasMeeting = !!(config.meeting_schedule || config.meeting_location);
 const hasContact = !!(config.phone || config.email);
 const hasSocial  = !!(config.facebook_url || config.instagram_url || config.twitter_url || config.donation_url || config.grand_lodge_url);
-const hasInfo    = hasMeeting || hasContact || !!config.mailing_address || hasSocial;
 ---
 
 <Base config={config} lodgeSlug={lodgeSlug}>
   <main>
-    <!-- Lodge identity banner -->
     <div class="lodge-banner">
       <img src="/seal.png" alt="KoP Seal" style="height:54px;width:auto;opacity:.85;flex-shrink:0" />
       <div>
@@ -47,40 +45,33 @@ const hasInfo    = hasMeeting || hasContact || !!config.mailing_address || hasSo
       </div>
     </div>
 
-    <!-- Lodge at a Glance (primary section) -->
-    {hasInfo && (
-      <section>
-        <h2 class="section-heading">
-          <span class="tri-accent">
-            <img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" />
-          </span>
-          Lodge at a Glance
-        </h2>
-
-        <div class="info-grid">
+    <div class="home-columns">
+      <div class="home-col">
+        <h2 class="col-heading">Lodge at a Glance</h2>
+        <div class="glance-list">
           {hasMeeting && (
-            <div class="info-tile">
-              <div class="info-label">Meetings</div>
+            <div class="glance-item">
+              <div class="glance-label">Meetings</div>
               {config.meeting_schedule && <p>{config.meeting_schedule}</p>}
               {config.meeting_location && <p>{config.meeting_location}</p>}
             </div>
           )}
           {hasContact && (
-            <div class="info-tile">
-              <div class="info-label">Contact</div>
+            <div class="glance-item">
+              <div class="glance-label">Contact</div>
               {config.phone && <p><a href={`tel:${config.phone}`}>{config.phone}</a></p>}
               {config.email && <p><a href={`mailto:${config.email}`}>{config.email}</a></p>}
             </div>
           )}
           {config.mailing_address && (
-            <div class="info-tile">
-              <div class="info-label">Mailing Address</div>
+            <div class="glance-item">
+              <div class="glance-label">Mailing Address</div>
               <p>{config.mailing_address}</p>
             </div>
           )}
           {hasSocial && (
-            <div class="info-tile">
-              <div class="info-label">Connect</div>
+            <div class="glance-item">
+              <div class="glance-label">Connect</div>
               <ul>
                 {config.facebook_url   && <li><a href={config.facebook_url}   target="_blank" rel="noopener">Facebook</a></li>}
                 {config.instagram_url  && <li><a href={config.instagram_url}  target="_blank" rel="noopener">Instagram</a></li>}
@@ -91,38 +82,33 @@ const hasInfo    = hasMeeting || hasContact || !!config.mailing_address || hasSo
             </div>
           )}
         </div>
-      </section>
-    )}
+      </div>
 
-    <!-- Upcoming events (up to 3) -->
-    {events.length > 0 && (
-      <section style="margin-top:2.5rem">
-        <h2 class="section-heading">
-          <span class="tri-accent"><img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" /></span>
-          Upcoming Events
-        </h2>
-        <div class="events-list">
-          {events.map((ev) => (
-            <div class="event-row">
-              <div class="event-date-badge" style={`background:${levelColor[ev.level]}`}>
-                <div style="font-size:1.4rem;font-weight:bold;line-height:1">{new Date(ev.event_date + "T00:00:00").getDate()}</div>
-                <div style="font-size:.6rem;text-transform:uppercase;letter-spacing:.05em">{new Date(ev.event_date + "T00:00:00").toLocaleString("en-US",{month:"short"})}</div>
-              </div>
-              <div style="flex:1">
-                <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
-                  <h3 style="font-size:1rem;color:var(--primary);font-weight:700;margin:0">{ev.title}</h3>
-                  <span class="level-badge" style={`background:${levelColor[ev.level]}`}>{levelLabel[ev.level] ?? ev.level}</span>
+      <div class="home-col">
+        <h2 class="col-heading">Upcoming Events</h2>
+        {events.length > 0 ? (
+          <div class="events-list">
+            {events.map((ev) => (
+              <div class="event-item">
+                <div class="event-date-badge" style={`background:${levelColor[ev.level]}`}>
+                  <div style="font-size:1.3rem;font-weight:bold;line-height:1">{new Date(ev.event_date + "T00:00:00").getDate()}</div>
+                  <div style="font-size:.6rem;text-transform:uppercase;letter-spacing:.05em">{new Date(ev.event_date + "T00:00:00").toLocaleString("en-US",{month:"short"})}</div>
                 </div>
-                <p class="meta" style="font-size:.8rem;color:var(--neutral);margin-top:.15rem">{fmtDate(ev.event_date)}{ev.location ? ` · ${ev.location}` : ""}</p>
-                {ev.description && <p style="font-size:.88rem;margin-top:.25rem">{ev.description}</p>}
-                {ev.url && <a href={ev.url} target="_blank" rel="noopener" style="font-size:.83rem;font-weight:600">Details &rarr;</a>}
+                <div style="flex:1">
+                  <h3 style="font-size:.95rem;color:var(--primary);font-weight:700;margin:0">{ev.title}</h3>
+                  <p style="font-size:.78rem;color:var(--neutral);margin-top:.1rem">{fmtDate(ev.event_date)}{ev.location ? ` · ${ev.location}` : ""}</p>
+                  {ev.description && <p style="font-size:.85rem;margin-top:.2rem">{ev.description}</p>}
+                  {ev.url && <a href={ev.url} target="_blank" rel="noopener" style="font-size:.82rem;font-weight:600">Details &rarr;</a>}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-        {config.show_events !== "" && <p style="margin-top:.75rem"><a href={`${base}/events`}>View full calendar &rarr;</a></p>}
-      </section>
-    )}
+            ))}
+            {config.show_events !== "" && <p style="margin-top:.5rem"><a href={`${base}/events`}>View full calendar &rarr;</a></p>}
+          </div>
+        ) : (
+          <p style="color:var(--neutral);font-size:.9rem">No upcoming events. Check back soon!</p>
+        )}
+      </div>
+    </div>
   </main>
 </Base>
 
@@ -137,42 +123,94 @@ const hasInfo    = hasMeeting || hasContact || !!config.mailing_address || hasSo
     display: flex;
     align-items: center;
     gap: 1.1rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
   }
 
-  .events-list {
+  .home-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .home-col {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    box-shadow: var(--shadow);
+  }
+
+  .col-heading {
+    font-size: 1.1rem;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: .3rem;
+    margin-bottom: 1rem;
+  }
+
+  .glance-list {
     display: flex;
     flex-direction: column;
     gap: .75rem;
   }
 
-  .event-row {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 1rem 1.25rem;
+  .glance-item {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: .75rem;
+  }
+  .glance-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .glance-label {
+    font-size: .67rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .09em;
+    color: var(--neutral);
+    margin-bottom: .3rem;
+  }
+
+  .glance-item p { font-size: .9rem; line-height: 1.5; }
+  .glance-item p + p { margin-top: .15rem; }
+  .glance-item a { color: var(--primary); }
+  .glance-item ul { list-style: none; }
+  .glance-item li { font-size: .9rem; line-height: 1.7; }
+
+  .events-list {
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+  }
+
+  .event-item {
     display: flex;
     align-items: flex-start;
-    gap: 1rem;
+    gap: .75rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: .6rem;
+  }
+  .event-item:last-of-type {
+    border-bottom: none;
+    padding-bottom: 0;
   }
 
   .event-date-badge {
-    min-width: 52px;
+    min-width: 46px;
     text-align: center;
     color: #fff;
     border-radius: var(--radius);
-    padding: .35rem .45rem;
+    padding: .3rem .4rem;
     flex-shrink: 0;
   }
 
-  .level-badge {
-    font-size: .68rem;
-    font-weight: 700;
-    color: #fff;
-    padding: .15rem .5rem;
-    border-radius: 99px;
-    text-transform: uppercase;
-    letter-spacing: .05em;
+  @media (max-width: 720px) {
+    .home-columns {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

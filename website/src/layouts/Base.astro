@@ -35,7 +35,7 @@ function isActivePrefix(prefix: string): boolean {
     <title>{pageTitle}</title>
     <meta name="description" content={metaDesc} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <style define:vars={{ primary, accent, secondary, neutral }}>
+    <style is:global define:vars={{ primary, accent, secondary, neutral }}>
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
       :root {
