@@ -194,7 +194,7 @@ function isActivePrefix(prefix: string): boolean {
         display: grid; grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)); gap: 1.1rem;
       }
       .info-tile {
-        background: #faf8f5; border: 1px solid var(--border);
+        background: #f7f0e7; border: 1px solid var(--border);
         border-top: 3px solid var(--accent); border-radius: var(--radius);
         padding: 1rem 1.1rem; box-shadow: var(--shadow);
       }
@@ -235,8 +235,8 @@ function isActivePrefix(prefix: string): boolean {
         <a href={base} class="lodge-brand" style="text-decoration:none">
           <img src="/seal.png" alt="KoP Seal" class="header-logo" />
           <div class="brand-text">
-            <span class="name">{config.lodge_name}</span>
-            <span class="sub">Knights of Pythias{config.lodge_number && config.lodge_number !== "0" ? ` · Lodge No. ${config.lodge_number}` : ""}{config.city ? ` · ${config.city}` : ""}</span>
+            <span class="name">{config.lodge_name}{config.lodge_number && config.lodge_number !== "0" ? ` Lodge No. ${config.lodge_number}` : ""}</span>
+            <span class="sub">Knights of Pythias{config.city ? ` · ${config.city}` : ""}</span>
             <span class="motto">Friendship · Charity · Benevolence</span>
           </div>
         </a>

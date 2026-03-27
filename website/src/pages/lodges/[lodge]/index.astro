@@ -1,7 +1,6 @@
 ---
 import Base from "../../../layouts/Base.astro";
-import { getLodgeBySlug, getConfig, getUpcomingEvents, getPage } from "../../../lib/db";
-import { renderMarkdown } from "../../../lib/markdown";
+import { getLodgeBySlug, getConfig, getUpcomingEvents } from "../../../lib/db";
 
 const lodgeSlug = Astro.params.lodge!;
 const db = Astro.locals.runtime.env.DB;
@@ -11,7 +10,6 @@ if (!lodge) return Astro.redirect("/", 302);
 
 const config = await getConfig(db, lodge.id);
 const events = await getUpcomingEvents(db, lodge.id, undefined, 3);
-const aboutPage = await getPage(db, lodge.id, "about");
 
 const base = `/lodges/${lodgeSlug}`;
 
@@ -41,63 +39,17 @@ const hasInfo    = hasMeeting || hasContact || !!config.mailing_address || hasSo
       <img src="/seal.png" alt="KoP Seal" style="height:54px;width:auto;opacity:.85;flex-shrink:0" />
       <div>
         <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--neutral)">
-          Knights of Pythias{config.lodge_number && config.lodge_number !== "0" ? ` · Lodge No. ${config.lodge_number}` : ""}{config.city ? ` · ${config.city}` : ""}
+          Knights of Pythias{config.city ? ` · ${config.city}` : ""}
         </div>
-        <h1 style="font-size:1.5rem;font-weight:700;color:var(--primary);margin:.2rem 0 0">{config.lodge_name}</h1>
+        <h1 style="font-size:1.5rem;font-weight:700;color:var(--primary);margin:.2rem 0 0">{config.lodge_name}{config.lodge_number && config.lodge_number !== "0" ? ` Lodge No. ${config.lodge_number}` : ""}</h1>
         {config.tagline && <p style="font-size:.88rem;color:var(--neutral);font-style:italic;margin-top:.2rem">{config.tagline}</p>}
         {config.founded_year && <p style="font-size:.78rem;color:var(--neutral);margin-top:.15rem;opacity:.8">Est. {config.founded_year}</p>}
       </div>
     </div>
 
-    <!-- About section (main content) -->
-    <section class="about-section">
-      {aboutPage
-        ? <article class="prose" set:html={renderMarkdown(aboutPage.content)} />
-        : (
-          <div>
-            <p>
-              The Knights of Pythias is a non-sectarian fraternal organization founded in 1864 in Washington, D.C.
-              by Justus H. Rathbone. It was the first fraternal organization to receive a charter from an Act of Congress.
-              Members are united by the ideals of <strong>Friendship, Charity, and Benevolence</strong>.
-            </p>
-          </div>
-        )
-      }
-    </section>
-
-    <!-- Upcoming events (up to 3) -->
-    {events.length > 0 && (
-      <section style="margin-top:2.5rem">
-        <h2 class="section-heading">
-          <span class="tri-accent"><img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" /></span>
-          Upcoming Events
-        </h2>
-        <div class="events-list">
-          {events.map((ev) => (
-            <div class="event-row">
-              <div class="event-date-badge" style={`background:${levelColor[ev.level]}`}>
-                <div style="font-size:1.4rem;font-weight:bold;line-height:1">{new Date(ev.event_date + "T00:00:00").getDate()}</div>
-                <div style="font-size:.6rem;text-transform:uppercase;letter-spacing:.05em">{new Date(ev.event_date + "T00:00:00").toLocaleString("en-US",{month:"short"})}</div>
-              </div>
-              <div style="flex:1">
-                <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
-                  <h3 style="font-size:1rem;color:var(--primary);font-weight:700;margin:0">{ev.title}</h3>
-                  <span class="level-badge" style={`background:${levelColor[ev.level]}`}>{levelLabel[ev.level] ?? ev.level}</span>
-                </div>
-                <p class="meta" style="font-size:.8rem;color:var(--neutral);margin-top:.15rem">{fmtDate(ev.event_date)}{ev.location ? ` · ${ev.location}` : ""}</p>
-                {ev.description && <p style="font-size:.88rem;margin-top:.25rem">{ev.description}</p>}
-                {ev.url && <a href={ev.url} target="_blank" rel="noopener" style="font-size:.83rem;font-weight:600">Details &rarr;</a>}
-              </div>
-            </div>
-          ))}
-        </div>
-        {config.show_events !== "" && <p style="margin-top:.75rem"><a href={`${base}/events`}>View full calendar &rarr;</a></p>}
-      </section>
-    )}
-
-    <!-- Lodge info -->
+    <!-- Lodge at a Glance (primary section) -->
     {hasInfo && (
-      <section style="margin-top:2.5rem">
+      <section>
         <h2 class="section-heading">
           <span class="tri-accent">
             <img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" />
@@ -141,6 +93,36 @@ const hasInfo    = hasMeeting || hasContact || !!config.mailing_address || hasSo
         </div>
       </section>
     )}
+
+    <!-- Upcoming events (up to 3) -->
+    {events.length > 0 && (
+      <section style="margin-top:2.5rem">
+        <h2 class="section-heading">
+          <span class="tri-accent"><img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" /></span>
+          Upcoming Events
+        </h2>
+        <div class="events-list">
+          {events.map((ev) => (
+            <div class="event-row">
+              <div class="event-date-badge" style={`background:${levelColor[ev.level]}`}>
+                <div style="font-size:1.4rem;font-weight:bold;line-height:1">{new Date(ev.event_date + "T00:00:00").getDate()}</div>
+                <div style="font-size:.6rem;text-transform:uppercase;letter-spacing:.05em">{new Date(ev.event_date + "T00:00:00").toLocaleString("en-US",{month:"short"})}</div>
+              </div>
+              <div style="flex:1">
+                <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
+                  <h3 style="font-size:1rem;color:var(--primary);font-weight:700;margin:0">{ev.title}</h3>
+                  <span class="level-badge" style={`background:${levelColor[ev.level]}`}>{levelLabel[ev.level] ?? ev.level}</span>
+                </div>
+                <p class="meta" style="font-size:.8rem;color:var(--neutral);margin-top:.15rem">{fmtDate(ev.event_date)}{ev.location ? ` · ${ev.location}` : ""}</p>
+                {ev.description && <p style="font-size:.88rem;margin-top:.25rem">{ev.description}</p>}
+                {ev.url && <a href={ev.url} target="_blank" rel="noopener" style="font-size:.83rem;font-weight:600">Details &rarr;</a>}
+              </div>
+            </div>
+          ))}
+        </div>
+        {config.show_events !== "" && <p style="margin-top:.75rem"><a href={`${base}/events`}>View full calendar &rarr;</a></p>}
+      </section>
+    )}
   </main>
 </Base>
 
@@ -156,15 +138,6 @@ const hasInfo    = hasMeeting || hasContact || !!config.mailing_address || hasSo
     align-items: center;
     gap: 1.1rem;
     margin-bottom: 2rem;
-  }
-
-  .about-section {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-top: 3px solid var(--primary);
-    border-radius: var(--radius);
-    padding: 1.5rem;
-    box-shadow: var(--shadow);
   }
 
   .events-list {
