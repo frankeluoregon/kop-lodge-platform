@@ -242,7 +242,6 @@ function isActivePrefix(prefix: string): boolean {
         </a>
         <nav>
           <a href={base} aria-current={isActive(`${base}`) || isActive(`${base}/`) ? "page" : undefined}>Home</a>
-          <a href={`${base}/about`} aria-current={isActive(`${base}/about`) ? "page" : undefined}>About</a>
           {config.show_history === "1" && <a href={`${base}/history`} aria-current={isActive(`${base}/history`) ? "page" : undefined}>History</a>}
           {config.show_events !== "" && <a href={`${base}/events`} aria-current={isActivePrefix(`${base}/events`) ? "page" : undefined}>Events</a>}
           {config.show_officers !== "" && <a href={`${base}/officers`} aria-current={isActive(`${base}/officers`) ? "page" : undefined}>Officers</a>}
@@ -254,7 +253,6 @@ function isActivePrefix(prefix: string): boolean {
           {config.show_programs === "1" && <a href={`${base}/programs`} aria-current={isActive(`${base}/programs`) ? "page" : undefined}>Programs</a>}
           {config.show_links === "1" && <a href={`${base}/links`} aria-current={isActive(`${base}/links`) ? "page" : undefined}>Links</a>}
           <a href={`${base}/contact`} aria-current={isActive(`${base}/contact`) ? "page" : undefined}>Contact</a>
-          <a href="/" style="margin-left:.25rem;border-left:1px solid rgba(255,255,255,.3);padding-left:.5rem">Home</a>
         </nav>
       </div>
     </header>
@@ -272,7 +270,6 @@ function isActivePrefix(prefix: string): boolean {
         <div>
           <h4>Quick Links</h4>
           <ul>
-            <li><a href={`${base}/about`}>About Us</a></li>
             <li><a href={`${base}/events`}>Events</a></li>
             <li><a href={`${base}/officers`}>Officers</a></li>
             <li><a href={`${base}/contact`}>Contact</a></li>

@@ -28,6 +28,9 @@ import { registerMemberTools } from "./tools/members.js";
 import { registerMinutesTools } from "./tools/minutes.js";
 import { registerAnnouncementTools } from "./tools/announcements.js";
 import { registerAgendaToPdfTool } from "./tools/agenda-to-pdf.js";
+import { registerBlueprintTools } from "./tools/blueprints.js";
+import { registerEventLayoutTools } from "./tools/event-layout.js";
+import { registerEventPlanningTools } from "./tools/event-planning.js";
 import { z } from "zod";
 
 async function main() {
@@ -126,8 +129,61 @@ async function main() {
   // ——— Document utilities ————————————————————————————————————————————————
 
   registerAgendaToPdfTool(server);
+  registerBlueprintTools(server);
+  registerEventLayoutTools(server);
+  registerEventPlanningTools(server, db);
 
   // ——— Resources ————————————————————————————————————————————————————————————
+
+  server.resource(
+    "helmet33-rooms",
+    "lodge://helmet33/rooms",
+    async (uri) => {
+      const rooms = {
+        "Dining Hall": {
+          vertices: [[0,0],[558,0],[558,401],[0,401]],
+          sqft: 1554,
+          doors: [{ pos: [558, 230], length: 36, dir: "right-down", note: "to Kitchen" }],
+        },
+        "Grand Hall": {
+          vertices: [[0,0],[404,0],[404,486],[0,486]],
+          sqft: 1364,
+          stage: { vertices: [[404,0],[511,0],[511,486],[404,486]], sqft: 362 },
+          doors: [
+            { pos: [135, 486], length: 36, dir: "right-up", note: "entry 1" },
+            { pos: [269, 486], length: 36, dir: "right-up", note: "entry 2" },
+          ],
+        },
+        "Lobby": {
+          vertices: [[0,0],[22,0],[22,26],[44,26],[44,80],[345,80],[345,225],[0,225]],
+          sqft: 1400, sides: 8,
+          doors: [{ pos: [172, 225], length: 26, dir: "down-right", type: "double", note: "main entry" }],
+          notes: "Stair notch (upper-left) subtracted from usable space",
+        },
+        "Parking Lot": {
+          vertices: [[0,0],[973,0],[973,789],[0,789]],
+          sqft: 4800,
+          lodgeNotch: { x: 239, y: 0, width: 345, height: 225 },
+          streets: { west: "Laurence Ave", south: "12th Ave" },
+        },
+        "Upstairs Hallway": {
+          vertices: [[197,0],[269,0],[269,299],[197,299],[197,495],[0,495],[0,422],[114,422],[114,224],[197,224]],
+          sides: 10,
+          landing: { vertices: [[0,422],[197,422],[197,495],[0,495]], sqft: 100 },
+          doors: [
+            { pos: [215, 0], length: 36, dir: "right-up", note: "exit" },
+            { pos: [269, 46], length: 36, dir: "down-right", note: "room 1" },
+            { pos: [269, 98], length: 36, dir: "down-right", note: "room 2" },
+            { pos: [269, 187], length: 36, dir: "down-right", note: "room 3" },
+            { pos: [197, 340], length: 36, dir: "down-right", note: "room 4" },
+            { pos: [114, 258], length: 36, dir: "up-left", note: "room 5" },
+            { pos: [114, 343], length: 36, dir: "down-left", note: "room 6" },
+          ],
+        },
+      };
+      return { contents: [{ uri: uri.href, mimeType: "application/json", text: JSON.stringify(rooms, null, 2) }] };
+    },
+  );
 
   server.resource(
     "site-config",

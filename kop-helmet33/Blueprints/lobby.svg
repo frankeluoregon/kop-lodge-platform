@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 866.9565217391305" width="1100" height="866.9565217391305" font-family="'Courier New', monospace">
+  <defs>
+    <style>
+      .wall { stroke: #1a1a2e; stroke-width: 4; fill: none; stroke-linecap: square; }
+      .wall-thin { stroke: #1a1a2e; stroke-width: 2; fill: none; }
+      .dim-line { stroke: #555; stroke-width: 1; fill: none; }
+      .dim-tick { stroke: #555; stroke-width: 1.5; }
+      .dim-text { font-size: 11px; fill: #333; text-anchor: middle; font-weight: bold; }
+      .leader { stroke: #555; stroke-width: 0.75; fill: none; stroke-dasharray: 3,2; marker-end: url(#arrow); }
+      .leader-plain { stroke: #555; stroke-width: 0.75; fill: none; stroke-dasharray: 3,2; }
+      .leader-tick { stroke: #555; stroke-width: 1.5; }
+      .room-label { font-size: 26px; fill: #1a1a2e; text-anchor: middle; font-weight: bold; }
+      .sub-label { font-size: 14px; fill: #555; text-anchor: middle; }
+      .title { font-size: 22px; fill: #1a1a2e; text-anchor: middle; font-weight: bold; }
+      .subtitle { font-size: 13px; fill: #555; text-anchor: middle; }
+      .note { font-size: 11px; fill: #666; }
+      .door { stroke: #1a1a2e; stroke-width: 1.5; fill: none; }
+      .exit-label { font-size: 12px; fill: #c0392b; text-anchor: middle; font-weight: bold; letter-spacing: 1px; }
+      .street { font-size: 15px; fill: #666; text-anchor: middle; font-style: italic; }
+      .stair-fill { fill: #e0e2ea; }
+      .hc-icon { fill: #1a1a2e; font-size: 24px; text-anchor: middle; }
+      .compass { font-size: 11px; fill: #1a1a2e; text-anchor: middle; font-weight: bold; }
+    </style>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#555"/></marker>
+  </defs>
+  <rect width="1100" height="866.9565217391305" fill="#fefefe"/>
+  <text x="550" y="32" class="title">Lobby</text>
+  <text x="1084" y="858.9565217391305" class="note" text-anchor="end">Door icons not to scale.</text>
+  <path d="M100,175 L157.3913043478261,175 L157.3913043478261,242.82608695652175 L214.7826086956522,242.82608695652175 L214.7826086956522,383.69565217391306 L1000,383.69565217391306 L1000,761.9565217391305 L100,761.9565217391305 Z" class="wall"/>
+  <text x="413.04347826086956" y="317.2608695652174" class="sub-label" font-size="13" font-style="italic">Stairs</text>
+  <path d="M482.17391304347825,761.9565217391305 A67.82608695652173,67.82608695652173 0 0,0 550,829.7826086956522" class="door"/>
+  <path d="M617.8260869565217,761.9565217391305 A67.82608695652173,67.82608695652173 0 0,1 550,829.7826086956522" class="door"/>
+  <text x="606.0869565217391" y="579.3478260869565" class="room-label">Lobby</text>
+  <line x1="100" y1="175" x2="100" y2="110" class="dim-line"/>
+  <line x1="157.3913043478261" y1="175" x2="157.3913043478261" y2="110" class="dim-line"/>
+  <line x1="100" y1="118" x2="157.3913043478261" y2="118" class="dim-line"/>
+  <line x1="100" y1="112" x2="100" y2="124" class="dim-tick"/>
+  <line x1="157.3913043478261" y1="112" x2="157.3913043478261" y2="124" class="dim-tick"/>
+  <line x1="177.3913043478261" y1="100" x2="128.69565217391306" y2="100" class="leader-plain"/>
+  <line x1="128.69565217391306" y1="100" x2="128.69565217391306" y2="118" class="leader"/>
+  <line x1="122.69565217391306" y1="118" x2="134.69565217391306" y2="118" class="leader-tick"/>
+  <line x1="157.3913043478261" y1="242.82608695652175" x2="157.3913043478261" y2="208.62608695652176" class="dim-line"/>
+  <line x1="214.7826086956522" y1="242.82608695652175" x2="214.7826086956522" y2="208.62608695652176" class="dim-line"/>
+  <line x1="157.3913043478261" y1="216.62608695652176" x2="214.7826086956522" y2="216.62608695652176" class="dim-line"/>
+  <line x1="157.3913043478261" y1="210.62608695652176" x2="157.3913043478261" y2="222.62608695652176" class="dim-tick"/>
+  <line x1="214.7826086956522" y1="210.62608695652176" x2="214.7826086956522" y2="222.62608695652176" class="dim-tick"/>
+  <line x1="234.7826086956522" y1="198.62608695652176" x2="186.08695652173913" y2="198.62608695652176" class="leader-plain"/>
+  <line x1="186.08695652173913" y1="198.62608695652176" x2="186.08695652173913" y2="216.62608695652176" class="leader"/>
+  <line x1="180.08695652173913" y1="216.62608695652176" x2="192.08695652173913" y2="216.62608695652176" class="leader-tick"/>
+  <line x1="214.7826086956522" y1="242.82608695652175" x2="279.7826086956522" y2="242.82608695652175" class="dim-line"/>
+  <line x1="214.7826086956522" y1="383.69565217391306" x2="279.7826086956522" y2="383.69565217391306" class="dim-line"/>
+  <line x1="271.7826086956522" y1="242.82608695652175" x2="271.7826086956522" y2="383.69565217391306" class="dim-line"/>
+  <line x1="265.7826086956522" y1="242.82608695652175" x2="277.7826086956522" y2="242.82608695652175" class="dim-tick"/>
+  <line x1="265.7826086956522" y1="383.69565217391306" x2="277.7826086956522" y2="383.69565217391306" class="dim-tick"/>
+  <line x1="214.7826086956522" y1="383.69565217391306" x2="214.7826086956522" y2="340.69565217391306" class="dim-line"/>
+  <line x1="1000" y1="383.69565217391306" x2="1000" y2="340.69565217391306" class="dim-line"/>
+  <line x1="214.7826086956522" y1="348.69565217391306" x2="1000" y2="348.69565217391306" class="dim-line"/>
+  <line x1="214.7826086956522" y1="342.69565217391306" x2="214.7826086956522" y2="354.69565217391306" class="dim-tick"/>
+  <line x1="1000" y1="342.69565217391306" x2="1000" y2="354.69565217391306" class="dim-tick"/>
+  <line x1="1000" y1="383.69565217391306" x2="1043" y2="383.69565217391306" class="dim-line"/>
+  <line x1="1000" y1="761.9565217391305" x2="1043" y2="761.9565217391305" class="dim-line"/>
+  <line x1="1035" y1="383.69565217391306" x2="1035" y2="761.9565217391305" class="dim-line"/>
+  <line x1="1029" y1="383.69565217391306" x2="1041" y2="383.69565217391306" class="dim-tick"/>
+  <line x1="1029" y1="761.9565217391305" x2="1041" y2="761.9565217391305" class="dim-tick"/>
+  <line x1="100" y1="761.9565217391305" x2="100" y2="804.9565217391305" class="dim-line"/>
+  <line x1="1000" y1="761.9565217391305" x2="1000" y2="804.9565217391305" class="dim-line"/>
+  <line x1="100" y1="796.9565217391305" x2="1000" y2="796.9565217391305" class="dim-line"/>
+  <line x1="100" y1="790.9565217391305" x2="100" y2="802.9565217391305" class="dim-tick"/>
+  <line x1="1000" y1="790.9565217391305" x2="1000" y2="802.9565217391305" class="dim-tick"/>
+  <line x1="100" y1="175" x2="57" y2="175" class="dim-line"/>
+  <line x1="100" y1="761.9565217391305" x2="57" y2="761.9565217391305" class="dim-line"/>
+  <line x1="65" y1="175" x2="65" y2="761.9565217391305" class="dim-line"/>
+  <line x1="59" y1="175" x2="71" y2="175" class="dim-tick"/>
+  <line x1="59" y1="761.9565217391305" x2="71" y2="761.9565217391305" class="dim-tick"/>
+  <rect x="179.3913043478261" y="92" width="50" height="14" fill="#fefefe"/>
+  <text x="181.3913043478261" y="104" class="dim-text" text-anchor="start">1'-10"</text>
+  <rect x="236.7826086956522" y="190.62608695652176" width="50" height="14" fill="#fefefe"/>
+  <text x="238.7826086956522" y="202.62608695652176" class="dim-text" text-anchor="start">1'-10"</text>
+  <rect x="277.7826086956522" y="307.2608695652174" width="54" height="14" fill="#fefefe"/>
+  <text x="279.7826086956522" y="317.2608695652174" class="dim-text" text-anchor="start">4'-6"</text>
+  <rect x="577.3913043478261" y="333.69565217391306" width="60" height="14" fill="#fefefe"/>
+  <text x="607.3913043478261" y="343.69565217391306" class="dim-text">25'-1"</text>
+  <rect x="1041" y="566.8260869565217" width="54" height="14" fill="#fefefe"/>
+  <text x="1043" y="576.8260869565217" class="dim-text" text-anchor="start">12'-1"</text>
+  <rect x="520" y="799.9565217391305" width="60" height="14" fill="#fefefe"/>
+  <text x="550" y="809.9565217391305" class="dim-text">28'-9"</text>
+  <rect x="5" y="462.47826086956525" width="54" height="14" fill="#fefefe"/>
+  <text x="57" y="472.47826086956525" class="dim-text" text-anchor="end">18'-9"</text>
+  <line x1="157.3913043478261" y1="175" x2="183.3913043478261" y2="175" class="dim-line"/>
+  <line x1="157.3913043478261" y1="242.82608695652175" x2="183.3913043478261" y2="242.82608695652175" class="dim-line"/>
+  <line x1="175.3913043478261" y1="175" x2="175.3913043478261" y2="242.82608695652175" class="dim-line"/>
+  <line x1="169.3913043478261" y1="175" x2="181.3913043478261" y2="175" class="dim-tick"/>
+  <line x1="169.3913043478261" y1="242.82608695652175" x2="181.3913043478261" y2="242.82608695652175" class="dim-tick"/>
+  <line x1="210.08695652173913" y1="163.41304347826087" x2="210.08695652173913" y2="208.91304347826087" class="leader-plain"/>
+  <line x1="210.08695652173913" y1="208.91304347826087" x2="175.3913043478261" y2="208.91304347826087" class="leader"/>
+  <line x1="175.3913043478261" y1="202.91304347826087" x2="175.3913043478261" y2="214.91304347826087" class="leader-tick"/>
+  <rect x="210.08695652173913" y="149.41304347826087" width="50" height="14" fill="#fefefe"/>
+  <text x="212.08695652173913" y="160.41304347826087" class="dim-text" text-anchor="start">2'-2"</text>
+  <g transform="translate(1050,45)">
+    <line x1="0" y1="-22" x2="0" y2="22" stroke="#1a1a2e" stroke-width="1"/>
+    <line x1="-22" y1="0" x2="22" y2="0" stroke="#1a1a2e" stroke-width="1"/>
+    <polygon points="0,-26 -4,-18 4,-18" fill="#1a1a2e"/>
+    <polygon points="0,26 -4,18 4,18" fill="#1a1a2e"/>
+    <polygon points="-26,0 -18,-4 -18,4" fill="#1a1a2e"/>
+    <polygon points="26,0 18,-4 18,4" fill="#1a1a2e"/>
+    <text x="0" y="-30" class="compass">S</text>
+    <text x="0" y="36" class="compass">N</text>
+    <text x="-32" y="4" class="compass">E</text>
+    <text x="32" y="4" class="compass">W</text>
+  </g>
+</svg>

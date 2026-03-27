@@ -1,6 +1,6 @@
 ---
 import Base from "../../../layouts/Base.astro";
-import { getLodgeBySlug, getConfig, getUpcomingEvents, getPublishedPosts, getCommunityService } from "../../../lib/db";
+import { getLodgeBySlug, getConfig, getUpcomingEvents, getPage } from "../../../lib/db";
 import { renderMarkdown } from "../../../lib/markdown";
 
 const lodgeSlug = Astro.params.lodge!;
@@ -9,10 +9,9 @@ const db = Astro.locals.runtime.env.DB;
 const lodge = await getLodgeBySlug(db, lodgeSlug);
 if (!lodge) return Astro.redirect("/", 302);
 
-const config   = await getConfig(db, lodge.id);
-const events   = await getUpcomingEvents(db, lodge.id, undefined, 3);
-const posts    = await getPublishedPosts(db, lodge.id, 3);
-const featured = await getCommunityService(db, lodge.id, true, 3);
+const config = await getConfig(db, lodge.id);
+const events = await getUpcomingEvents(db, lodge.id, undefined, 3);
+const aboutPage = await getPage(db, lodge.id, "about");
 
 const base = `/lodges/${lodgeSlug}`;
 
@@ -25,6 +24,9 @@ function fmtDate(d: string) {
 const levelLabel: Record<string, string> = {
   lodge: "Lodge Event", grand: "Grand Lodge", supreme: "Supreme Lodge",
 };
+const levelColor: Record<string, string> = {
+  lodge: "var(--primary)", grand: "#1a6b3c", supreme: "#8b0000",
+};
 
 const hasMeeting = !!(config.meeting_schedule || config.meeting_location);
 const hasContact = !!(config.phone || config.email);
@@ -34,7 +36,8 @@ const hasInfo    = hasMeeting || hasContact || !!config.mailing_address || hasSo
 
 <Base config={config} lodgeSlug={lodgeSlug}>
   <main>
-    <div style="background:var(--card-bg);border:1px solid var(--border);border-top:4px solid var(--secondary);border-radius:var(--radius);padding:1.25rem 1.5rem;box-shadow:var(--shadow);display:flex;align-items:center;gap:1.1rem;margin-bottom:2rem">
+    <!-- Lodge identity banner -->
+    <div class="lodge-banner">
       <img src="/seal.png" alt="KoP Seal" style="height:54px;width:auto;opacity:.85;flex-shrink:0" />
       <div>
         <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--neutral)">
@@ -46,8 +49,55 @@ const hasInfo    = hasMeeting || hasContact || !!config.mailing_address || hasSo
       </div>
     </div>
 
+    <!-- About section (main content) -->
+    <section class="about-section">
+      {aboutPage
+        ? <article class="prose" set:html={renderMarkdown(aboutPage.content)} />
+        : (
+          <div>
+            <p>
+              The Knights of Pythias is a non-sectarian fraternal organization founded in 1864 in Washington, D.C.
+              by Justus H. Rathbone. It was the first fraternal organization to receive a charter from an Act of Congress.
+              Members are united by the ideals of <strong>Friendship, Charity, and Benevolence</strong>.
+            </p>
+          </div>
+        )
+      }
+    </section>
+
+    <!-- Upcoming events (up to 3) -->
+    {events.length > 0 && (
+      <section style="margin-top:2.5rem">
+        <h2 class="section-heading">
+          <span class="tri-accent"><img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" /></span>
+          Upcoming Events
+        </h2>
+        <div class="events-list">
+          {events.map((ev) => (
+            <div class="event-row">
+              <div class="event-date-badge" style={`background:${levelColor[ev.level]}`}>
+                <div style="font-size:1.4rem;font-weight:bold;line-height:1">{new Date(ev.event_date + "T00:00:00").getDate()}</div>
+                <div style="font-size:.6rem;text-transform:uppercase;letter-spacing:.05em">{new Date(ev.event_date + "T00:00:00").toLocaleString("en-US",{month:"short"})}</div>
+              </div>
+              <div style="flex:1">
+                <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
+                  <h3 style="font-size:1rem;color:var(--primary);font-weight:700;margin:0">{ev.title}</h3>
+                  <span class="level-badge" style={`background:${levelColor[ev.level]}`}>{levelLabel[ev.level] ?? ev.level}</span>
+                </div>
+                <p class="meta" style="font-size:.8rem;color:var(--neutral);margin-top:.15rem">{fmtDate(ev.event_date)}{ev.location ? ` · ${ev.location}` : ""}</p>
+                {ev.description && <p style="font-size:.88rem;margin-top:.25rem">{ev.description}</p>}
+                {ev.url && <a href={ev.url} target="_blank" rel="noopener" style="font-size:.83rem;font-weight:600">Details &rarr;</a>}
+              </div>
+            </div>
+          ))}
+        </div>
+        {config.show_events !== "" && <p style="margin-top:.75rem"><a href={`${base}/events`}>View full calendar &rarr;</a></p>}
+      </section>
+    )}
+
+    <!-- Lodge info -->
     {hasInfo && (
-      <section>
+      <section style="margin-top:2.5rem">
         <h2 class="section-heading">
           <span class="tri-accent">
             <img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" />
@@ -89,97 +139,67 @@ const hasInfo    = hasMeeting || hasContact || !!config.mailing_address || hasSo
             </div>
           )}
         </div>
-
-        <div class="quick-links">
-          <a href={`${base}/about`}>About</a>
-          {config.show_history   === "1" && <a href={`${base}/history`}>History</a>}
-          {config.show_events    !== ""  && <a href={`${base}/events`}>Events</a>}
-          {config.show_officers  !== ""  && <a href={`${base}/officers`}>Officers</a>}
-          {config.show_service   !== ""  && <a href={`${base}/community-service`}>Service</a>}
-          {config.show_membership === "1" && <a href={`${base}/membership`}>Join</a>}
-          {config.show_gallery   === "1" && <a href={`${base}/gallery`}>Gallery</a>}
-          {config.show_blog      !== ""  && <a href={`${base}/blog`}>Blog</a>}
-          {config.show_newsletter === "1" && <a href={`${base}/newsletter`}>Newsletter</a>}
-          {config.show_programs  === "1" && <a href={`${base}/programs`}>Programs</a>}
-          {config.show_links     === "1" && <a href={`${base}/links`}>Links</a>}
-          <a href={`${base}/contact`}>Contact</a>
-        </div>
       </section>
     )}
-
-    {events.length > 0 && (
-      <section style="margin-top:2.5rem">
-        <h2 class="section-heading">
-          <span class="tri-accent"><img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" /></span>
-          Upcoming Events
-        </h2>
-        <div class="card-grid">
-          {events.map((ev) => (
-            <div class="card">
-              <span class="tag">{levelLabel[ev.level] ?? ev.level}</span>
-              <h3>{ev.title}</h3>
-              <p class="meta">{fmtDate(ev.event_date)}{ev.location ? ` · ${ev.location}` : ""}</p>
-              {ev.description && <p>{ev.description}</p>}
-              {ev.url
-                ? <a class="cta" href={ev.url} target="_blank" rel="noopener">Details &rarr;</a>
-                : <a class="cta" href={`${base}/events`}>See All Events &rarr;</a>}
-            </div>
-          ))}
-        </div>
-        <p style="margin-top:.5rem"><a href={`${base}/events`}>View full calendar &rarr;</a></p>
-      </section>
-    )}
-
-    {featured.length > 0 && (
-      <section style="margin-top:2.5rem">
-        <h2 class="section-heading">
-          <span class="tri-accent"><img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" /></span>
-          Community Service
-        </h2>
-        <div class="card-grid">
-          {featured.map((cs) => (
-            <div class="card">
-              <h3>{cs.title}</h3>
-              {cs.service_date && <p class="meta">{fmtDate(cs.service_date)}</p>}
-              <div class="prose" set:html={renderMarkdown(cs.description)} />
-            </div>
-          ))}
-        </div>
-        <p style="margin-top:.5rem"><a href={`${base}/community-service`}>See all service projects &rarr;</a></p>
-      </section>
-    )}
-
-    {posts.length > 0 && (
-      <section style="margin-top:2.5rem">
-        <h2 class="section-heading">
-          <span class="tri-accent"><img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" /></span>
-          From the Blog
-        </h2>
-        <div class="card-grid">
-          {posts.map((post) => (
-            <div class="card">
-              <h3><a href={`${base}/blog/${post.slug}`}>{post.title}</a></h3>
-              {post.published_at && <p class="meta">{fmtDate(post.published_at)}{post.author ? ` · ${post.author}` : ""}</p>}
-              {post.excerpt && <p>{post.excerpt}</p>}
-              <a class="cta" href={`${base}/blog/${post.slug}`}>Read more &rarr;</a>
-            </div>
-          ))}
-        </div>
-        <p style="margin-top:.5rem"><a href={`${base}/blog`}>All posts &rarr;</a></p>
-      </section>
-    )}
-
-    <section style="margin-top:2.5rem;background:var(--card-bg);border:1px solid var(--border);border-top:3px solid var(--primary);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow)">
-      <h2 class="section-heading">
-        <span class="tri-accent"><img src="/bluetri.svg" alt="" /><img src="/redtri.svg" alt="" /><img src="/yeltri.svg" alt="" /></span>
-        About the Knights of Pythias
-      </h2>
-      <p>
-        The Knights of Pythias is a non-sectarian fraternal organization founded in 1864 in Washington, D.C.
-        by Justus H. Rathbone. It was the first fraternal organization to receive a charter from an Act of Congress.
-        Members are united by the ideals of <strong>Friendship, Charity, and Benevolence</strong>.
-      </p>
-      <p style="margin-top:.75rem"><a href={`${base}/about`}>Learn about our lodge &rarr;</a></p>
-    </section>
   </main>
 </Base>
+
+<style>
+  .lodge-banner {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--secondary);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    margin-bottom: 2rem;
+  }
+
+  .about-section {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--primary);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+  }
+
+  .events-list {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+  }
+
+  .event-row {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .event-date-badge {
+    min-width: 52px;
+    text-align: center;
+    color: #fff;
+    border-radius: var(--radius);
+    padding: .35rem .45rem;
+    flex-shrink: 0;
+  }
+
+  .level-badge {
+    font-size: .68rem;
+    font-weight: 700;
+    color: #fff;
+    padding: .15rem .5rem;
+    border-radius: 99px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+</style>
