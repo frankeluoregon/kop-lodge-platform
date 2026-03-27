@@ -1,0 +1,40 @@
+-- Seed Helmet Lodge No. 33 members and officers
+INSERT OR IGNORE INTO lodge_members (lodge_id, name, email, office, active) VALUES
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Adam Hessenkemper', 'ahessenkemper@outlook.com', NULL, 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Bill Sneathen', 'wsneat@gmail.com', 'Trustee', 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Brian Warner', 'bcwarner75@gmail.com', NULL, 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Chad Muller', 'Chadnomad@gmail.com', 'Chancellor Commander', 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Charlie VanDomelen', 'charlie.vandomelen@gmail.com', 'Secretary / Keeper of Records and Seal', 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Chris Cervantes', '800lbgorilla@gmail.com', NULL, 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Dan Griffin', 'drgriffi1@gmail.com', 'Trustee', 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'David Beason', 'davidtbeason@gmail.com', NULL, 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Don Allen', 'allen31761@comcast.net', NULL, 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Ed Yates', 'meyates@juno.com', 'Treasurer / Master of Exchequer', 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Fred Hutchison', 'hutchison5899@aol.com', NULL, 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'J Miles', 'jmiles.moore@gmail.com', NULL, 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Jacob Andersen', 'jacobdean@comcast.net', NULL, 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Jason Whitewolf', 'jasonwhitewolf@gmail.com', NULL, 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Jeffry Davis', 'avogadro_9000@hotmail.com', NULL, 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'John Archetko', 'jarchetko@gmail.com', 'Vice-Chancellor', 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Kellen Hodges', 'kellen.hodges@hotmail.com', 'Prelate', 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Lonnie Winkler', 'lwinkler@fortiorsolutions.com', NULL, 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Ray Cable', 'rcable59@yahoo.com', NULL, 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Richard Goosman', 'richardgoosmann@outlook.com', NULL, 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Ryan E. Morrison', 'vierbein33@yahoo.com', NULL, 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Scott Curry', 'Scurry148@gmail.com', NULL, 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Scott Phillips', 'scottphillips23@gmail.com', NULL, 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Sonny Fillingame', 'sfranger80@gmail.com', NULL, 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Terry', 'hydros541@gmail.com', NULL, 1);
+
+-- Populate officers
+INSERT INTO officers (lodge_id, title, name, display_order, active) VALUES
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Chancellor Commander', 'Chad Muller', 1, 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Vice Chancellor', 'John Archetko', 2, 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Secretary', 'Charlie VanDomelen', 3, 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Treasurer', 'Sir Ed Yates', 4, 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Financial Secretary', 'Jeff Davis', 5, 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Prelate', 'Kellen Hodges', 6, 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Trustee', 'Chad Muller', 7, 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Trustee', 'Bill Sneathen', 8, 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Trustee', 'Jackson Breitbach', 9, 1),
+  ((SELECT id FROM lodges WHERE slug='helmet33'), 'Trustee', 'Dan Griffin', 10, 1);
