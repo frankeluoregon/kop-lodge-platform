@@ -34,26 +34,15 @@ const hasSocial  = !!(config.facebook_url || config.instagram_url || config.twit
 ---
 
 <Base config={config} lodgeSlug={lodgeSlug}>
-  {heroPhoto && (
-    <div class="lodge-hero" style={`background-image:url('${heroPhoto.image_key}')`}>
-      <div class="lodge-hero-overlay">
-        <h1 class="lodge-hero-title">{lodgeFullName}</h1>
-        {config.city && <p class="lodge-hero-sub">{config.city}</p>}
-      </div>
-    </div>
-  )}
   <main>
-    <div class="lodge-banner">
-      <img src="/seal.png" alt="KoP Seal" style="height:54px;width:auto;opacity:.85;flex-shrink:0" />
-      <div>
-        <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--neutral)">
-          Knights of Pythias{config.city ? ` · ${config.city}` : ""}
+    {heroPhoto && (
+      <div class="lodge-hero" style={`background-image:url('${heroPhoto.image_key}')`}>
+        <div class="lodge-hero-overlay">
+          <h1 class="lodge-hero-title">{lodgeFullName}</h1>
+          {config.city && <p class="lodge-hero-sub">{config.city}</p>}
         </div>
-        <h1 style="font-size:1.5rem;font-weight:700;color:var(--primary);margin:.2rem 0 0">{lodgeFullName}</h1>
-        {config.tagline && <p style="font-size:.88rem;color:var(--neutral);font-style:italic;margin-top:.2rem">{config.tagline}</p>}
-        {config.founded_year && <p style="font-size:.78rem;color:var(--neutral);margin-top:.15rem;opacity:.8">Est. {config.founded_year}</p>}
       </div>
-    </div>
+    )}
 
     <div class="home-columns">
       <div class="home-col">
@@ -131,6 +120,9 @@ const hasSocial  = !!(config.facebook_url || config.instagram_url || config.twit
     display: flex;
     align-items: flex-end;
     justify-content: center;
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
   }
 
   .lodge-hero-overlay {
@@ -155,19 +147,6 @@ const hasSocial  = !!(config.facebook_url || config.instagram_url || config.twit
     color: rgba(255,255,255,.9);
     margin-top: .3rem;
     letter-spacing: .03em;
-  }
-
-  .lodge-banner {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-top: 4px solid var(--secondary);
-    border-radius: var(--radius);
-    padding: 1.25rem 1.5rem;
-    box-shadow: var(--shadow);
-    display: flex;
-    align-items: center;
-    gap: 1.1rem;
-    margin-bottom: 1.5rem;
   }
 
   .home-columns {
