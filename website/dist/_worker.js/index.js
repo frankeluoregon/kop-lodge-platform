@@ -1,7 +1,7 @@
 globalThis.process ??= {}; globalThis.process.env ??= {};
 import { renderers } from './renderers.mjs';
 import { c as createExports, s as serverEntrypointModule } from './chunks/_@astrojs-ssr-adapter_D5e-qO8O.mjs';
-import { manifest } from './manifest_BLubxtE6.mjs';
+import { manifest } from './manifest_Bi2l9LLK.mjs';
 
 const serverIslandMap = new Map();;
 
@@ -71,8 +71,9 @@ const _page62 = () => import('./pages/lodges/_lodge_/newsletter.astro.mjs');
 const _page63 = () => import('./pages/lodges/_lodge_/officers.astro.mjs');
 const _page64 = () => import('./pages/lodges/_lodge_/programs.astro.mjs');
 const _page65 = () => import('./pages/lodges/_lodge_.astro.mjs');
-const _page66 = () => import('./pages/officers.astro.mjs');
-const _page67 = () => import('./pages/index.astro.mjs');
+const _page66 = () => import('./pages/media/_---path_.astro.mjs');
+const _page67 = () => import('./pages/officers.astro.mjs');
+const _page68 = () => import('./pages/index.astro.mjs');
 const pageMap = new Map([
     ["node_modules/@astrojs/cloudflare/dist/entrypoints/image-endpoint.js", _page0],
     ["src/pages/404.astro", _page1],
@@ -140,8 +141,9 @@ const pageMap = new Map([
     ["src/pages/lodges/[lodge]/officers.astro", _page63],
     ["src/pages/lodges/[lodge]/programs.astro", _page64],
     ["src/pages/lodges/[lodge]/index.astro", _page65],
-    ["src/pages/officers.astro", _page66],
-    ["src/pages/index.astro", _page67]
+    ["src/pages/media/[...path].ts", _page66],
+    ["src/pages/officers.astro", _page67],
+    ["src/pages/index.astro", _page68]
 ]);
 
 const _manifest = Object.assign(manifest, {
