@@ -10,9 +10,10 @@ interface Props {
 
 const { title, description, config, lodgeSlug } = Astro.props;
 const base = `/lodges/${lodgeSlug}`;
+const lodgeFullName = `${config.lodge_name}${config.lodge_number && config.lodge_number !== "0" ? ` No. ${config.lodge_number}` : ""}`;
 const pageTitle = title
-  ? `${title} | ${config.lodge_name}`
-  : `${config.lodge_name} – Knights of Pythias`;
+  ? `${title} | ${lodgeFullName}`
+  : `${lodgeFullName} – Knights of Pythias`;
 const metaDesc = description ?? config.tagline;
 const primary = config.primary_color || "#252e67";
 const accent = config.accent_color || "#f5a71c";
