@@ -1,6 +1,6 @@
 ---
 import Base from "../../../layouts/Base.astro";
-import { getLodgeBySlug, getConfig, getUpcomingEvents } from "../../../lib/db";
+import { getLodgeBySlug, getConfig, getUpcomingEvents, getFeaturedPhoto } from "../../../lib/db";
 
 const lodgeSlug = Astro.params.lodge!;
 const db = Astro.locals.runtime.env.DB;
@@ -10,6 +10,8 @@ if (!lodge) return Astro.redirect("/", 302);
 
 const config = await getConfig(db, lodge.id);
 const events = await getUpcomingEvents(db, lodge.id, undefined, 3);
+const heroPhoto = await getFeaturedPhoto(db, lodge.id);
+const lodgeFullName = `${config.lodge_name}${config.lodge_number && config.lodge_number !== "0" ? ` Lodge No. ${config.lodge_number}` : ""}`;
 
 const base = `/lodges/${lodgeSlug}`;
 
@@ -32,6 +34,14 @@ const hasSocial  = !!(config.facebook_url || config.instagram_url || config.twit
 ---
 
 <Base config={config} lodgeSlug={lodgeSlug}>
+  {heroPhoto && (
+    <div class="lodge-hero" style={`background-image:url('${heroPhoto.image_key}')`}>
+      <div class="lodge-hero-overlay">
+        <h1 class="lodge-hero-title">{lodgeFullName}</h1>
+        {config.city && <p class="lodge-hero-sub">{config.city}</p>}
+      </div>
+    </div>
+  )}
   <main>
     <div class="lodge-banner">
       <img src="/seal.png" alt="KoP Seal" style="height:54px;width:auto;opacity:.85;flex-shrink:0" />
@@ -39,7 +49,7 @@ const hasSocial  = !!(config.facebook_url || config.instagram_url || config.twit
         <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--neutral)">
           Knights of Pythias{config.city ? ` · ${config.city}` : ""}
         </div>
-        <h1 style="font-size:1.5rem;font-weight:700;color:var(--primary);margin:.2rem 0 0">{config.lodge_name}{config.lodge_number && config.lodge_number !== "0" ? ` Lodge No. ${config.lodge_number}` : ""}</h1>
+        <h1 style="font-size:1.5rem;font-weight:700;color:var(--primary);margin:.2rem 0 0">{lodgeFullName}</h1>
         {config.tagline && <p style="font-size:.88rem;color:var(--neutral);font-style:italic;margin-top:.2rem">{config.tagline}</p>}
         {config.founded_year && <p style="font-size:.78rem;color:var(--neutral);margin-top:.15rem;opacity:.8">Est. {config.founded_year}</p>}
       </div>
@@ -113,6 +123,41 @@ const hasSocial  = !!(config.facebook_url || config.instagram_url || config.twit
 </Base>
 
 <style>
+  .lodge-hero {
+    width: 100%;
+    min-height: 280px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .lodge-hero-overlay {
+    width: 100%;
+    text-align: center;
+    padding: 3rem 1.5rem 2rem;
+    background: linear-gradient(transparent, rgba(37,46,103,.85));
+    color: #fff;
+  }
+
+  .lodge-hero-title {
+    font-family: 'Palatino Linotype', Palatino, 'Book Antiqua', 'Goudy Old Style', Georgia, serif;
+    font-size: 2.4rem;
+    color: #fff;
+    letter-spacing: .05em;
+    text-shadow: 2px 2px 6px rgba(0,0,0,.6);
+    margin: 0;
+  }
+
+  .lodge-hero-sub {
+    font-size: 1.1rem;
+    color: rgba(255,255,255,.9);
+    margin-top: .3rem;
+    letter-spacing: .03em;
+  }
+
   .lodge-banner {
     background: var(--card-bg);
     border: 1px solid var(--border);

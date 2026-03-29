@@ -13,6 +13,7 @@ interface Props {
     caption?: string;
     display_order?: number;
     published?: boolean;
+    featured?: boolean;
   };
   isEdit?: boolean;
 }
@@ -22,6 +23,7 @@ interface FormValues {
   caption: string;
   display_order: number;
   published: boolean;
+  featured: boolean;
 }
 
 export default function GalleryForm({ cancelUrl, initialData, isEdit }: Props) {
@@ -32,8 +34,9 @@ export default function GalleryForm({ cancelUrl, initialData, isEdit }: Props) {
         caption: initialData?.caption ?? "",
         display_order: initialData?.display_order ?? 0,
         published: initialData?.published ?? true,
+        featured: initialData?.featured ?? false,
       },
-      checkboxFields: ["published"],
+      checkboxFields: ["published", "featured"],
     });
 
   const { register, formState: { errors }, handleSubmit } = form;
@@ -144,6 +147,7 @@ export default function GalleryForm({ cancelUrl, initialData, isEdit }: Props) {
           {isEdit && (
             <CheckboxField label="Published" registration={register("published")} />
           )}
+          <CheckboxField label="Feature as Hero" registration={register("featured")} />
         </div>
         <FormActions
           submitLabel={isEdit ? "Save Changes" : "Add Photo"}

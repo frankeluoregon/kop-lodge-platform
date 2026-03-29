@@ -27,13 +27,18 @@ if (Astro.request.method === "POST") {
         : r2Key;
     }
 
+    const isFeatured = form.get("featured") === "1" ? 1 : 0;
+    if (isFeatured) {
+      await env.DB.prepare("UPDATE gallery_photos SET featured = 0 WHERE lodge_id = ?").bind(lodge.id).run();
+    }
     await env.DB.prepare(
-      "INSERT INTO gallery_photos (lodge_id, image_key, caption, display_order) VALUES (?,?,?,?)"
+      "INSERT INTO gallery_photos (lodge_id, image_key, caption, display_order, featured) VALUES (?,?,?,?,?)"
     ).bind(
       lodge.id,
       imageKey,
       form.get("caption")?.toString() || null,
       Number(form.get("display_order") ?? 0),
+      isFeatured,
     ).run();
 
     const redirectUrl = `/lodges/admin/${lodgeSlug}`;

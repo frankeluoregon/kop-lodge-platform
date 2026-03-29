@@ -86,6 +86,7 @@ export interface GalleryPhoto {
   caption: string | null;
   display_order: number;
   published: number;
+  featured: number;
 }
 
 export interface Link {
@@ -430,6 +431,18 @@ export async function getCommunityService(
 }
 
 // ─── Gallery ────────────────────────────────────────────────────────────────
+
+export async function getFeaturedPhoto(
+  db: D1Database,
+  lodgeId: number,
+): Promise<GalleryPhoto | null> {
+  return db
+    .prepare(
+      "SELECT * FROM gallery_photos WHERE lodge_id = ? AND featured = 1 AND published = 1 LIMIT 1",
+    )
+    .bind(lodgeId)
+    .first<GalleryPhoto>();
+}
 
 export async function getGalleryPhotos(
   db: D1Database,

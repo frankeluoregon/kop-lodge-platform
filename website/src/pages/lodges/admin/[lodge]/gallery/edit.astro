@@ -39,13 +39,18 @@ if (Astro.request.method === "POST") {
         : r2Key;
     }
 
+    const isFeatured = form.get("featured") === "1" ? 1 : 0;
+    if (isFeatured) {
+      await env.DB.prepare("UPDATE gallery_photos SET featured = 0 WHERE lodge_id = ?").bind(lodge.id).run();
+    }
     await env.DB.prepare(
-      "UPDATE gallery_photos SET image_key=?,caption=?,display_order=?,published=? WHERE id=? AND lodge_id=?"
+      "UPDATE gallery_photos SET image_key=?,caption=?,display_order=?,published=?,featured=? WHERE id=? AND lodge_id=?"
     ).bind(
       imageKey,
       form.get("caption")?.toString() || null,
       Number(form.get("display_order") ?? 0),
       form.get("published") === "1" ? 1 : 0,
+      isFeatured,
       id, lodge.id,
     ).run();
     if (wantsJson) return new Response(JSON.stringify({ redirect: `/lodges/admin/${lodgeSlug}` }), { headers: { "Content-Type": "application/json" } });
@@ -66,6 +71,7 @@ if (Astro.request.method === "POST") {
       caption: String(entry.caption ?? ""),
       display_order: Number(entry.display_order ?? 0),
       published: Boolean(entry.published),
+      featured: Boolean(entry.featured),
     }}
   />
 </AdminForm>
