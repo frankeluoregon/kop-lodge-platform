@@ -1,6 +1,6 @@
 globalThis.process ??= {}; globalThis.process.env ??= {};
 import { e as createComponent, l as defineStyleVars, g as addAttribute, n as renderHead, r as renderTemplate, h as createAstro } from '../chunks/astro/server_CngiM2x4.mjs';
-import { A as getAllLodges } from '../chunks/db_BUR-eqn2.mjs';
+import { B as getAllLodges } from '../chunks/db_DiZ16Txz.mjs';
 /* empty css                                 */
 export { renderers } from '../renderers.mjs';
 

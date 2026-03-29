@@ -147,7 +147,7 @@ export default function GalleryForm({ cancelUrl, initialData, isEdit }: Props) {
           {isEdit && (
             <CheckboxField label="Published" registration={register("published")} />
           )}
-          <CheckboxField label="Feature as Hero" registration={register("featured")} />
+          <CheckboxField label="Featured" registration={register("featured")} />
         </div>
         <FormActions
           submitLabel={isEdit ? "Save Changes" : "Add Photo"}
