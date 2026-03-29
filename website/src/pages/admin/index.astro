@@ -126,7 +126,7 @@ const contentBg = "#ded3c3";
     </div>
     <nav>
       <a href="/">View Site</a>
-      <span class="user">{session.email}</span>
+
       {isAccessConfigured(env) && <a href={`https://${env.CF_ACCESS_TEAM_NAME}.cloudflareaccess.com/cdn-cgi/access/logout`}>Log out</a>}
     </nav>
   </div>

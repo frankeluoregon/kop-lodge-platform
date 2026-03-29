@@ -154,7 +154,7 @@ const neutral   = "#4a5072";
     <nav>
       <a href="/admin">Dashboard</a>
       <a href="/">View Site</a>
-      <span class="user">{session.email}</span>
+
       {isAccessConfigured(env) && <a href={`https://${env.CF_ACCESS_TEAM_NAME}.cloudflareaccess.com/cdn-cgi/access/logout`}>Log out</a>}
     </nav>
   </div>

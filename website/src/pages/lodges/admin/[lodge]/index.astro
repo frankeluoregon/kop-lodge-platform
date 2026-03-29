@@ -121,7 +121,7 @@ const adminBase = `/lodges/admin/${lodgeSlug}`;
     <nav>
       <a href={base}>View Site</a>
       <a href={`${adminBase}/config`}>Settings</a>
-      <span class="user">{session.email}</span>
+
       {isAccessConfigured(env) && <a href={`https://${env.CF_ACCESS_TEAM_NAME}.cloudflareaccess.com/cdn-cgi/access/logout`}>Log out</a>}
     </nav>
   </div>
