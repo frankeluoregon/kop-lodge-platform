@@ -1,6 +1,6 @@
 ---
 import AdminForm from "../../../../../layouts/AdminForm.astro";
-import { getLodgeBySlug } from "../../../../../lib/db";
+import { getLodgeBySlug, makeRoomForOrder } from "../../../../../lib/db";
 import OfficerForm from "../../../../../components/admin/forms/OfficerForm";
 
 const lodgeSlug = Astro.params.lodge!;
@@ -14,6 +14,8 @@ if (Astro.request.method === "POST") {
   try {
     const form = await Astro.request.formData();
     const now = new Date().toISOString();
+    const order = Number(form.get("display_order") ?? 0);
+    await makeRoomForOrder(env.DB, "officers", lodge.id, order);
     await env.DB.prepare(
       "INSERT INTO officers (lodge_id,title,name,email,display_order,active,updated_at) VALUES (?,?,?,?,?,1,?)"
     ).bind(
@@ -21,7 +23,7 @@ if (Astro.request.method === "POST") {
       form.get("title")?.toString() ?? "",
       form.get("name")?.toString() ?? "",
       form.get("email")?.toString() || null,
-      Number(form.get("display_order") ?? 0),
+      order,
       now,
     ).run();
     return wantsJson

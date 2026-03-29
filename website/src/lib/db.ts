@@ -486,6 +486,26 @@ export async function getLinks(
   return res.results;
 }
 
+/**
+ * Shift display_order of existing items to make room for a new/updated item.
+ * Bumps all items at or above the target position up by 1.
+ */
+export async function makeRoomForOrder(
+  db: D1Database,
+  table: string,
+  lodgeId: number,
+  position: number,
+  excludeId?: number,
+): Promise<void> {
+  const exclude = excludeId ? ` AND id != ${excludeId}` : "";
+  await db
+    .prepare(
+      `UPDATE ${table} SET display_order = display_order + 1 WHERE lodge_id = ? AND display_order >= ?${exclude}`,
+    )
+    .bind(lodgeId, position)
+    .run();
+}
+
 export async function getAllLinks(
   db: D1Database,
   lodgeId: number,

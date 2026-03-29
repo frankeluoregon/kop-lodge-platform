@@ -1,6 +1,6 @@
 ---
 import AdminForm from "../../../../../layouts/AdminForm.astro";
-import { getLodgeBySlug } from "../../../../../lib/db";
+import { getLodgeBySlug, makeRoomForOrder } from "../../../../../lib/db";
 import LinkForm from "../../../../../components/admin/forms/LinkForm";
 
 const lodgeSlug = Astro.params.lodge!;
@@ -37,6 +37,8 @@ if (Astro.request.method === "POST") {
       imageKey = `/media/${r2Key}`;
     }
 
+    const order = Number(form.get("display_order") ?? 0);
+    await makeRoomForOrder(env.DB, "links", lodge.id, order, id);
     await env.DB.prepare(
       "UPDATE links SET title=?,url=?,category=?,description=?,display_order=?,image_key=? WHERE id=? AND lodge_id=?"
     ).bind(
@@ -44,7 +46,7 @@ if (Astro.request.method === "POST") {
       form.get("url")?.toString() ?? "",
       form.get("category")?.toString() || "general",
       form.get("description")?.toString() || null,
-      Number(form.get("display_order") ?? 0),
+      order,
       imageKey || null,
       id, lodge.id,
     ).run();

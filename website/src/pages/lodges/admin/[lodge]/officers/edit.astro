@@ -1,6 +1,6 @@
 ---
 import AdminForm from "../../../../../layouts/AdminForm.astro";
-import { getLodgeBySlug } from "../../../../../lib/db";
+import { getLodgeBySlug, makeRoomForOrder } from "../../../../../lib/db";
 import OfficerForm from "../../../../../components/admin/forms/OfficerForm";
 
 const lodgeSlug = Astro.params.lodge!;
@@ -26,13 +26,15 @@ if (Astro.request.method === "POST") {
   }
   try {
     const now = new Date().toISOString();
+    const order = Number(form.get("display_order") ?? 0);
+    await makeRoomForOrder(env.DB, "officers", lodge.id, order, id);
     await env.DB.prepare(
       "UPDATE officers SET title=?,name=?,email=?,display_order=?,active=?,updated_at=? WHERE id=? AND lodge_id=?"
     ).bind(
       form.get("title")?.toString() ?? "",
       form.get("name")?.toString() ?? "",
       form.get("email")?.toString() || null,
-      Number(form.get("display_order") ?? 0),
+      order,
       form.get("active") === "1" ? 1 : 0,
       now, id, lodge.id,
     ).run();
