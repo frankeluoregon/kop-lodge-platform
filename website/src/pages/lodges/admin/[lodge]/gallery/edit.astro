@@ -34,9 +34,7 @@ if (Astro.request.method === "POST") {
       await env.MEDIA.put(r2Key, photo.stream(), {
         httpMetadata: { contentType: photo.type },
       });
-      imageKey = env.MEDIA_PUBLIC_URL
-        ? `${env.MEDIA_PUBLIC_URL.replace(/\/$/, "")}/${r2Key}`
-        : r2Key;
+      imageKey = `/media/${r2Key}`;
     }
 
     const isFeatured = form.get("featured") === "1" ? 1 : 0;

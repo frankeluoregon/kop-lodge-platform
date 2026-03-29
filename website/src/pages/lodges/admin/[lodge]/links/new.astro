@@ -22,9 +22,7 @@ if (Astro.request.method === "POST") {
       await env.MEDIA.put(r2Key, image.stream(), {
         httpMetadata: { contentType: image.type },
       });
-      imageKey = env.MEDIA_PUBLIC_URL
-        ? `${env.MEDIA_PUBLIC_URL.replace(/\/$/, "")}/${r2Key}`
-        : r2Key;
+      imageKey = `/media/${r2Key}`;
     }
 
     await env.DB.prepare(
