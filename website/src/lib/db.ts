@@ -43,6 +43,11 @@ export interface LodgeConfig {
   show_events: string;
   show_officers: string;
   show_service: string;
+  // Home page section toggles
+  home_events: string;
+  home_gallery: string;
+  home_officers: string;
+  home_links: string;
 }
 
 export interface LodgeMember {

@@ -1,6 +1,7 @@
 ---
 import Base from "../../../layouts/Base.astro";
-import { getLodgeBySlug, getConfig, getUpcomingEvents, getFeaturedPhoto } from "../../../lib/db";
+import { getLodgeBySlug, getConfig, getUpcomingEvents, getFeaturedPhoto, getGalleryPhotos, getLinks } from "../../../lib/db";
+import type { Officer } from "../../../lib/db";
 
 const lodgeSlug = Astro.params.lodge!;
 const db = Astro.locals.runtime.env.DB;
@@ -9,11 +10,26 @@ const lodge = await getLodgeBySlug(db, lodgeSlug);
 if (!lodge) return Astro.redirect("/", 302);
 
 const config = await getConfig(db, lodge.id);
-const events = await getUpcomingEvents(db, lodge.id, undefined, 3);
 const heroPhoto = await getFeaturedPhoto(db, lodge.id);
 const lodgeFullName = `${config.lodge_name}${config.lodge_number && config.lodge_number !== "0" ? ` Lodge No. ${config.lodge_number}` : ""}`;
-
 const base = `/lodges/${lodgeSlug}`;
+
+// Conditionally fetch data based on home page config
+const showEvents   = config.home_events === "1";
+const showGallery  = config.home_gallery === "1";
+const showOfficers = config.home_officers === "1";
+const showLinks    = config.home_links === "1" && config.show_links === "1";
+
+const events  = showEvents ? await getUpcomingEvents(db, lodge.id, undefined, 6) : [];
+const photos  = showGallery ? await getGalleryPhotos(db, lodge.id) : [];
+const links   = showLinks ? await getLinks(db, lodge.id) : [];
+
+// Officers query
+let officers: Officer[] = [];
+if (showOfficers) {
+  const res = await db.prepare("SELECT * FROM officers WHERE lodge_id = ? AND active = 1 ORDER BY display_order ASC").bind(lodge.id).all<Officer>();
+  officers = res.results;
+}
 
 function fmtDate(d: string) {
   return new Date(d + "T00:00:00").toLocaleDateString("en-US", {
@@ -31,6 +47,16 @@ const levelColor: Record<string, string> = {
 const hasMeeting = !!(config.meeting_schedule || config.meeting_location);
 const hasContact = !!(config.phone || config.email);
 const hasSocial  = !!(config.facebook_url || config.instagram_url || config.twitter_url || config.donation_url);
+
+// Group links by category
+function titleCase(slug: string): string {
+  return slug.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+const linksByCategory = links.reduce<Record<string, typeof links>>((acc, link) => {
+  const cat = link.category || "general";
+  (acc[cat] ??= []).push(link);
+  return acc;
+}, {});
 ---
 
 <Base config={config} lodgeSlug={lodgeSlug}>
@@ -44,69 +70,121 @@ const hasSocial  = !!(config.facebook_url || config.instagram_url || config.twit
       </div>
     )}
 
-    <div class="home-columns">
-      <div class="home-col">
-        <h2 class="col-heading">Lodge at a Glance</h2>
-        <div class="glance-list">
-          {hasMeeting && (
-            <div class="glance-item">
-              <div class="glance-label">Meetings</div>
-              {config.meeting_schedule && <p>{config.meeting_schedule}</p>}
-              {config.meeting_location && <p>{config.meeting_location}</p>}
-            </div>
-          )}
-          {hasContact && (
-            <div class="glance-item">
-              <div class="glance-label">Contact</div>
-              {config.phone && <p><a href={`tel:${config.phone}`}>{config.phone}</a></p>}
-              {config.email && <p><a href={`mailto:${config.email}`}>{config.email}</a></p>}
-            </div>
-          )}
-          {config.mailing_address && (
-            <div class="glance-item">
-              <div class="glance-label">Mailing Address</div>
-              <p>{config.mailing_address}</p>
-            </div>
-          )}
-          {hasSocial && (
-            <div class="glance-item">
-              <div class="glance-label">Connect</div>
-              <ul>
-                {config.facebook_url   && <li><a href={config.facebook_url}   target="_blank" rel="noopener">Facebook</a></li>}
-                {config.instagram_url  && <li><a href={config.instagram_url}  target="_blank" rel="noopener">Instagram</a></li>}
-                {config.twitter_url    && <li><a href={config.twitter_url}    target="_blank" rel="noopener">Twitter / X</a></li>}
-                {config.donation_url   && <li><a href={config.donation_url}   target="_blank" rel="noopener">Donate</a></li>}
-              </ul>
-            </div>
-          )}
-        </div>
+    <!-- Lodge at a Glance (always shown) -->
+    <section class="home-section">
+      <h2 class="col-heading">Lodge at a Glance</h2>
+      <div class="glance-grid">
+        {hasMeeting && (
+          <div class="glance-item">
+            <div class="glance-label">Meetings</div>
+            {config.meeting_schedule && <p>{config.meeting_schedule}</p>}
+            {config.meeting_location && <p>{config.meeting_location}</p>}
+          </div>
+        )}
+        {hasContact && (
+          <div class="glance-item">
+            <div class="glance-label">Contact</div>
+            {config.phone && <p><a href={`tel:${config.phone}`}>{config.phone}</a></p>}
+            {config.email && <p><a href={`mailto:${config.email}`}>{config.email}</a></p>}
+          </div>
+        )}
+        {config.mailing_address && (
+          <div class="glance-item">
+            <div class="glance-label">Mailing Address</div>
+            <p>{config.mailing_address}</p>
+          </div>
+        )}
+        {hasSocial && (
+          <div class="glance-item">
+            <div class="glance-label">Connect</div>
+            <ul>
+              {config.facebook_url   && <li><a href={config.facebook_url}   target="_blank" rel="noopener">Facebook</a></li>}
+              {config.instagram_url  && <li><a href={config.instagram_url}  target="_blank" rel="noopener">Instagram</a></li>}
+              {config.twitter_url    && <li><a href={config.twitter_url}    target="_blank" rel="noopener">Twitter / X</a></li>}
+              {config.donation_url   && <li><a href={config.donation_url}   target="_blank" rel="noopener">Donate</a></li>}
+            </ul>
+          </div>
+        )}
       </div>
+    </section>
 
-      <div class="home-col">
+    <!-- Events -->
+    {showEvents && events.length > 0 && (
+      <section class="home-section">
         <h2 class="col-heading">Upcoming Events</h2>
-        {events.length > 0 ? (
-          <div class="events-list">
-            {events.map((ev) => (
-              <div class="event-item">
-                <div class="event-date-badge" style={`background:${levelColor[ev.level]}`}>
-                  <div style="font-size:1.3rem;font-weight:bold;line-height:1">{new Date(ev.event_date + "T00:00:00").getDate()}</div>
-                  <div style="font-size:.6rem;text-transform:uppercase;letter-spacing:.05em">{new Date(ev.event_date + "T00:00:00").toLocaleString("en-US",{month:"short"})}</div>
-                </div>
-                <div style="flex:1">
-                  <h3 style="font-size:.95rem;color:var(--primary);font-weight:700;margin:0">{ev.title}</h3>
-                  <p style="font-size:.78rem;color:var(--neutral);margin-top:.1rem">{fmtDate(ev.event_date)}{ev.location ? ` · ${ev.location}` : ""}</p>
-                  {ev.description && <p style="font-size:.85rem;margin-top:.2rem">{ev.description}</p>}
-                  {ev.url && <a href={ev.url} target="_blank" rel="noopener" style="font-size:.82rem;font-weight:600">Details &rarr;</a>}
+        <div class="events-list">
+          {events.map((ev) => (
+            <div class="event-item">
+              <div class="event-date-badge" style={`background:${levelColor[ev.level]}`}>
+                <div style="font-size:1.3rem;font-weight:bold;line-height:1">{new Date(ev.event_date + "T00:00:00").getDate()}</div>
+                <div style="font-size:.6rem;text-transform:uppercase;letter-spacing:.05em">{new Date(ev.event_date + "T00:00:00").toLocaleString("en-US",{month:"short"})}</div>
+              </div>
+              <div style="flex:1">
+                <h3 style="font-size:.95rem;color:var(--primary);font-weight:700;margin:0">{ev.title}</h3>
+                <p style="font-size:.78rem;color:var(--neutral);margin-top:.1rem">{fmtDate(ev.event_date)}{ev.location ? ` · ${ev.location}` : ""}</p>
+                {ev.description && <p style="font-size:.85rem;margin-top:.2rem">{ev.description}</p>}
+                {ev.url && <a href={ev.url} target="_blank" rel="noopener" style="font-size:.82rem;font-weight:600">Details &rarr;</a>}
+              </div>
+            </div>
+          ))}
+        </div>
+        {config.show_events !== "" && <p style="margin-top:.75rem"><a href={`${base}/events`}>View full calendar &rarr;</a></p>}
+      </section>
+    )}
+
+    <!-- Officers -->
+    {showOfficers && officers.length > 0 && (
+      <section class="home-section">
+        <h2 class="col-heading">Officers</h2>
+        <div class="officers-grid">
+          {officers.map((o) => (
+            <div class="officer-card">
+              <div class="officer-title">{o.title}</div>
+              <div class="officer-name">{o.name}</div>
+            </div>
+          ))}
+        </div>
+        {config.show_officers !== "" && <p style="margin-top:.75rem"><a href={`${base}/officers`}>View all officers &rarr;</a></p>}
+      </section>
+    )}
+
+    <!-- Gallery -->
+    {showGallery && photos.length > 0 && (
+      <section class="home-section">
+        <h2 class="col-heading">Gallery</h2>
+        <div class="gallery-grid">
+          {photos.slice(0, 6).map((photo) => (
+            <figure class="gallery-thumb">
+              <img src={photo.image_key} alt={photo.caption ?? ""} loading="lazy" />
+              {photo.caption && <figcaption>{photo.caption}</figcaption>}
+            </figure>
+          ))}
+        </div>
+        {config.show_gallery === "1" && photos.length > 6 && <p style="margin-top:.75rem"><a href={`${base}/gallery`}>View all photos &rarr;</a></p>}
+      </section>
+    )}
+
+    <!-- Links -->
+    {showLinks && links.length > 0 && (
+      <section class="home-section">
+        <h2 class="col-heading">Links</h2>
+        {Object.entries(linksByCategory).map(([cat, catLinks]) => (
+          <div class="link-group">
+            <h3 class="link-cat">{titleCase(cat)}</h3>
+            {catLinks.map((link) => (
+              <div class="link-row">
+                {link.image_key && <a href={link.url} target="_blank" rel="noopener"><img src={link.image_key} alt="" class="link-img" /></a>}
+                <div>
+                  <a href={link.url} target="_blank" rel="noopener" class="link-title">{link.title}</a>
+                  {link.description && <p class="link-desc">{link.description}</p>}
                 </div>
               </div>
             ))}
-            {config.show_events !== "" && <p style="margin-top:.5rem"><a href={`${base}/events`}>View full calendar &rarr;</a></p>}
           </div>
-        ) : (
-          <p style="color:var(--neutral);font-size:.9rem">No upcoming events. Check back soon!</p>
-        )}
-      </div>
-    </div>
+        ))}
+        {config.show_links === "1" && <p style="margin-top:.75rem"><a href={`${base}/links`}>View all links &rarr;</a></p>}
+      </section>
+    )}
   </main>
 </Base>
 
@@ -124,7 +202,6 @@ const hasSocial  = !!(config.facebook_url || config.instagram_url || config.twit
     overflow: hidden;
     margin-bottom: 1.5rem;
   }
-
   .lodge-hero-overlay {
     width: 100%;
     text-align: center;
@@ -132,7 +209,6 @@ const hasSocial  = !!(config.facebook_url || config.instagram_url || config.twit
     background: linear-gradient(transparent, rgba(37,46,103,.85));
     color: #fff;
   }
-
   .lodge-hero-title {
     font-family: 'Palatino Linotype', Palatino, 'Book Antiqua', 'Goudy Old Style', Georgia, serif;
     font-size: 2.4rem;
@@ -141,7 +217,6 @@ const hasSocial  = !!(config.facebook_url || config.instagram_url || config.twit
     text-shadow: 2px 2px 6px rgba(0,0,0,.6);
     margin: 0;
   }
-
   .lodge-hero-sub {
     font-size: 1.1rem;
     color: rgba(255,255,255,.9);
@@ -149,19 +224,14 @@ const hasSocial  = !!(config.facebook_url || config.instagram_url || config.twit
     letter-spacing: .03em;
   }
 
-  .home-columns {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-  }
-
-  .home-col {
+  .home-section {
     background: var(--card-bg);
     border: 1px solid var(--border);
     border-top: 3px solid var(--accent);
     border-radius: var(--radius);
     padding: 1.25rem;
     box-shadow: var(--shadow);
+    margin-bottom: 1.5rem;
   }
 
   .col-heading {
@@ -179,66 +249,82 @@ const hasSocial  = !!(config.facebook_url || config.instagram_url || config.twit
     overflow: hidden;
   }
 
-  .glance-list {
-    display: flex;
-    flex-direction: column;
-    gap: .75rem;
+  /* Glance */
+  .glance-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
   }
-
-  .glance-item {
-    border-bottom: 1px solid var(--border);
-    padding-bottom: .75rem;
-  }
-  .glance-item:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-  }
-
+  .glance-item { }
   .glance-label {
-    font-size: .67rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .09em;
-    color: var(--neutral);
-    margin-bottom: .3rem;
+    font-size: .67rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .09em; color: var(--neutral); margin-bottom: .3rem;
   }
-
   .glance-item p { font-size: .9rem; line-height: 1.5; }
   .glance-item p + p { margin-top: .15rem; }
   .glance-item a { color: var(--primary); }
   .glance-item ul { list-style: none; }
   .glance-item li { font-size: .9rem; line-height: 1.7; }
 
-  .events-list {
-    display: flex;
-    flex-direction: column;
-    gap: .6rem;
-  }
-
+  /* Events */
+  .events-list { display: flex; flex-direction: column; gap: .6rem; }
   .event-item {
-    display: flex;
-    align-items: flex-start;
-    gap: .75rem;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: .6rem;
+    display: flex; align-items: flex-start; gap: .75rem;
+    border-bottom: 1px solid var(--border); padding-bottom: .6rem;
   }
-  .event-item:last-of-type {
-    border-bottom: none;
-    padding-bottom: 0;
+  .event-item:last-of-type { border-bottom: none; padding-bottom: 0; }
+  .event-date-badge {
+    min-width: 46px; text-align: center; color: #fff;
+    border-radius: var(--radius); padding: .3rem .4rem; flex-shrink: 0;
   }
 
-  .event-date-badge {
-    min-width: 46px;
-    text-align: center;
-    color: #fff;
-    border-radius: var(--radius);
-    padding: .3rem .4rem;
-    flex-shrink: 0;
+  /* Officers */
+  .officers-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: .75rem;
   }
+  .officer-card {
+    background: var(--content-bg); border-radius: var(--radius);
+    padding: .6rem .8rem; text-align: center;
+  }
+  .officer-title {
+    font-size: .68rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .06em; color: var(--neutral); margin-bottom: .2rem;
+  }
+  .officer-name { font-size: .92rem; font-weight: 600; color: var(--primary); }
+
+  /* Gallery */
+  .gallery-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: .75rem;
+  }
+  .gallery-thumb { margin: 0; }
+  .gallery-thumb img {
+    width: 100%; height: 140px; object-fit: cover;
+    border-radius: var(--radius); display: block;
+  }
+  .gallery-thumb figcaption {
+    font-size: .75rem; color: var(--neutral); margin-top: .25rem; text-align: center;
+  }
+
+  /* Links */
+  .link-group { margin-bottom: 1rem; }
+  .link-group:last-child { margin-bottom: 0; }
+  .link-cat {
+    font-size: .78rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .06em; color: var(--neutral); margin-bottom: .5rem;
+    border-bottom: 1px solid var(--border); padding-bottom: .3rem;
+  }
+  .link-row {
+    display: flex; align-items: center; gap: .75rem;
+    padding: .4rem 0; border-bottom: 1px solid var(--border);
+  }
+  .link-row:last-child { border-bottom: none; }
+  .link-img { width: 80px; height: auto; object-fit: contain; flex-shrink: 0; border-radius: 4px; }
+  .link-title { font-weight: 600; font-size: .95rem; }
+  .link-desc { font-size: .82rem; color: var(--neutral); margin-top: .1rem; }
 
   @media (max-width: 720px) {
-    .home-columns {
-      grid-template-columns: 1fr;
-    }
+    .glance-grid { grid-template-columns: 1fr; }
+    .officers-grid { grid-template-columns: 1fr 1fr; }
+    .gallery-grid { grid-template-columns: 1fr 1fr; }
   }
 </style>

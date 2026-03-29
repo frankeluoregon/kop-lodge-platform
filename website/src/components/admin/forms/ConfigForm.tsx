@@ -36,6 +36,10 @@ interface Props {
     show_links: boolean;
     show_newsletter: boolean;
     show_programs: boolean;
+    home_events: boolean;
+    home_gallery: boolean;
+    home_officers: boolean;
+    home_links: boolean;
   };
 }
 
@@ -69,6 +73,10 @@ interface FormValues {
   show_links: boolean;
   show_newsletter: boolean;
   show_programs: boolean;
+  home_events: boolean;
+  home_gallery: boolean;
+  home_officers: boolean;
+  home_links: boolean;
 }
 
 export default function ConfigForm({ cancelUrl, initialData }: Props) {
@@ -79,6 +87,7 @@ export default function ConfigForm({ cancelUrl, initialData }: Props) {
         "show_events", "show_officers", "show_blog", "show_service",
         "show_history", "show_membership", "show_gallery", "show_links",
         "show_newsletter", "show_programs",
+        "home_events", "home_gallery", "home_officers", "home_links",
       ],
     });
 
@@ -151,6 +160,15 @@ export default function ConfigForm({ cancelUrl, initialData }: Props) {
         <div className="row">
           <CheckboxField label="Newsletter" registration={register("show_newsletter")} />
           <CheckboxField label="Programs" registration={register("show_programs")} />
+        </div>
+
+        <h3>Home Page Sections</h3>
+        <p className="hint">Choose which sections appear on your lodge home page. Lodge at a Glance is always shown.</p>
+        <div className="row">
+          <CheckboxField label="Events" registration={register("home_events")} />
+          <CheckboxField label="Gallery" registration={register("home_gallery")} />
+          <CheckboxField label="Officers" registration={register("home_officers")} />
+          <CheckboxField label="Links" registration={register("home_links")} />
         </div>
 
         <FormActions

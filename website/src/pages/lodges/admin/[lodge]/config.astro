@@ -57,7 +57,8 @@ if (Astro.request.method === "POST") {
       const toggles = [
         "show_history","show_membership","show_gallery","show_links",
         "show_newsletter","show_programs",
-        "show_blog","show_events","show_officers","show_service"
+        "show_blog","show_events","show_officers","show_service",
+        "home_events","home_gallery","home_officers","home_links"
       ];
       const now = new Date().toISOString();
       for (const key of fields) {
@@ -117,6 +118,10 @@ const config = await getConfig(env.DB, lodge.id);
       show_links: config.show_links === "1",
       show_newsletter: config.show_newsletter === "1",
       show_programs: config.show_programs === "1",
+      home_events: config.home_events === "1",
+      home_gallery: config.home_gallery === "1",
+      home_officers: config.home_officers === "1",
+      home_links: config.home_links === "1",
     }}
   />
 
