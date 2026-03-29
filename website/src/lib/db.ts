@@ -97,6 +97,7 @@ export interface Link {
   category: string;
   description: string | null;
   display_order: number;
+  image_key: string | null;
 }
 
 export interface Event {

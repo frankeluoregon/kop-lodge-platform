@@ -126,7 +126,6 @@ export default function ConfigForm({ cancelUrl, initialData }: Props) {
           <TextField label="Twitter / X URL" type="url" registration={register("twitter_url")} />
           <TextField label="Donation URL" type="url" registration={register("donation_url")} />
         </div>
-        <TextField label="Grand Lodge URL" type="url" registration={register("grand_lodge_url")} />
         <TextField label="Mailing Address" registration={register("mailing_address")} />
 
         <h3>Appearance</h3>

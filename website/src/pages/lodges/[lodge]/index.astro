@@ -30,7 +30,7 @@ const levelColor: Record<string, string> = {
 
 const hasMeeting = !!(config.meeting_schedule || config.meeting_location);
 const hasContact = !!(config.phone || config.email);
-const hasSocial  = !!(config.facebook_url || config.instagram_url || config.twitter_url || config.donation_url || config.grand_lodge_url);
+const hasSocial  = !!(config.facebook_url || config.instagram_url || config.twitter_url || config.donation_url);
 ---
 
 <Base config={config} lodgeSlug={lodgeSlug}>
@@ -87,7 +87,6 @@ const hasSocial  = !!(config.facebook_url || config.instagram_url || config.twit
                 {config.instagram_url  && <li><a href={config.instagram_url}  target="_blank" rel="noopener">Instagram</a></li>}
                 {config.twitter_url    && <li><a href={config.twitter_url}    target="_blank" rel="noopener">Twitter / X</a></li>}
                 {config.donation_url   && <li><a href={config.donation_url}   target="_blank" rel="noopener">Donate</a></li>}
-                {config.grand_lodge_url && <li><a href={config.grand_lodge_url} target="_blank" rel="noopener">Grand Lodge</a></li>}
               </ul>
             </div>
           )}

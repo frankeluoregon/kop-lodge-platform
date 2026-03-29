@@ -22,6 +22,12 @@ const grouped = allLinks.reduce<Record<string, Link[]>>((acc, link) => {
   return acc;
 }, {});
 const categories = Object.keys(grouped).sort();
+
+function titleCase(slug: string): string {
+  return slug
+    .replace(/[-_]/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
 ---
 
 <Base config={config} lodgeSlug={lodgeSlug} title="Links">
@@ -33,12 +39,15 @@ const categories = Object.keys(grouped).sort();
     {categories.length > 0 ? (
       categories.map((cat) => (
         <section>
-          <h2 class="section-heading" style="text-transform:capitalize">{cat}</h2>
+          <h2 class="section-heading">{titleCase(cat)}</h2>
           <div class="links-list">
             {grouped[cat].map((link) => (
               <div class="link-item">
-                <a href={link.url} target="_blank" rel="noopener">{link.title}</a>
-                {link.description && <p>{link.description}</p>}
+                {link.image_key && <img src={link.image_key} alt="" class="link-img" />}
+                <div>
+                  <a href={link.url} target="_blank" rel="noopener">{link.title}</a>
+                  {link.description && <p>{link.description}</p>}
+                </div>
               </div>
             ))}
           </div>
@@ -63,6 +72,16 @@ const categories = Object.keys(grouped).sort();
     border-radius: var(--radius);
     padding: .8rem 1rem;
     box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+  }
+  .link-img {
+    height: 40px;
+    width: 40px;
+    object-fit: contain;
+    flex-shrink: 0;
+    border-radius: 4px;
   }
   .link-item a {
     font-weight: 600;
