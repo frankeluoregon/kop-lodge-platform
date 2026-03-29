@@ -25,14 +25,29 @@ if (Astro.request.method === "POST") {
     return Astro.redirect(deleteUrl, 302);
   }
   try {
+    let imageKey = form.get("image_key")?.toString() ?? "";
+
+    const image = form.get("image");
+    if (image instanceof File && image.size > 0) {
+      const safeName = image.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const r2Key = `links/${lodgeSlug}/${Date.now()}-${safeName}`;
+      await env.MEDIA.put(r2Key, image.stream(), {
+        httpMetadata: { contentType: image.type },
+      });
+      imageKey = env.MEDIA_PUBLIC_URL
+        ? `${env.MEDIA_PUBLIC_URL.replace(/\/$/, "")}/${r2Key}`
+        : r2Key;
+    }
+
     await env.DB.prepare(
-      "UPDATE links SET title=?,url=?,category=?,description=?,display_order=? WHERE id=? AND lodge_id=?"
+      "UPDATE links SET title=?,url=?,category=?,description=?,display_order=?,image_key=? WHERE id=? AND lodge_id=?"
     ).bind(
       form.get("title")?.toString() ?? "",
       form.get("url")?.toString() ?? "",
       form.get("category")?.toString() || "general",
       form.get("description")?.toString() || null,
       Number(form.get("display_order") ?? 0),
+      imageKey || null,
       id, lodge.id,
     ).run();
     if (wantsJson) return new Response(JSON.stringify({ redirect: `/lodges/admin/${lodgeSlug}` }), { headers: { "Content-Type": "application/json" } });
@@ -54,6 +69,7 @@ if (Astro.request.method === "POST") {
       category: String(entry.category ?? "general"),
       description: String(entry.description ?? ""),
       display_order: Number(entry.display_order ?? 0),
+      image_key: String(entry.image_key ?? ""),
     }}
   />
 </AdminForm>

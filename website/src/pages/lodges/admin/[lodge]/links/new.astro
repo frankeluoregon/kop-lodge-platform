@@ -13,8 +13,22 @@ if (Astro.request.method === "POST") {
   const wantsJson = Astro.request.headers.get("Accept")?.includes("application/json");
   try {
     const form = await Astro.request.formData();
+    let imageKey = form.get("image_key")?.toString() ?? "";
+
+    const image = form.get("image");
+    if (image instanceof File && image.size > 0) {
+      const safeName = image.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const r2Key = `links/${lodgeSlug}/${Date.now()}-${safeName}`;
+      await env.MEDIA.put(r2Key, image.stream(), {
+        httpMetadata: { contentType: image.type },
+      });
+      imageKey = env.MEDIA_PUBLIC_URL
+        ? `${env.MEDIA_PUBLIC_URL.replace(/\/$/, "")}/${r2Key}`
+        : r2Key;
+    }
+
     await env.DB.prepare(
-      "INSERT INTO links (lodge_id, title, url, category, description, display_order) VALUES (?,?,?,?,?,?)"
+      "INSERT INTO links (lodge_id, title, url, category, description, display_order, image_key) VALUES (?,?,?,?,?,?,?)"
     ).bind(
       lodge.id,
       form.get("title")?.toString() ?? "",
@@ -22,10 +36,12 @@ if (Astro.request.method === "POST") {
       form.get("category")?.toString() || "general",
       form.get("description")?.toString() || null,
       Number(form.get("display_order") ?? 0),
+      imageKey || null,
     ).run();
-    return wantsJson
-      ? Response.redirect(new URL(`/lodges/admin/${lodgeSlug}`, Astro.url), 302)
-      : Astro.redirect(`/lodges/admin/${lodgeSlug}`, 302);
+
+    const redirectUrl = `/lodges/admin/${lodgeSlug}`;
+    if (wantsJson) return new Response(JSON.stringify({ redirect: redirectUrl }), { headers: { "Content-Type": "application/json" } });
+    return Astro.redirect(redirectUrl, 302);
   } catch (e: unknown) {
     const msg = `Error: ${e instanceof Error ? e.message : String(e)}`;
     if (wantsJson) return new Response(JSON.stringify({ error: msg }), { status: 400, headers: { "Content-Type": "application/json" } });
