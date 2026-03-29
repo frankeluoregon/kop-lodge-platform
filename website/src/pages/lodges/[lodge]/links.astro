@@ -43,7 +43,7 @@ function titleCase(slug: string): string {
           <div class="links-list">
             {grouped[cat].map((link) => (
               <div class="link-item">
-                {link.image_key && <img src={link.image_key} alt="" class="link-img" />}
+                {link.image_key && <a href={link.url} target="_blank" rel="noopener"><img src={link.image_key} alt="" class="link-img" /></a>}
                 <div>
                   <a href={link.url} target="_blank" rel="noopener">{link.title}</a>
                   {link.description && <p>{link.description}</p>}
