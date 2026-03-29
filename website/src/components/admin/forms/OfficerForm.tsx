@@ -1,3 +1,4 @@
+import { useRef, useState, useCallback } from "react";
 import { useAdminForm } from "../useAdminForm";
 import FormMessage from "../FormMessage";
 import FormActions from "../FormActions";
@@ -13,6 +14,7 @@ interface Props {
     email?: string;
     display_order?: number;
     active?: boolean;
+    photo_key?: string;
   };
   isEdit?: boolean;
 }
@@ -23,10 +25,11 @@ interface FormValues {
   email: string;
   display_order: number;
   active: boolean;
+  photo_key: string;
 }
 
 export default function OfficerForm({ cancelUrl, initialData, isEdit }: Props) {
-  const { form, submitting, serverError, successMsg, onSubmit, onDelete } =
+  const { form, submitting, serverError, successMsg, onDelete } =
     useAdminForm<FormValues>({
       defaultValues: {
         title: initialData?.title ?? "",
@@ -34,15 +37,69 @@ export default function OfficerForm({ cancelUrl, initialData, isEdit }: Props) {
         email: initialData?.email ?? "",
         display_order: initialData?.display_order ?? 0,
         active: initialData?.active ?? true,
+        photo_key: initialData?.photo_key ?? "",
       },
       checkboxFields: ["active"],
     });
 
-  const { register, formState: { errors } } = form;
+  const { register, formState: { errors }, handleSubmit } = form;
+
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [preview, setPreview] = useState<string | null>(initialData?.photo_key || null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+
+  const onFileChange = useCallback(() => {
+    const file = fileRef.current?.files?.[0];
+    if (file) setPreview(URL.createObjectURL(file));
+  }, []);
+
+  const onSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      handleSubmit(async (values) => {
+        setUploading(true);
+        setUploadError("");
+        try {
+          const fd = new FormData();
+          const file = fileRef.current?.files?.[0];
+          if (file) fd.append("photo", file);
+          fd.append("title", values.title);
+          fd.append("name", values.name);
+          fd.append("email", values.email || "");
+          fd.append("display_order", String(values.display_order));
+          if (values.active) fd.append("active", "1");
+          fd.append("photo_key", values.photo_key || "");
+
+          const res = await fetch(window.location.href, {
+            method: "POST",
+            headers: { Accept: "application/json" },
+            body: fd,
+          });
+          if (res.redirected) { window.location.href = res.url; return; }
+          if (res.ok) {
+            const data = await res.json();
+            if (data.error) setUploadError(data.error);
+            else if (data.redirect) window.location.href = data.redirect;
+          } else {
+            const data = await res.json().catch(() => null);
+            setUploadError(data?.error || `Server error (${res.status})`);
+          }
+        } catch {
+          setUploadError("Network error. Please try again.");
+        } finally {
+          setUploading(false);
+        }
+      })(e);
+    },
+    [handleSubmit]
+  );
+
+  const busy = submitting || uploading;
 
   return (
     <>
-      <FormMessage error={serverError} success={successMsg} />
+      <FormMessage error={serverError || uploadError} success={successMsg} />
       <form onSubmit={onSubmit}>
         <TextField
           label="Officer Title"
@@ -72,13 +129,26 @@ export default function OfficerForm({ cancelUrl, initialData, isEdit }: Props) {
             error={errors.display_order}
           />
         </div>
+        <div className="field">
+          <label>
+            Photo <span className="hint">(optional)</span>
+            <input type="file" accept="image/*" ref={fileRef} onChange={onFileChange} />
+          </label>
+          {preview && (
+            <img
+              src={preview}
+              alt="Preview"
+              style={{ maxWidth: 150, maxHeight: 150, marginTop: 8, borderRadius: '50%', objectFit: 'cover' }}
+            />
+          )}
+        </div>
         {isEdit && (
           <CheckboxField label="Active" registration={register("active")} />
         )}
         <FormActions
           submitLabel={isEdit ? "Save Changes" : "Add Officer"}
           cancelUrl={cancelUrl}
-          submitting={submitting}
+          submitting={busy}
           onDelete={isEdit ? () => onDelete("Delete this officer?") : undefined}
         />
       </form>

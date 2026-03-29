@@ -25,15 +25,28 @@ if (Astro.request.method === "POST") {
     return Astro.redirect(deleteUrl, 302);
   }
   try {
+    let photoKey = form.get("photo_key")?.toString() ?? "";
+
+    const photo = form.get("photo");
+    if (photo instanceof File && photo.size > 0) {
+      const safeName = photo.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const r2Key = `officers/${lodgeSlug}/${Date.now()}-${safeName}`;
+      await env.MEDIA.put(r2Key, photo.stream(), {
+        httpMetadata: { contentType: photo.type },
+      });
+      photoKey = `/media/${r2Key}`;
+    }
+
     const now = new Date().toISOString();
     const order = Number(form.get("display_order") ?? 0);
     await makeRoomForOrder(env.DB, "officers", lodge.id, order, id);
     await env.DB.prepare(
-      "UPDATE officers SET title=?,name=?,email=?,display_order=?,active=?,updated_at=? WHERE id=? AND lodge_id=?"
+      "UPDATE officers SET title=?,name=?,email=?,photo_key=?,display_order=?,active=?,updated_at=? WHERE id=? AND lodge_id=?"
     ).bind(
       form.get("title")?.toString() ?? "",
       form.get("name")?.toString() ?? "",
       form.get("email")?.toString() || null,
+      photoKey || null,
       order,
       form.get("active") === "1" ? 1 : 0,
       now, id, lodge.id,
@@ -57,6 +70,7 @@ if (Astro.request.method === "POST") {
       email: String(officer.email ?? ""),
       display_order: Number(officer.display_order ?? 0),
       active: Boolean(officer.active),
+      photo_key: String(officer.photo_key ?? ""),
     }}
   />
 </AdminForm>

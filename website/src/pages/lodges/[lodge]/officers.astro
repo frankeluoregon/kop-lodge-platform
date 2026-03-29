@@ -21,12 +21,18 @@ const officers = await getOfficers(db, lodge.id);
     {officers.length === 0
       ? <p style="color:#666">Officer information coming soon.</p>
       : (
-        <div class="card-grid">
+        <div class="officer-grid">
           {officers.map((o) => (
-            <div class="card">
-              <h3>{o.title}</h3>
-              <p>{o.name}</p>
-              {o.email && <p class="meta"><a href={`mailto:${o.email}`}>{o.email}</a></p>}
+            <div class="officer-card">
+              {o.photo_key
+                ? <img src={o.photo_key} alt={o.name} class="officer-photo" />
+                : <div class="officer-photo-placeholder">
+                    <span>{o.name.split(" ").map(n => n[0]).join("").slice(0, 2)}</span>
+                  </div>
+              }
+              <div class="officer-title">{o.title}</div>
+              <div class="officer-name">{o.name}</div>
+              {o.email && <a href={`mailto:${o.email}`} class="officer-email">{o.email}</a>}
             </div>
           ))}
         </div>
@@ -34,3 +40,73 @@ const officers = await getOfficers(db, lodge.id);
     }
   </main>
 </Base>
+
+<style>
+  .officer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .officer-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--accent);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.25rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .4rem;
+  }
+
+  .officer-photo {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--accent);
+    margin-bottom: .4rem;
+  }
+
+  .officer-photo-placeholder {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: .05em;
+    border: 3px solid var(--accent);
+    margin-bottom: .4rem;
+  }
+
+  .officer-title {
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--neutral);
+  }
+
+  .officer-name {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  .officer-email {
+    font-size: .8rem;
+    color: var(--primary);
+  }
+
+  @media (max-width: 640px) {
+    .officer-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
