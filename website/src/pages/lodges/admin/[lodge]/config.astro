@@ -51,24 +51,15 @@ if (Astro.request.method === "POST") {
         "lodge_name","lodge_number","state","grand_domain","city",
         "meeting_schedule","meeting_location","phone","email",
         "facebook_url","instagram_url","twitter_url",
-        "donation_url","grand_lodge_url","mailing_address",
-        "primary_color","accent_color","tagline","founded_year"
-      ];
-      const toggles = [
-        "show_history","show_membership","show_gallery","show_links",
-        "show_newsletter","show_programs",
-        "show_blog","show_events","show_officers","show_service",
-        "home_events","home_gallery","home_officers","home_links"
+        "donation_url","mailing_address",
+        "primary_color","accent_color","tagline","founded_year",
+        "display_events","display_gallery","display_links",
+        "display_service","display_blog","display_history",
+        "display_membership","display_newsletter","display_programs"
       ];
       const now = new Date().toISOString();
       for (const key of fields) {
         const val = form.get(key)?.toString() ?? "";
-        await env.DB.prepare(
-          "INSERT INTO lodge_config (lodge_id,key,value,updated_at) VALUES (?,?,?,?) ON CONFLICT(lodge_id,key) DO UPDATE SET value=excluded.value,updated_at=excluded.updated_at"
-        ).bind(lodge.id, key, val, now).run();
-      }
-      for (const key of toggles) {
-        const val = form.get(key) === "1" ? "1" : "";
         await env.DB.prepare(
           "INSERT INTO lodge_config (lodge_id,key,value,updated_at) VALUES (?,?,?,?) ON CONFLICT(lodge_id,key) DO UPDATE SET value=excluded.value,updated_at=excluded.updated_at"
         ).bind(lodge.id, key, val, now).run();
@@ -104,24 +95,18 @@ const config = await getConfig(env.DB, lodge.id);
       instagram_url: config.instagram_url,
       twitter_url: config.twitter_url,
       donation_url: config.donation_url,
-      grand_lodge_url: config.grand_lodge_url,
       mailing_address: config.mailing_address,
       primary_color: config.primary_color,
       accent_color: config.accent_color,
-      show_events: config.show_events !== "",
-      show_officers: config.show_officers !== "",
-      show_blog: config.show_blog !== "",
-      show_service: config.show_service !== "",
-      show_history: config.show_history === "1",
-      show_membership: config.show_membership === "1",
-      show_gallery: config.show_gallery === "1",
-      show_links: config.show_links === "1",
-      show_newsletter: config.show_newsletter === "1",
-      show_programs: config.show_programs === "1",
-      home_events: config.home_events === "1",
-      home_gallery: config.home_gallery === "1",
-      home_officers: config.home_officers === "1",
-      home_links: config.home_links === "1",
+      display_events: (config as any).display_events || (config.show_events !== "" ? (config.home_events === "1" ? "home" : "page") : "off"),
+      display_gallery: (config as any).display_gallery || (config.show_gallery === "1" ? (config.home_gallery === "1" ? "home" : "page") : "off"),
+      display_links: (config as any).display_links || (config.show_links === "1" ? (config.home_links === "1" ? "home" : "page") : "off"),
+      display_service: (config as any).display_service || (config.show_service !== "" ? "page" : "off"),
+      display_blog: (config as any).display_blog || (config.show_blog !== "" ? "page" : "off"),
+      display_history: (config as any).display_history || (config.show_history === "1" ? "page" : "off"),
+      display_membership: (config as any).display_membership || (config.show_membership === "1" ? "page" : "off"),
+      display_newsletter: (config as any).display_newsletter || (config.show_newsletter === "1" ? "page" : "off"),
+      display_programs: (config as any).display_programs || (config.show_programs === "1" ? "page" : "off"),
     }}
   />
 

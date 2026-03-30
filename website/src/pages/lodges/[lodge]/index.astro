@@ -14,22 +14,24 @@ const heroPhoto = await getFeaturedPhoto(db, lodge.id);
 const lodgeFullName = `${config.lodge_name}${config.lodge_number && config.lodge_number !== "0" ? ` Lodge No. ${config.lodge_number}` : ""}`;
 const base = `/lodges/${lodgeSlug}`;
 
-// Conditionally fetch data based on home page config
-const showEvents   = config.home_events === "1";
-const showGallery  = config.home_gallery === "1";
-const showOfficers = config.home_officers === "1";
-const showLinks    = config.home_links === "1" && config.show_links === "1";
-
-const events  = showEvents ? await getUpcomingEvents(db, lodge.id, undefined, 6) : [];
-const photos  = showGallery ? await getGalleryPhotos(db, lodge.id) : [];
-const links   = showLinks ? await getLinks(db, lodge.id) : [];
-
-// Officers query
-let officers: Officer[] = [];
-if (showOfficers) {
-  const res = await db.prepare("SELECT * FROM officers WHERE lodge_id = ? AND active = 1 ORDER BY display_order ASC").bind(lodge.id).all<Officer>();
-  officers = res.results;
+// Section display mode helper
+function displayMode(section: string): string {
+  const newKey = (config as any)[`display_${section}`];
+  if (newKey && newKey !== "") return newKey;
+  const showKey = (config as any)[`show_${section}`];
+  if (showKey === "1" || (showKey && showKey !== "")) return "page";
+  return "off";
 }
+const isHome = (s: string) => displayMode(s) === "home";
+
+// Officers always shown on home
+const officersRes = await db.prepare("SELECT * FROM officers WHERE lodge_id = ? AND active = 1 ORDER BY display_order ASC").bind(lodge.id).all<Officer>();
+const officers = officersRes.results;
+
+// Conditionally fetch data based on display mode
+const events = isHome("events") ? await getUpcomingEvents(db, lodge.id, undefined, 6) : [];
+const photos = isHome("gallery") ? await getGalleryPhotos(db, lodge.id) : [];
+const links  = isHome("links") ? await getLinks(db, lodge.id) : [];
 
 function fmtDate(d: string) {
   return new Date(d + "T00:00:00").toLocaleDateString("en-US", {
@@ -107,8 +109,29 @@ const linksByCategory = links.reduce<Record<string, typeof links>>((acc, link) =
       </div>
     </section>
 
+    <!-- Officers (always shown) -->
+    {officers.length > 0 && (
+      <section class="home-section">
+        <h2 class="col-heading">Officers</h2>
+        <div class="officers-grid">
+          {officers.map((o) => (
+            <div class="officer-card">
+              {o.photo_key
+                ? <img src={o.photo_key} alt={o.name} class="officer-photo" />
+                : <div class="officer-photo-placeholder">
+                    <span>{o.name.split(" ").map(n => n[0]).join("").slice(0, 2)}</span>
+                  </div>
+              }
+              <div class="officer-title">{o.title}</div>
+              <div class="officer-name">{o.name}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+    )}
+
     <!-- Events -->
-    {showEvents && events.length > 0 && (
+    {isHome("events") && events.length > 0 && (
       <section class="home-section">
         <h2 class="col-heading">Upcoming Events</h2>
         <div class="events-list">
@@ -127,28 +150,12 @@ const linksByCategory = links.reduce<Record<string, typeof links>>((acc, link) =
             </div>
           ))}
         </div>
-        {config.show_events !== "" && <p style="margin-top:.75rem"><a href={`${base}/events`}>View full calendar &rarr;</a></p>}
-      </section>
-    )}
-
-    <!-- Officers -->
-    {showOfficers && officers.length > 0 && (
-      <section class="home-section">
-        <h2 class="col-heading">Officers</h2>
-        <div class="officers-grid">
-          {officers.map((o) => (
-            <div class="officer-card">
-              <div class="officer-title">{o.title}</div>
-              <div class="officer-name">{o.name}</div>
-            </div>
-          ))}
-        </div>
-        {config.show_officers !== "" && <p style="margin-top:.75rem"><a href={`${base}/officers`}>View all officers &rarr;</a></p>}
+        {displayMode("events") !== "off" && <p style="margin-top:.75rem"><a href={`${base}/events`}>View full calendar &rarr;</a></p>}
       </section>
     )}
 
     <!-- Gallery -->
-    {showGallery && photos.length > 0 && (
+    {isHome("gallery") && photos.length > 0 && (
       <section class="home-section">
         <h2 class="col-heading">Gallery</h2>
         <div class="gallery-grid">
@@ -159,12 +166,12 @@ const linksByCategory = links.reduce<Record<string, typeof links>>((acc, link) =
             </figure>
           ))}
         </div>
-        {config.show_gallery === "1" && photos.length > 6 && <p style="margin-top:.75rem"><a href={`${base}/gallery`}>View all photos &rarr;</a></p>}
+        {photos.length > 6 && <p style="margin-top:.75rem"><a href={`${base}/gallery`}>View all photos &rarr;</a></p>}
       </section>
     )}
 
     <!-- Links -->
-    {showLinks && links.length > 0 && (
+    {isHome("links") && links.length > 0 && (
       <section class="home-section">
         <h2 class="col-heading">Links</h2>
         {Object.entries(linksByCategory).map(([cat, catLinks]) => (
@@ -181,7 +188,6 @@ const linksByCategory = links.reduce<Record<string, typeof links>>((acc, link) =
             ))}
           </div>
         ))}
-        {config.show_links === "1" && <p style="margin-top:.75rem"><a href={`${base}/links`}>View all links &rarr;</a></p>}
       </section>
     )}
   </main>
@@ -278,13 +284,24 @@ const linksByCategory = links.reduce<Record<string, typeof links>>((acc, link) =
   }
   .officer-card {
     background: var(--content-bg); border-radius: var(--radius);
-    padding: .6rem .8rem; text-align: center;
+    padding: .8rem; text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: .3rem;
+  }
+  .officer-photo {
+    width: 70px; height: 70px; border-radius: 50%; object-fit: cover;
+    border: 2px solid var(--accent);
+  }
+  .officer-photo-placeholder {
+    width: 70px; height: 70px; border-radius: 50%;
+    background: var(--primary); color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; font-weight: 700; border: 2px solid var(--accent);
   }
   .officer-title {
-    font-size: .68rem; font-weight: 700; text-transform: uppercase;
-    letter-spacing: .06em; color: var(--neutral); margin-bottom: .2rem;
+    font-size: .65rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .06em; color: var(--neutral);
   }
-  .officer-name { font-size: .92rem; font-weight: 600; color: var(--primary); }
+  .officer-name { font-size: .88rem; font-weight: 600; color: var(--primary); }
 
   /* Gallery */
   .gallery-grid {

@@ -2,7 +2,18 @@ import { useAdminForm } from "../useAdminForm";
 import FormMessage from "../FormMessage";
 import FormActions from "../FormActions";
 import TextField from "../fields/TextField";
-import CheckboxField from "../fields/CheckboxField";
+import SelectField from "../fields/SelectField";
+
+const DISPLAY_OPTIONS = [
+  { value: "off", label: "Off" },
+  { value: "home", label: "Front Page" },
+  { value: "page", label: "Separate Page" },
+];
+
+const PAGE_ONLY_OPTIONS = [
+  { value: "off", label: "Off" },
+  { value: "page", label: "Separate Page" },
+];
 
 interface Props {
   cancelUrl: string;
@@ -22,24 +33,18 @@ interface Props {
     instagram_url: string;
     twitter_url: string;
     donation_url: string;
-    grand_lodge_url: string;
     mailing_address: string;
     primary_color: string;
     accent_color: string;
-    show_events: boolean;
-    show_officers: boolean;
-    show_blog: boolean;
-    show_service: boolean;
-    show_history: boolean;
-    show_membership: boolean;
-    show_gallery: boolean;
-    show_links: boolean;
-    show_newsletter: boolean;
-    show_programs: boolean;
-    home_events: boolean;
-    home_gallery: boolean;
-    home_officers: boolean;
-    home_links: boolean;
+    display_events: string;
+    display_gallery: string;
+    display_links: string;
+    display_service: string;
+    display_blog: string;
+    display_history: string;
+    display_membership: string;
+    display_newsletter: string;
+    display_programs: string;
   };
 }
 
@@ -59,36 +64,24 @@ interface FormValues {
   instagram_url: string;
   twitter_url: string;
   donation_url: string;
-  grand_lodge_url: string;
   mailing_address: string;
   primary_color: string;
   accent_color: string;
-  show_events: boolean;
-  show_officers: boolean;
-  show_blog: boolean;
-  show_service: boolean;
-  show_history: boolean;
-  show_membership: boolean;
-  show_gallery: boolean;
-  show_links: boolean;
-  show_newsletter: boolean;
-  show_programs: boolean;
-  home_events: boolean;
-  home_gallery: boolean;
-  home_officers: boolean;
-  home_links: boolean;
+  display_events: string;
+  display_gallery: string;
+  display_links: string;
+  display_service: string;
+  display_blog: string;
+  display_history: string;
+  display_membership: string;
+  display_newsletter: string;
+  display_programs: string;
 }
 
 export default function ConfigForm({ cancelUrl, initialData }: Props) {
   const { form, submitting, serverError, successMsg, onSubmit } =
     useAdminForm<FormValues>({
       defaultValues: initialData,
-      checkboxFields: [
-        "show_events", "show_officers", "show_blog", "show_service",
-        "show_history", "show_membership", "show_gallery", "show_links",
-        "show_newsletter", "show_programs",
-        "home_events", "home_gallery", "home_officers", "home_links",
-      ],
     });
 
   const { register, formState: { errors } } = form;
@@ -143,32 +136,26 @@ export default function ConfigForm({ cancelUrl, initialData }: Props) {
           <TextField label="Accent Color" hint="(hex)" registration={register("accent_color")} />
         </div>
 
-        <h3>Section Visibility</h3>
-        <p className="hint">Check sections to show in your lodge's navigation. Uncheck to hide.</p>
+        <h3>Section Layout</h3>
+        <p className="hint">Officers and Lodge at a Glance always appear on the front page. For other sections, choose Front Page (displayed on home), Separate Page (own page with nav link), or Off.</p>
         <div className="row">
-          <CheckboxField label="Events" registration={register("show_events")} />
-          <CheckboxField label="Officers" registration={register("show_officers")} />
-          <CheckboxField label="Blog / News" registration={register("show_blog")} />
-          <CheckboxField label="Community Service" registration={register("show_service")} />
+          <SelectField label="Events" options={DISPLAY_OPTIONS} registration={register("display_events")} />
+          <SelectField label="Gallery" options={DISPLAY_OPTIONS} registration={register("display_gallery")} />
         </div>
         <div className="row">
-          <CheckboxField label="History" registration={register("show_history")} />
-          <CheckboxField label="Membership / Join" registration={register("show_membership")} />
-          <CheckboxField label="Photo Gallery" registration={register("show_gallery")} />
-          <CheckboxField label="Links" registration={register("show_links")} />
+          <SelectField label="Links" options={DISPLAY_OPTIONS} registration={register("display_links")} />
+          <SelectField label="Community Service" options={DISPLAY_OPTIONS} registration={register("display_service")} />
         </div>
         <div className="row">
-          <CheckboxField label="Newsletter" registration={register("show_newsletter")} />
-          <CheckboxField label="Programs" registration={register("show_programs")} />
+          <SelectField label="Blog / News" options={DISPLAY_OPTIONS} registration={register("display_blog")} />
+          <SelectField label="History" options={PAGE_ONLY_OPTIONS} registration={register("display_history")} />
         </div>
-
-        <h3>Home Page Sections</h3>
-        <p className="hint">Choose which sections appear on your lodge home page. Lodge at a Glance is always shown.</p>
         <div className="row">
-          <CheckboxField label="Events" registration={register("home_events")} />
-          <CheckboxField label="Gallery" registration={register("home_gallery")} />
-          <CheckboxField label="Officers" registration={register("home_officers")} />
-          <CheckboxField label="Links" registration={register("home_links")} />
+          <SelectField label="Membership / Join" options={PAGE_ONLY_OPTIONS} registration={register("display_membership")} />
+          <SelectField label="Newsletter" options={PAGE_ONLY_OPTIONS} registration={register("display_newsletter")} />
+        </div>
+        <div className="row">
+          <SelectField label="Programs" options={PAGE_ONLY_OPTIONS} registration={register("display_programs")} />
         </div>
 
         <FormActions
