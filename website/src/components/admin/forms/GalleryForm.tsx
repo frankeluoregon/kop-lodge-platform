@@ -71,6 +71,7 @@ export default function GalleryForm({ cancelUrl, initialData, isEdit }: Props) {
           fd.append("caption", values.caption || "");
           fd.append("display_order", String(values.display_order));
           if (values.published) fd.append("published", "1");
+          if (values.featured) fd.append("featured", "1");
 
           const res = await fetch(window.location.href, {
             method: "POST",
