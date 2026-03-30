@@ -1,14 +1,5 @@
 ---
-import { getAllLodges } from "../lib/db";
-
-const db = Astro.locals.runtime.env.DB;
-const lodges = await getAllLodges(db);
-
-const primary   = "#252e67";
-const accent    = "#f5a71c";
-const secondary = "#a91e23";
-const neutral   = "#4a5072";
-const contentBg = "#ded3c3";
+return Astro.redirect("/lodges/helmet33/", 302);
 ---
 
 <!doctype html>
