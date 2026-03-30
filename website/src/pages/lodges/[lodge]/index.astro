@@ -62,11 +62,10 @@ const linksByCategory = links.reduce<Record<string, typeof links>>((acc, link) =
 <Base config={config} lodgeSlug={lodgeSlug}>
   <main>
     {heroPhoto && (
-      <div class="lodge-hero" style={`background-image:url('${heroPhoto.image_key}')`}>
-        <div class="lodge-hero-overlay">
-          <h1 class="lodge-hero-title">{lodgeFullName}</h1>
-          {config.city && <p class="lodge-hero-sub">{config.city}</p>}
-        </div>
+      <div class="lodge-hero">
+        <img src={heroPhoto.image_key} alt={lodgeFullName} class="lodge-hero-img" />
+        <h1 class="lodge-hero-title">{lodgeFullName}</h1>
+        {config.city && <p class="lodge-hero-sub">{config.city}</p>}
       </div>
     )}
 
@@ -190,36 +189,31 @@ const linksByCategory = links.reduce<Record<string, typeof links>>((acc, link) =
 
 <style>
   .lodge-hero {
-    width: 100%;
-    min-height: 280px;
-    background-size: cover;
-    background-position: center;
-    position: relative;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
+    background: var(--primary);
     border-radius: var(--radius);
     overflow: hidden;
     margin-bottom: 1.5rem;
-  }
-  .lodge-hero-overlay {
-    width: 100%;
     text-align: center;
-    padding: 3rem 1.5rem 2rem;
-    background: linear-gradient(transparent, rgba(37,46,103,.85));
-    color: #fff;
+    padding: 1.5rem 1.5rem 1.25rem;
+  }
+  .lodge-hero-img {
+    max-width: 100%;
+    max-height: 320px;
+    height: auto;
+    object-fit: contain;
+    border-radius: var(--radius);
+    margin-bottom: 1rem;
   }
   .lodge-hero-title {
     font-family: 'Palatino Linotype', Palatino, 'Book Antiqua', 'Goudy Old Style', Georgia, serif;
-    font-size: 2.4rem;
-    color: #fff;
+    font-size: 2rem;
+    color: var(--accent);
     letter-spacing: .05em;
-    text-shadow: 2px 2px 6px rgba(0,0,0,.6);
     margin: 0;
   }
   .lodge-hero-sub {
-    font-size: 1.1rem;
-    color: rgba(255,255,255,.9);
+    font-size: 1rem;
+    color: rgba(255,255,255,.85);
     margin-top: .3rem;
     letter-spacing: .03em;
   }
