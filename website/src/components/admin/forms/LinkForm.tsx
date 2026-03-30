@@ -4,6 +4,7 @@ import FormMessage from "../FormMessage";
 import FormActions from "../FormActions";
 import TextField from "../fields/TextField";
 import NumberField from "../fields/NumberField";
+import FileField, { type FileFieldHandle } from "../fields/FileField";
 
 interface Props {
   cancelUrl: string;
@@ -42,19 +43,9 @@ export default function LinkForm({ cancelUrl, initialData, isEdit }: Props) {
 
   const { register, formState: { errors }, handleSubmit } = form;
 
-  const fileRef = useRef<HTMLInputElement>(null);
-  const [preview, setPreview] = useState<string | null>(
-    initialData?.image_key || null
-  );
+  const fileRef = useRef<FileFieldHandle>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
-
-  const onFileChange = useCallback(() => {
-    const file = fileRef.current?.files?.[0];
-    if (file) {
-      setPreview(URL.createObjectURL(file));
-    }
-  }, []);
 
   const onSubmit = useCallback(
     (e: React.FormEvent) => {
@@ -143,24 +134,13 @@ export default function LinkForm({ cancelUrl, initialData, isEdit }: Props) {
           hint="(optional)"
           registration={register("description")}
         />
-        <div className="field">
-          <label>
-            Image <span className="hint">(optional logo/icon)</span>
-            <input
-              type="file"
-              accept="image/*"
-              ref={fileRef}
-              onChange={onFileChange}
-            />
-          </label>
-          {preview && (
-            <img
-              src={preview}
-              alt="Preview"
-              style={{ maxWidth: 200, maxHeight: 100, marginTop: 8, borderRadius: 4, objectFit: "contain" }}
-            />
-          )}
-        </div>
+        <FileField
+          ref={fileRef}
+          label="Image"
+          hint="(optional logo/icon)"
+          previewUrl={initialData?.image_key || null}
+          previewStyle={{ maxWidth: 200, maxHeight: 100, borderRadius: 4, objectFit: 'contain' as const }}
+        />
         <FormActions
           submitLabel={isEdit ? "Save Changes" : "Add Link"}
           cancelUrl={cancelUrl}

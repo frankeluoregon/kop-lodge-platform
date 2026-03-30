@@ -5,6 +5,7 @@ import FormActions from "../FormActions";
 import TextField from "../fields/TextField";
 import NumberField from "../fields/NumberField";
 import CheckboxField from "../fields/CheckboxField";
+import FileField, { type FileFieldHandle } from "../fields/FileField";
 
 interface Props {
   cancelUrl: string;
@@ -41,19 +42,9 @@ export default function GalleryForm({ cancelUrl, initialData, isEdit }: Props) {
 
   const { register, formState: { errors }, handleSubmit } = form;
 
-  const fileRef = useRef<HTMLInputElement>(null);
-  const [preview, setPreview] = useState<string | null>(
-    initialData?.image_key || null
-  );
+  const fileRef = useRef<FileFieldHandle>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
-
-  const onFileChange = useCallback(() => {
-    const file = fileRef.current?.files?.[0];
-    if (file) {
-      setPreview(URL.createObjectURL(file));
-    }
-  }, []);
 
   const onSubmit = useCallback(
     (e: React.FormEvent) => {
@@ -109,24 +100,12 @@ export default function GalleryForm({ cancelUrl, initialData, isEdit }: Props) {
     <>
       <FormMessage error={serverError || uploadError} success={successMsg} />
       <form onSubmit={onSubmit}>
-        <div className="field">
-          <label>
-            Photo
-            <input
-              type="file"
-              accept="image/*"
-              ref={fileRef}
-              onChange={onFileChange}
-            />
-          </label>
-          {preview && (
-            <img
-              src={preview}
-              alt="Preview"
-              style={{ maxWidth: 320, maxHeight: 240, marginTop: 8, borderRadius: 4 }}
-            />
-          )}
-        </div>
+        <FileField
+          ref={fileRef}
+          label="Photo"
+          previewUrl={initialData?.image_key || null}
+          previewStyle={{ maxWidth: 320, maxHeight: 240, borderRadius: 4 }}
+        />
         <TextField
           label="Image URL / Key"
           placeholder="https://... or R2 key (auto-filled on upload)"

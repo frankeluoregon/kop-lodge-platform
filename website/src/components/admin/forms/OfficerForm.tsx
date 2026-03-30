@@ -5,6 +5,7 @@ import FormActions from "../FormActions";
 import TextField from "../fields/TextField";
 import NumberField from "../fields/NumberField";
 import CheckboxField from "../fields/CheckboxField";
+import FileField, { type FileFieldHandle } from "../fields/FileField";
 
 interface Props {
   cancelUrl: string;
@@ -44,15 +45,9 @@ export default function OfficerForm({ cancelUrl, initialData, isEdit }: Props) {
 
   const { register, formState: { errors }, handleSubmit } = form;
 
-  const fileRef = useRef<HTMLInputElement>(null);
-  const [preview, setPreview] = useState<string | null>(initialData?.photo_key || null);
+  const fileRef = useRef<FileFieldHandle>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
-
-  const onFileChange = useCallback(() => {
-    const file = fileRef.current?.files?.[0];
-    if (file) setPreview(URL.createObjectURL(file));
-  }, []);
 
   const onSubmit = useCallback(
     (e: React.FormEvent) => {
@@ -129,19 +124,13 @@ export default function OfficerForm({ cancelUrl, initialData, isEdit }: Props) {
             error={errors.display_order}
           />
         </div>
-        <div className="field">
-          <label>
-            Photo <span className="hint">(optional)</span>
-            <input type="file" accept="image/*" ref={fileRef} onChange={onFileChange} />
-          </label>
-          {preview && (
-            <img
-              src={preview}
-              alt="Preview"
-              style={{ maxWidth: 150, maxHeight: 150, marginTop: 8, borderRadius: '50%', objectFit: 'cover' }}
-            />
-          )}
-        </div>
+        <FileField
+          ref={fileRef}
+          label="Photo"
+          hint="(optional)"
+          previewUrl={initialData?.photo_key || null}
+          previewStyle={{ maxWidth: 150, maxHeight: 150, borderRadius: '50%', objectFit: 'cover' as const }}
+        />
         {isEdit && (
           <CheckboxField label="Active" registration={register("active")} />
         )}
