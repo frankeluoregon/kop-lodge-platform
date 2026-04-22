@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1100 867">
+  <!-- Generator: Adobe Illustrator 30.1.0, SVG Export Plug-In . SVG Version: 2.1.1 Build 136)  -->
+  <defs>
+    <style>
+      .st0 {
+        font-size: 22px;
+      }
+
+      .st0, .st1, .st2, .st3, .st4, .st5 {
+        isolation: isolate;
+      }
+
+      .st0, .st2, .st3, .st4 {
+        font-family: CourierNewPS-BoldMT, 'Courier New';
+        font-weight: 700;
+      }
+
+      .st0, .st3, .st4, .st6 {
+        fill: #1a1a2e;
+      }
+
+      .st1 {
+        font-family: CourierNewPS-ItalicMT, 'Courier New';
+        font-size: 14px;
+        font-style: italic;
+      }
+
+      .st1, .st7 {
+        fill: #555;
+      }
+
+      .st8, .st9, .st10, .st11, .st12, .st13, .st14 {
+        fill: none;
+      }
+
+      .st8, .st11, .st12 {
+        stroke: #555;
+      }
+
+      .st15 {
+        fill: #fff;
+        stroke: #000;
+        stroke-miterlimit: 10;
+      }
+
+      .st15, .st10 {
+        stroke-width: 4px;
+      }
+
+      .st10 {
+        stroke-linecap: square;
+      }
+
+      .st10, .st13, .st14 {
+        stroke: #1a1a2e;
+      }
+
+      .st11 {
+        stroke-dasharray: 3 2;
+        stroke-width: .8px;
+      }
+
+      .st12, .st14 {
+        stroke-width: 1.5px;
+      }
+
+      .st2 {
+        fill: #333;
+      }
+
+      .st2, .st3, .st5 {
+        font-size: 11px;
+      }
+
+      .st4 {
+        font-size: 26px;
+      }
+
+      .st16 {
+        fill: #fefefe;
+      }
+
+      .st5 {
+        fill: #666;
+        font-family: CourierNewPSMT, 'Courier New';
+      }
+    </style>
+  </defs>
+  <rect class="st16" x="17.9" y="15.2" width="1100" height="867"/>
+  <text class="st0" transform="translate(517 32)"><tspan x="0" y="0">Lobby</tspan></text>
+  <text class="st5" transform="translate(925.6 859)"><tspan x="0" y="0">Door icons not to scale.</tspan></text>
+  <path class="st10" d="M100,175h57.4v67.8h57.4v140.9h785.2v378.3H100V175Z"/>
+  <text class="st1" transform="translate(387.8 317.3)"><tspan x="0" y="0">Stairs</tspan></text>
+  <path class="st14" d="M482.2,762c0,37.5,30.4,67.8,67.8,67.8"/>
+  <path class="st14" d="M617.8,762c0,37.5-30.4,67.8-67.8,67.8"/>
+  <text class="st4" transform="translate(567.1 579.3)"><tspan x="0" y="0">Lobby</tspan></text>
+  <line class="st8" x1="100" y1="175" x2="100" y2="110"/>
+  <line class="st8" x1="157.4" y1="175" x2="157.4" y2="110"/>
+  <line class="st8" x1="100" y1="118" x2="157.4" y2="118"/>
+  <line class="st12" x1="100" y1="112" x2="100" y2="124"/>
+  <line class="st12" x1="157.4" y1="112" x2="157.4" y2="124"/>
+  <path class="st11" d="M128.7,100"/>
+  <path class="st11" d="M177.4,100"/>
+  <path class="st9" d=""/>
+  <path class="st7" d="M130.9,112.8l-2.2,6-2.2-6"/>
+  <path class="st7" d="M128.7,118"/>
+  <line class="st12" x1="122.7" y1="118" x2="134.7" y2="118"/>
+  <path class="st8" d="M157.4,208.6"/>
+  <path class="st8" d="M157.4,242.8"/>
+  <line class="st8" x1="214.8" y1="242.8" x2="214.8" y2="208.6"/>
+  <line class="st8" x1="157.4" y1="216.6" x2="214.8" y2="216.6"/>
+  <line class="st12" x1="157.4" y1="210.6" x2="157.4" y2="222.6"/>
+  <line class="st12" x1="214.8" y1="210.6" x2="214.8" y2="222.6"/>
+  <path class="st11" d="M186.1,198.6"/>
+  <path class="st11" d="M234.8,198.6"/>
+  <path class="st9" d=""/>
+  <path class="st7" d="M186.1,216.6"/>
+  <path class="st12" d="M192.1,216.6"/>
+  <path class="st12" d="M180.1,216.6"/>
+  <line class="st8" x1="214.8" y1="242.8" x2="279.8" y2="242.8"/>
+  <line class="st8" x1="214.8" y1="383.7" x2="279.8" y2="383.7"/>
+  <line class="st8" x1="271.8" y1="242.8" x2="271.8" y2="383.7"/>
+  <line class="st12" x1="265.8" y1="242.8" x2="277.8" y2="242.8"/>
+  <line class="st12" x1="265.8" y1="383.7" x2="277.8" y2="383.7"/>
+  <line class="st8" x1="214.8" y1="383.7" x2="214.8" y2="340.7"/>
+  <line class="st8" x1="1000" y1="383.7" x2="1000" y2="340.7"/>
+  <line class="st8" x1="214.8" y1="348.7" x2="1000" y2="348.7"/>
+  <line class="st12" x1="214.8" y1="342.7" x2="214.8" y2="354.7"/>
+  <line class="st12" x1="1000" y1="342.7" x2="1000" y2="354.7"/>
+  <line class="st8" x1="1000" y1="383.7" x2="1043" y2="383.7"/>
+  <line class="st8" x1="1000" y1="762" x2="1043" y2="762"/>
+  <line class="st8" x1="1035" y1="383.7" x2="1035" y2="762"/>
+  <line class="st12" x1="1029" y1="383.7" x2="1041" y2="383.7"/>
+  <line class="st12" x1="1029" y1="762" x2="1041" y2="762"/>
+  <line class="st8" x1="100" y1="762" x2="100" y2="805"/>
+  <line class="st8" x1="1000" y1="762" x2="1000" y2="805"/>
+  <line class="st8" x1="100" y1="797" x2="1000" y2="797"/>
+  <line class="st12" x1="100" y1="791" x2="100" y2="803"/>
+  <line class="st12" x1="1000" y1="791" x2="1000" y2="803"/>
+  <line class="st8" x1="100" y1="175" x2="57" y2="175"/>
+  <line class="st8" x1="100" y1="762" x2="57" y2="762"/>
+  <line class="st8" x1="65" y1="175" x2="65" y2="762"/>
+  <line class="st12" x1="59" y1="175" x2="71" y2="175"/>
+  <line class="st12" x1="59" y1="762" x2="71" y2="762"/>
+  <rect class="st16" x="179.4" y="92" width="50" height="14"/>
+  <text class="st2" transform="translate(161.6 104)"><tspan x="0" y="0">1&apos;-10&quot;</tspan></text>
+  <rect class="st16" x="236.8" y="190.6" width="50" height="14"/>
+  <text class="st2" transform="translate(219 202.6)"><tspan x="0" y="0">1&apos;-10&quot;</tspan></text>
+  <rect class="st16" x="277.8" y="307.3" width="54" height="14"/>
+  <text class="st2" transform="translate(263.3 317.3)"><tspan x="0" y="0">4&apos;-6&quot;</tspan></text>
+  <rect class="st16" x="577.4" y="333.7" width="60" height="14"/>
+  <text class="st2" transform="translate(587.6 343.7)"><tspan x="0" y="0">25&apos;-1&quot;</tspan></text>
+  <rect class="st16" x="1041" y="566.8" width="54" height="14"/>
+  <text class="st2" transform="translate(1023.2 576.8)"><tspan x="0" y="0">12&apos;-1&quot;</tspan></text>
+  <rect class="st16" x="520" y="800" width="60" height="14"/>
+  <text class="st2" transform="translate(530.2 810)"><tspan x="0" y="0">28&apos;-9&quot;</tspan></text>
+  <rect class="st16" x="5" y="462.5" width="54" height="14"/>
+  <text class="st2" transform="translate(37.2 472.5)"><tspan x="0" y="0">18&apos;-9&quot;</tspan></text>
+  <line class="st8" x1="157.4" y1="175" x2="183.4" y2="175"/>
+  <path class="st8" d="M183.4,242.8"/>
+  <line class="st8" x1="175.4" y1="175" x2="175.4" y2="242.8"/>
+  <line class="st12" x1="169.4" y1="175" x2="181.4" y2="175"/>
+  <line class="st12" x1="169.4" y1="242.8" x2="181.4" y2="242.8"/>
+  <line class="st11" x1="210.1" y1="163.4" x2="210.1" y2="208.9"/>
+  <path class="st9" d=""/>
+  <path class="st7" d="M175.4,208.9"/>
+  <path class="st12" d="M175.4,214.9"/>
+  <path class="st12" d="M175.4,202.9"/>
+  <rect class="st16" x="210.1" y="149.4" width="50" height="14"/>
+  <text class="st2" transform="translate(195.6 160.4)"><tspan x="0" y="0">2&apos;-2&quot;</tspan></text>
+  <g>
+    <line class="st13" x1="1050" y1="23" x2="1050" y2="67"/>
+    <line class="st13" x1="1028" y1="45" x2="1072" y2="45"/>
+    <polygon class="st6" points="1050 19 1046 27 1054 27 1050 19"/>
+    <polygon class="st6" points="1050 71 1046 63 1054 63 1050 71"/>
+    <polygon class="st6" points="1024 45 1032 41 1032 49 1024 45"/>
+    <polygon class="st6" points="1076 45 1068 41 1068 49 1076 45"/>
+    <text class="st3" transform="translate(1046.7 15)"><tspan x="0" y="0">S</tspan></text>
+    <text class="st3" transform="translate(1046.7 81)"><tspan x="0" y="0">N</tspan></text>
+    <text class="st3" transform="translate(1014.7 49)"><tspan x="0" y="0">E</tspan></text>
+    <text class="st3" transform="translate(1078.7 49)"><tspan x="0" y="0">W</tspan></text>
+  </g>
+  <rect class="st15" x="211.1" y="175" width="66.7" height="208.7"/>
+  <rect class="st15" x="279.8" y="175" width="63.8" height="208.7"/>
+  <rect class="st15" x="345.5" y="175" width="63.8" height="208.7"/>
+  <rect class="st15" x="411.1" y="175" width="63.8" height="208.7"/>
+  <rect class="st15" x="476.5" y="175" width="63.8" height="208.7"/>
+  <rect class="st15" x="542.2" y="175" width="63.8" height="208.7"/>
+  <rect class="st15" x="607.9" y="175" width="63.8" height="208.7"/>
+  <rect class="st15" x="673.6" y="175" width="63.8" height="208.7"/>
+  <rect class="st15" x="739.2" y="175" width="260.8" height="208.7"/>
+  <text class="st2" transform="translate(167.2 252.8)"><tspan x="0" y="0">LIFT</tspan></text>
+  <line class="st8" x1="128.5" y1="177.5" x2="128.5" y2="387.9"/>
+  <line class="st12" x1="122.5" y1="387.9" x2="134.5" y2="387.9"/>
+  <text class="st2" transform="translate(134.4 298.5)"><tspan x="0" y="0">6’- 4”</tspan></text>
+  <path class="st14" d="M816.4,174.9c0,30.6,24.8,55.4,55.4,55.4h0"/>
+  <path class="st14" d="M927.3,174.9c0,30.6-24.8,55.4-55.4,55.4"/>
+</svg>
