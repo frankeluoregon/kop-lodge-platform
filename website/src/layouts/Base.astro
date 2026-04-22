@@ -79,7 +79,12 @@ const isPage = (s: string) => displayMode(s) === "page";
       a { color: var(--primary); text-decoration: none; }
       a:hover { text-decoration: underline; }
 
-      .rope-border { width: 100%; height: 5px; background: url('/ropeborder.svg') repeat-x left/auto 5px; }
+      .rope-border {
+        width: 100%; height: 5px;
+        background-color: var(--accent);
+        -webkit-mask: url('/ropeborder.svg') repeat-x left/auto 5px;
+        mask: url('/ropeborder.svg') repeat-x left/auto 5px;
+      }
 
       .site-banner {
         background: rgba(37,46,103,.88);
@@ -92,7 +97,13 @@ const isPage = (s: string) => displayMode(s) === "page";
 
       /* --- Header: red bg, yellow title/links/motto, white other text --- */
       header { background: #a91e23; color: #fff; padding: 0 1.5rem; position: sticky; top: 0; z-index: 100; }
-      header::after { content: ''; display: block; height: 5px; background: url('/ropeborder.svg') repeat-x left/auto 5px; margin: 0 -1.5rem; }
+      header::after {
+        content: ''; display: block; height: 5px;
+        background-color: var(--accent);
+        -webkit-mask: url('/ropeborder.svg') repeat-x left/auto 5px;
+        mask: url('/ropeborder.svg') repeat-x left/auto 5px;
+        margin: 0 -1.5rem;
+      }
       .header-inner {
         max-width: var(--max-w); margin: 0 auto;
         display: flex; align-items: center; justify-content: space-between;
@@ -115,8 +126,8 @@ const isPage = (s: string) => displayMode(s) === "page";
         color: var(--accent); background: var(--primary); padding: .25rem .5rem; border-radius: var(--radius);
         font-size: .8rem; font-weight: 600; letter-spacing: .02em; transition: background .15s, color .15s;
       }
-      nav a:hover { background: #1b2250; text-decoration: none; }
-      nav a[aria-current="page"] { background: var(--accent); color: var(--primary); pointer-events: none; }
+      nav a:hover { background: var(--accent); color: var(--primary); text-decoration: none; }
+      nav a[aria-current="page"] { background: var(--secondary); color: var(--accent); pointer-events: none; }
 
       /* --- Hero --- */
       .hero {
@@ -350,9 +361,10 @@ const isPage = (s: string) => displayMode(s) === "page";
           document.querySelectorAll('.section-heading, .col-heading, .tri-border').forEach(function(el) {
             var w = el.clientWidth;
             if (w < 45) return;
-            var n = Math.floor(w / 45);
-            var sz = (w / n) + 'px 15px';
-            el.style.setProperty('--tri-size', w / n + 'px');
+            var n = Math.max(1, Math.round(w / 45));
+            var unit = w / n;
+            var sz = unit + 'px 15px';
+            el.style.setProperty('--tri-size', unit + 'px');
             if (el.classList.contains('tri-border') || el.classList.contains('col-heading')) {
               el.style.backgroundSize = sz;
             }
